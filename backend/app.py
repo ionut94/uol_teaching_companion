@@ -4,7 +4,7 @@ import os
 from werkzeug.utils import secure_filename
 from pdf_processor import extract_text_from_pdf
 from latex_processor import extract_text_from_latex
-from llm_service import get_llm_response
+from llm_service import get_llm_response, contains_inappropriate_content
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -62,6 +62,12 @@ def ask_question():
         return jsonify({'error': 'Question is required'}), 400
     
     question = data['question']
+    
+    # Check for inappropriate content in the question
+    if contains_inappropriate_content(question):
+        return jsonify({
+            'answer': "I'm sorry, but I cannot provide an answer to that question as it contains inappropriate content. Please rephrase your question in a more appropriate way that focuses on educational content."
+        })
     
     # Combine all file contents as context
     context = ""

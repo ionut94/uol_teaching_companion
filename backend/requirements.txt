@@ -3,3 +3,4 @@ Flask-Cors==4.0.0
 PyPDF2==3.0.1
 requests==2.31.0
 werkzeug==2.3.7
+better-profanity==0.7.0

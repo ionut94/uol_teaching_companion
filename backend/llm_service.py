@@ -1,7 +1,25 @@
 import requests
 import json
+import re
+from better_profanity import profanity
 
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
+
+# Initialize the profanity filter
+profanity.load_censor_words()
+
+def contains_inappropriate_content(text):
+    """
+    Check if the text contains inappropriate content using the better-profanity package.
+    
+    Args:
+        text (str): The text to check
+        
+    Returns:
+        bool: True if inappropriate content detected, False otherwise
+    """
+    # Check if the text contains any profanity
+    return profanity.contains_profanity(text)
 
 def get_llm_response(question, context):
     """
