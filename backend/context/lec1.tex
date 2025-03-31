@@ -1,0 +1,1439 @@
+\documentclass[handout]{beamer}
+\usetheme{boxes}
+
+\usecolortheme{orchid}
+\definecolor{teal}{HTML}{009999}
+\definecolor{lightteal}{HTML}{00CCCC}
+\definecolor{purple}{HTML}{990099}
+\definecolor{lightpurple}{HTML}{CC00CC}
+\definecolor{darkgrey}{HTML}{666666}
+\definecolor{lightgrey}{HTML}{AAAAAA}
+\definecolor{darkred}{HTML}{660000}
+\definecolor{darkgreen}{HTML}{006600}
+\definecolor{darkblue}{HTML}{000066}
+\definecolor{lightred}{HTML}{AA0000}
+\definecolor{lightgreen}{HTML}{00AA00}
+\definecolor{lightblue}{HTML}{0000AA}
+\setbeamercolor{title}{fg=darkblue}
+\setbeamercolor{frametitle}{fg=darkblue}
+\setbeamercolor{itemize item}{fg=teal}
+\setbeamercolor{itemize subitem}{fg=lightteal}
+
+\usepackage{fancybox}
+\usepackage{adjustbox}
+\usepackage{mathptmx}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{amsmath}
+
+% For math brackets
+\usepackage{amsmath}
+
+%gets rid of bottom navigation bars
+\setbeamertemplate{footline}[frame number]{}
+
+%gets rid of bottom navigation symbols
+\setbeamertemplate{navigation symbols}{}
+
+% my style for emphasising stuff in colours
+\newcommand{\strong}[1]{\textbf{\color{teal} #1}}
+\newcommand{\stronger}[1]{\textbf{\color{purple} #1}}
+
+% title, etc
+\title{Data Mining Overview\\{\small (lecture 1)}}
+\subtitle{AGR9013-2425 -- Introduction to Data Mining\\
+{\tiny (version 1.1 - updated assessment dates)}}
+\author{Dr Ionut Moraru}
+\institute{University of Lincoln, \\ School of Agri-Food Technology and Manufacturing}
+\logo{\includegraphics[width=1cm]{images/uol-logo.png}}
+\date{26th of September, 2024}
+
+\addtobeamertemplate{navigation symbols}{}{\hspace{1em}    \usebeamerfont{footline}%
+    \insertframenumber / \inserttotalframenumber }
+
+% Remove navigation symbols
+\beamertemplatenavigationsymbolsempty
+
+\begin{document}
+
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+  belowcaptionskip=0pt,            % reduce space after the listings caption
+  belowskip=0pt,                   % how much vertical space to skip after a listing
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  caption={},                      % default to no caption
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{mygreen},    % comment style
+  deletekeywords={...},            % if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  frame=single,                    % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=Python,                 % the language of the code
+  mathescape=true,                 % allow math mode within code
+  morekeywords={then,...},         % if you want to add more keywords to the set
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\sf\color{mygrey}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{darkred},     % string literal style
+  tabsize=3,                       % sets default tabsize to 3 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+%--------------------------------------------------------------------------------
+\frame{\titlepage}
+
+
+\section*{Outline}
+%--------------------------------------------------------------------------------
+%--------------------------------------------------------------------------------
+\begin{frame}{OUTLINE}
+\begin{itemize}
+\item Part I: Introduction to the module
+	\begin{itemize}
+	\item[I.1] Module structure, content, assessments and resources
+	\item[I.2] University policies
+	\item[I.3] About me
+	\end{itemize}
+\vspace*{0.3cm}
+\item Part II: Data Mining 
+	\begin{itemize}
+	\item[II.1] Overview of Data Mining
+	\item[II.2] Data Sets: Attributes and Instances
+	\item[II.3] Data Mining Concepts
+	\item[II.4] Knowledge Representation
+	\item[II.5] Evaluation
+	\end{itemize}
+\vspace*{0.3cm}
+\item To Do
+\end{itemize}
+\end{frame}
+%--------------------------------------------------------------------------------
+
+
+%--------------------------------------------------------------------------------
+\section{I. PART I}
+%--------------------------------------------------------------------------------
+\begin{frame}{I. Part I: Introduction to the module}
+\begin{itemize}
+\item[1.] \stronger{Module structure, content, assessments and resources}
+\item[2.] University policies
+\item[3.] About me
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Module Structure}
+\begin{itemize}
+%
+\item Meeting Days, Times and Locations:\\
+\vspace{0.2cm}
+\begin{tabular}{|lrcrl|}
+\hline
+\multicolumn{5}{|l|}{\textbf{Lecture -- first half of term:}} \\
+Thursdays,     & 10.00am & - & 12.00am, & ATB2203 \\
+\multicolumn{5}{|l|}{\textbf{Lecture -- second half of term:}} \\
+Thursdays,     & 10.00am & - & 12.00am, & ATB0109 \\
+\hline
+\hline
+\multicolumn{5}{|l|}{\textbf{Workshop (Lab):}} \\
+Thursdays,  &  4.00pm & - & 5.00pm, & INB 2102 \\
+\multicolumn{5}{|c|}{\textbf{-- OR --}} \\
+Thursdays,  &   5.00pm & - &  6.00pm, & INB 2102 \\
+\hline
+\end{tabular}
+\vspace{0.2cm}
+\item Please note that:\\
+-- \stronger{Week 5} lecture will be in \stronger{HS0201};\\
+-- \stronger{Week 7} lecture will be in \stronger{JUN0003}.
+%
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Classroom Expectations}
+\begin{itemize}
+%
+\item You are expected to attend every \strong{Lecture} and \strong{Workshop}.\\
+
+\item If you do not finish the exercises during the workshop session, then you are \strong{expected} to finish them at home before the next lecture.
+%
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Module Content: Topics by Lecture Week}
+\begin{itemize}
+\item Lecture 1: Data Mining Overview
+\item Lecture 2: Classification
+\item Lecture 3: Numerical Prediction and Neural Networks
+\item Lecture 4: Probability and Statistics in Data Mining
+\item Lecture 5: Clustering
+\item Lecture 6: Instance-based Models
+\item Lecture 7: Association Rule Mining
+\item Lecture 8: Time Series and Survival Data Mining
+\item Lecture 9: Mixture Models
+\item Lecture 10: Dimensionality Reduction
+\item Lecture 11: Data Mining in the Wild
+\item[]
+\item[] \emph{Note that there is an Enhancement Week scheduled between lectures 5 and 6 (w/c 28th of October).}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Module Assessment}
+\begin{itemize}
+\item The module is assessed through one coursework and one in-class test: 
+\item[]
+\begin{tabular}{|c|r|l|l|l|}
+\emph{Type} & \emph{Weight} & \emph{Posted} & \emph{Due} & \emph{Feedback} \\
+\hline
+Assessment & 60\% & \textbf{31st Oct} & \textbf{14th Nov} & \textbf{5th Dec} \\
+\hline
+In-Class Test & 40\% & NA & 9th Jan & 30th Jan\\
+\hline
+\end{tabular}
+\item[]
+\item All work is to be \stronger{strictly your own.}
+There is no group work allowed.
+Such will be considered violation of the university's rules on \strong{plagiarism} and disciplinary action will be taken against all student(s) involved.
+This includes \strong{working together} with classmates, as well as \strong{paying} others to do your work for you.
+\stronger{This behaviour is not tolerated.}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Resources}
+\begin{itemize}
+\item All materials will be posted on Blackboard, by the end of the week in which the content was presented in class.
+\item Material is drawn from multiple references, including:
+	{\small
+    \begin{itemize}
+    \item[{[WFH]}] \emph{Data Mining: Practical Machine Learning Tools and Techniques}, by Ian H. Witten, Eibe Frank and Mark A. Hall. Morgan Kaufmann: 2011 (3rd ed)~\nocite{WFH3:2011} or 2016 (4th ed)~\nocite{WFH4:2016}.
+    \item[{[LB]}] \emph{Data Mining Techniques}, by Gordon S. Linoff and Michael J. A. Berry. Wiley Publishing: 2011 (3rd ed)~\nocite{LB3:2011}.
+%    \item[{[RN]}] \emph{Artificial Intelligence: A Modern Approach}, by Stuart Russell and Peter Norvig. Prentice Hall: 2003 (2nd ed); Pearson: 2009 (3rd 3d).
+%    \item[{[HMS]}] \emph{Principles of Data Mining}, by David Hand, Heikki Mannila and Padhraic Symth. MIT Press: 2001.
+    \end{itemize}}
+\end{itemize}
+\begin{center}
+{\footnotesize
+\begin{tabular}{ccc}
+\includegraphics[height=0.2\textheight]{images/wfh-ed3-cover.png} & 
+\includegraphics[height=0.2\textheight]{images/wfh-ed4-cover.png} &
+\includegraphics[height=0.2\textheight]{images/lb-ed3-cover.png} \\
+WFH3 & WFH4 & LB3 \\
+%\includegraphics[height=1cm]{images/rn-ed2-cover.png} & 
+%\includegraphics[height=1cm]{images/rn-ed3-cover.png} &
+%\includegraphics[height=1cm]{images/hand-cover.png} \\
+% RN2 & RN3 & HMS \\
+\end{tabular}
+}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I. Part I: Introduction to the module}
+\begin{itemize}
+\item[1.] Module structure, content, assessments and resources
+\item[2.] \stronger{University policies}
+\item[3.] About me
+
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Attendance}
+\begin{itemize}
+\item \stronger{Attendance to timetabled sessions is mandatory.}
+\item The \strong{registration code} will be posted by the instructor at the beginning of each session. 
+\item You will then have 15 minutes to enter the registration code here:
+\begin{center}
+\url{https://attendance.lincoln.ac.uk/}
+\end{center}
+\item A paper register given during the break. 
+\item If you encounter any problems entering the code or registering your attendance, please notify the instructor immediately so they can pass this information to the course administration team.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. University Policies: Inclusive Behaviour}
+\begin{itemize}
+\item \stronger{We are committed to providing an inclusive learning and working environment.}
+\item We expect staff and students to behave respectfully to one another during lectures and workshops, as well as outside (email, online forums, office hours, study groups, etc.).
+\item We will not tolerate inappropriate or demeaning comments related to gender, gender identity and expression, sexual orientation, disability, physical appearance, race, religion, age, or any other personal characteristic.
+\item If you witness or experience any behaviour you are concerned about, please speak to someone about it.
+\item \strong{The University has a range of support and reporting mechanisms:}
+\url{https://www.lincoln.ac.uk/abouttheuniversity/diversityandinclusion/}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. University Policies: Late Work}
+\begin{itemize}
+\item \strong{Extension:} Extensions on assessments are available to ensure that when unexpected short-term circumstances arise (e.g. illness or injury), students are allowed to submit their best work by requesting an additional short period to complete their coursework.
+\item You need to apply for an extension \stronger{through the student portal}.
+\item[]
+\item \strong{Mitigating Circumstances:} The deadline for submitting a claim is no later than \stronger{10 business days} after the assessment submission deadline:
+\url{https://universityoflincoln.sharepoint.com/sites/StudentAdministration/SitePages/MitigatingCircumstances.aspx}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. University Policies: Absences}
+\begin{itemize}
+\item We are unable to accept sickness absence requests via email or telephone. 
+\item If you are feeling unwell, you must make a sickness absence request via the link below:
+\url{https://portalapps.lincoln.ac.uk/attendance-monitoring/absencerequests/SitePages/Home.aspx}
+\item Your absence will then be recorded correctly on the attendance record.
+\item You should also inform your instructor \strong{via email} that you have requested an absence.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. University Policies: Academic Offences}
+\begin{itemize}
+\item \strong{Plagiarism:} Submitting someone else's work as your own, without referencing or citing its original source.
+\item \strong{Cheating:} Includes: taking notes into exams; copying from your classmates; using equipment not permitted in an exam; looking at an illegally obtained exam paper before the exam; and/or submitting documents composed by an AI (e.g. ChatGPT).
+\item \strong{Collusion:} Working with another student on an assignment and submitting it as your own (either you or your classmate).
+\item \strong{Misleading material:} Using data which has been invented or unfairly obtained (e.g. paying for it), or using work which you have had assessed previously without referencing it.
+\item \strong{Misconduct in research:} Inventing data or misrepresenting data.
+\item More information can be found here:
+\url{https://secretariat.blogs.lincoln.ac.uk/student-contention/academic-offences/}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I. Part I: Introduction to the module}
+\begin{itemize}
+\item[1.] Module structure, content, assessments and resources
+\item[2.] University policies
+\item[3.] \stronger{About me}
+
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+\begin{frame}{I.3. Your instructor}
+\begin{center}
+\begin{tabular}{c}
+\includegraphics[width=0.5\textwidth]{materials/images/yani2.jpg} \\
+Dr. Ionut Moraru (Yani) \\
+Post-Doctoral Research Associate in Intelligent Robotics \\
+School of Agri-Food Technology \& Manufacturing \\
+\end{tabular}
+\end{center}
+\end{frame}
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. About Me}
+\begin{itemize}
+\item PhD in AI Planning and Reasoning
+\item Lecturer in Intelligent Robotics \\
+ -- part of Lincoln Institute for Agri-food Technology (LIAT)
+\item Research interests: 
+	\begin{itemize}
+	\item Human-Robot Interaction
+	\item AI Planning, High Level Reasoning
+	\item Agricultural Robotics
+	\item Machine Learning
+	\end{itemize}
+\item Teaching experience:
+	\begin{itemize}
+	\item Teaching at university level since 2018;\\
+	joined Univ of Lincoln in 2021
+	\item Subjects: AI, Probabilistic Reasoning, Machine Learning, Research Methods\end{itemize}
+ \item If you have \strong{any questions} about the content, \strong{email me}  \stronger{imoraru@lincoln.ac.uk} and we can schedule a meeting to clarify it.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+% \begin{frame}{I.3. About Junfeng}
+% \begin{itemize}
+% \item Dr Junfeng Gao, Lecturer in Agri-Robotics
+% \item Lincoln Institute for Agri-food Technology (LIAT)
+% \item Research interests: 
+% 	\begin{itemize}
+% 	\item Computer vision
+% 	\item Machine learning
+% 	\item Agri-robotics
+% 	\end{itemize}
+% \item Teaching experience:
+% 	\begin{itemize}
+% 	\item Joined Univ of Lincoln in 2020 after postdoc in Sweden
+% 	\item Modules: Introduction to Data Mining;\\
+% 	 Applied Data Science: Image \& Text Processing
+% 	\end{itemize}
+% \end{itemize}
+% \end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+
+%--------------------------------------------------------------------------------
+\section{II. Part II: Data Mining}
+%--------------------------------------------------------------------------------
+\begin{frame}{II. Part II}
+\begin{itemize}
+\item[II.1] Overview of Data Mining
+\item[II.2] Data Sets: Attributes and Instances
+\item[II.3] Data Mining Concepts
+\item[II.4] Knowledge Representations
+\item[II.5] Model Evaluation
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+%--------------------------------------------------------------------------------
+\section{II.1. Overview of Data Mining}
+%--------------------------------------------------------------------------------
+\begin{frame}{II.1. Overview of Data Mining}
+\begin{itemize}
+\item[II.1.1.] What is \emph{Data Mining}?
+\item[II.1.2.] Patterns
+\item[II.1.3.] Process
+\item[II.1.4.] Data
+\item[II.1.5.] DM vs ML vs Stats
+\item[II.1.6.] Ethics
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.1. What is Data Mining? (p1)}
+\begin{itemize}
+\item[] Why Data Mining?
+\item[]
+\item Computers are everywhere today... and so is DATA
+\item Everything we do with a computer generates data.
+\item \stronger{Information is hidden in the data.}
+\item There is a gap between \strong{generation of data} and \strong{understanding of the data}.
+\item As the volume of data increases, understanding tends to decrease.
+\item It is our job to find \strong{patterns} in the data and make sense of it.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.1. What is Data Mining? (p2)}
+\begin{itemize}
+\item Finding patterns---and \emph{meaning}---in data involves:
+	\begin{enumerate}
+	\item Identifying patterns
+	\item Validating patterns
+	\item Using patterns for prediction
+	\end{enumerate}
+\item Techniques are built from traditional work in multiple fields:
+	\begin{itemize}
+	\item Statistics
+	\item Artificial Intelligence, particularly Machine Learning
+	\item Economics
+	\item Forecasting
+	\item Communications engineering
+	\end{itemize}
+\item \strong{Data mining works on existing data}---i.e., data that has already been generated, by people, machines, processes...
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.1. What is Data Mining? (p3)}
+\begin{itemize}
+\item[] \strong{Real-world Examples}
+\item[]
+\item[] \stronger{Web data:}
+\item \textbf{PageRank:} Assigns measures to web pages, e.g., based on relevance to a search (Google)
+\item \textbf{Query Learning:} Given a \emph{training set} of example queries and documents that contain the \emph{answer}, define rules that allow us to find the answer to our query based on data that is not in our training set
+\item \textbf{Social Media:} Users who are similar to you liked this...
+\item \textbf{Advertising:} Customers who are similar to you bought this...
+\item \textbf{Elections:} Voters who are similar to you voted in this way...
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.1. What is Data Mining? (p4)}
+\begin{itemize}
+\item[] \strong{Real-world Examples (continued)}
+\item[]
+\item[] \stronger{Marketing and Sales data:}
+\item \textbf{Customer loyalty:} predicting likely defectors, fighting \emph{churn}
+\item Market basket analysis: personalised coupons, direct marketing
+\item[]
+\item[] \stronger{Risk data:}
+\item \textbf{Bank loans:} statistical calculation of risk (of default), based on history of past behaviour
+\item \textbf{Job applications:} characteristics predict success in position
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.1. What is Data Mining? (p5)}
+\begin{itemize}
+\item[] \strong{Real-world Examples (continued)}
+\item[]
+\item[] \stronger{Image data:}
+\item \textbf{Satellite images:} oil spill? deforestation? crop growth?
+\item \textbf{Currency recognition:} automated payment machines
+\item \textbf{Security:} face recognition, military surveillance
+\item[]
+\item[] \strong{Applicable to a wide range of sectors, such as:}
+\item \textbf{Energy:} power load forecasting: maintenance, fuel management, power plant diagnosis, price setting
+\item \textbf{Medicine:} diagnosis, health record analysis, appointments
+\item \textbf{Education:} applicant success, coursework similarity, marketing
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.2. Patterns (p1)}
+\begin{itemize}
+\item[] ``Useful patterns allow us to make nontrivial predictions on new data.''~\cite[p5]{WFH3:2011}
+\item[]
+\item \stronger{Patterns} are expressed as:
+	\begin{itemize}
+	\item \strong{Black box}, with hidden structure\\OR
+	\item \strong{Glass house}, with visible structure
+	\end{itemize}
+\item[]
+\item Structural patterns:
+	\begin{itemize}
+	\item Capture the pattern in an explicit way
+	\item Help explain aspects of the data
+	\item Used to inform decisions
+	\item Can often be expressed as \stronger{rules}, e.g., \emph{if-then-else}
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.2. Patterns (p2)}
+\begin{center}
+\includegraphics[width=\textwidth]{images/wfh-table1-2}
+\cite[Table 1.2]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.2. Patterns (p3)}
+\begin{itemize}
+\item \stronger{Input}: There are 4 \textbf{attributes} or \textbf{features}:
+	\begin{itemize}
+	\item \emph{outlook} = \{ sunny, overcast, rainy \}
+	\item \emph{temperature} = \{ hot, mild, cool \}
+	\item \emph{humidity} = \{ high, normal \}
+	\item \emph{windy} = \{ true, false \}
+	\end{itemize}
+\item[] $\rightarrow 3 \times 3 \times 2 \times 2 = 36$ possible conditions (or cases)
+\item \stronger{Decision:} There is 1 \textbf{label} or \textbf{class}:
+	\begin{itemize}
+	\item \emph{play} = \{ yes, no \}
+	\end{itemize}
+\item \strong{Can we define a \stronger{rule} that uses one or more attributes (even all of them) in order to make the right decision (i.e., select the correct label)?}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}[fragile]{II.1.2. Patterns (p4)}
+\begin{itemize}
+\item \stronger{CLASSIFICATION}: \strong{attribute values predict the label}
+\item[] For example:\\
+\begin{lstlisting}[numbers=none]
+if (outlook == sunny) and (humidity == high):
+	play = no
+\end{lstlisting}
+%
+\item \stronger{ASSOCIATION}: \strong{attribute values predict other attributes}
+\item[] For example:\\
+\begin{lstlisting}[numbers=none]
+if (temperature == cool):
+	humidity = normal
+\end{lstlisting}
+%
+\item \stronger{CLUSTERING}: \strong{attribute values identify similarities}
+	\begin{itemize}
+	\item There is no \textbf{label} or \textbf{class}
+	\item We look for ways to organise the cases into \textbf{groups} that make sense\\
+	\end{itemize}
+%
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.2. Patterns (p5)}
+\begin{itemize}
+\item[] \strong{Data Mining $\Rightarrow$ Rules can be constructed from the data}
+\item[]
+\item If the data set is \textbf{complete}, then the rules may be 100\% correct in their predictions.
+\item If the data set is \textbf{incomplete}, then the rules may not always be correct---because information is missing.
+\item[]
+\item \stronger{The real world is incomplete... Data sets are typically incomplete...}
+\item And so we construct the best rules we can.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.3. Process (p1)}
+\begin{itemize}
+\item[] ``Data mining is a [business] process for exploring large amounts of data to discover meaningful patterns and rules.''~\cite{LB3:2011}
+\item[]
+\item Data Mining is a process
+\item Involving large amounts of data
+\item Producing meaningful \strong{patterns} and \strong{rules} (hopefully) 
+\end{itemize}
+\begin{center}
+\includegraphics[height=0.7in]{images/dm-overview-0.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.3. Process (p2)}
+\begin{itemize}
+\item[] The general data mining process:
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/dm-process.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.3. Process (p3)}
+\begin{enumerate}
+\item Before applying data mining techniques: Determine the objective of the analysis
+\item Understand the data and its quality
+\item Prepare (``clean'' or ``curate'') the data
+\item Build model(s)
+\item Evaluate the model, analysis and result: Are you done?
+\item If not, then iterate... (to step 2, 3, 4, 5...)
+\end{enumerate}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.3. Process (p4)} 
+\begin{itemize}
+\item[] (1) Determine the objective of the analysis:
+\item[]
+\item There is a target attribute $\Rightarrow$ \stronger{supervised learning}
+	\begin{itemize}
+	\item Nominal $\rightarrow$ Classification 
+	\item[--] For example: weather data (to play or not?)
+	\item Numerical $\rightarrow$ Prediction
+	\item[--] For example: CPU performance data
+	\end{itemize}
+\item There is no target attribute $\Rightarrow$ \stronger{unsupervised learning}
+	\begin{itemize}
+	\item Find correlations or associations in the data
+	\item Find similarity
+	\item Segment the data
+	\end{itemize}
+\item[]
+\item There are many other different data types such as \strong{time series}, \strong{text} and \strong{image}, as well as \strong{mixed attribute} data sets.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.3. Process (p5)}
+\begin{itemize}
+\item[] (2) Understand the data and its quality
+\item[]
+\item Make sure that the characteristics of the data set match the method.
+\item For classroom learning, we will select the method first, and then an appropriate data set.
+\item For real-world applications, you generally have the data first; and then you select a method which is appropriate given the research question(s) you want the data to answer.
+\item[]
+\item \strong{Training Examples}: the subset of data used to construct the model
+\item \strong{Overfitting:} constructed model is too specifically tailored to training examples and does not generalise well beyond the training set
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.3. Process (p6)}
+\begin{itemize}
+\item[] (3) Prepare (``clean'' or ``curate'') the data
+\item[]
+\item Are there \strong{errors} in the data?
+\item Is the data \strong{noisy}?
+\item How \strong{complete} is the data?
+\item How \strong{balanced} or \strong{biased} is the data?\\
+	Is the data \strong{representative}?
+\item Is there \strong{too much} or \strong{too little} data?\\
+	Is the data \strong{broad} or \strong{wide} enough?\\
+	Is the data \strong{deep} or \strong{long} enough?
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.3. Process (p7)}
+\begin{itemize}
+\item[] (4) Build the model
+\item[]
+\item Select a model that is appropriate given your data
+\item Does your data contain \strong{numbers}?\\
+Are they discrete or continuous or symbolic?
+\item Does your data contain \strong{text}?\\
+Does the text represent labels or semantic meaning?
+\item Does your data contain \strong{images}?\\
+Are they colour or greyscale? Are they streaming?
+\item Is your data set \strong{mixed}?
+\item Is your data set \strong{large}?
+\item How much of your data is really needed to answer your question?
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.3. Process (p8)}
+\begin{itemize}
+\item[] (5) Evaluate the model
+\item[]
+\item How well does the model \strong{predict} or \strong{represent} the answer you are looking for?
+\item Do you even know what answer you are looking for?
+\item If not, does the model's prediction make sense?
+\item \stronger{Score}: numeric value that indicates, for each data instance, how well the model performs
+\item Consider \stronger{Training} set score vs \stronger{Test} set score
+\item Consider \strong{when} to train and when to test
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.3. Process (p9)}
+\begin{itemize}
+\item[] (6) Iterate
+\item[]
+\item Usually, we don't get it right the first time
+\item So we have to try again
+\item And we can revise how we performed any of the steps (above)
+\item Then iterate back to the beginning
+\item Be consistent about how you evaluate when you revise/iterate
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.4. Data (p1)}
+\begin{itemize}
+\item Textbook data sets are necessarily \strong{simple}.
+\item This is unrealistic, but useful for your learning.
+\item And note that ``simple'' doesn't mean \strong{simplistic}...
+\item Example data sets from WFH3 \& WFH4:
+	\begin{itemize}
+	\item Weather
+	\item Contact lenses
+	\item Iris data set
+	\item CPU performance
+	\item Labour negotiations
+	\item Soybean classification
+	\end{itemize}
+\item We'll also use a range of other examples from online data sources and our own research.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.4. Data (p2)}
+\begin{itemize}
+\item Weather Data Set, \stronger{nominal}~\cite{WFH3:2011}
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{images/wfh-table1-2}
+\cite[Table 1.2]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.4. Data (p3)}
+\begin{itemize}
+\item Weather Data Set, \stronger{numeric}~\cite{WFH3:2011}
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{images/wfh-table1-3}
+\cite[Table 1.3]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.4. Data (p4)}
+\begin{itemize}
+%
+\item Iris (flower) data set~\cite{WFH3:2011}:
+	\begin{itemize}
+ 	\item \stronger{numeric attributes predict category}
+	\item Attributes (all numeric): sepal length, sepal width, petal length, petal width
+	\item Decision (category): type (3 different types of irises)
+	\end{itemize}
+\item[]
+\item CPU performance~\cite{WFH3:2011}:
+	\begin{itemize}
+	\item \stronger{numeric attributes predict number}
+	\item Attributes (all numeric): cycle time, min, max; cache (kb); channels min, max
+	\item Decision (numeric): \emph{regression equation} can be computed that determines performance value based on attribute values
+	\end{itemize}
+%
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.4. Data (p5)}
+\begin{itemize}
+\item Labour negotiations~\cite{WFH3:2011}:
+	\begin{itemize}
+	\item \stronger{mixed attributes}
+	\item Attributes (mixed): duration, wage increases (3 years), cost-of-living adjustment, working hours per week, pension, standby pay, etc.
+	\item Not all entries in the table are filled---\emph{some data for an instance is missing!}
+	\item Decision (binary): good or bad contract?
+	\item Decisions can be made using some of the attributes; though the decisions will not always be right
+	\end{itemize}
+\item[]
+\item Soybean classification~\cite{WFH3:2011}:
+	\begin{itemize}
+	\item \stronger{hierarchical attributes}
+	\item For example, \emph{environment} contains 11 sub-attributes (e.g., time of occurrence, precipitation, temperature, etc.)
+	\item Decision: diagnosis
+	\item Data set captures \emph{domain knowledge}
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.4. Data (p6)}
+\begin{itemize}
+\item[] \stronger{Real-World Data}
+\item[]
+\item Real-world data is typically \stronger{incomplete}
+\item[]
+\item Real-world data is typically \stronger{messy} and \stronger{noisy}
+\item[]
+\item Real-world decisions are frequently \stronger{non-deterministic} and based on \strong{probabilities}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.5. DM vs ML vs Stats (p1)}
+\begin{itemize}
+\item[] \strong{Data Mining (DM) vs\\ Machine Learning (ML) vs \\Statistics}
+\item[]
+\item DM and ML and Stats share some methods
+\item But are applied in different ways
+\item And for different reasons
+\end{itemize}
+\vspace{-0.1cm}
+\begin{center}
+\includegraphics[width=0.5\textwidth]{images/dm-ml-stats-venn.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.5. DM vs ML vs Stats (p2)}
+\begin{itemize}
+\item[] \stronger{Machine Learning}
+\item What does it mean for a machine to \strong{learn?}
+\item How do you know if a machine has learned something?
+\item ``Things learn when they change their behaviour in a way that makes them perform better in the future.''~\cite[p7]{WFH3:2011}
+\item ML emphasises \strong{performance} rather than \strong{knowledge},
+which can be measured by comparing past behaviour to present (and future) behaviour
+\item It is also important not to confuse learning with \strong{adaptation}.\\
+\item[] For example, new shoes adapt to the shape of your foot before they become comfortable to wear---is this really \strong{learning?}
+\item With learning, \strong{action} and \strong{intention} are implied
+\item There are many philosophical questions here...
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.5. DM vs ML vs Stats (p3)}
+\begin{itemize}
+\item[] \stronger{Data Mining}
+\item DM emphasises \strong{knowledge} rather than \strong{performance}
+\item \strong{Input:} data, which typically contains examples, which may (or may not) be \strong{labelled} with ``right'' answers
+\item \strong{Output:} structure of input data and the ability to use that structure to make predictions about new (future) data
+\item \strong{Learning} $\Rightarrow$\\
+ ``the acquisition of knowledge and the ability to use it''
+\item Machines need to use the knowledge, but they also have to communicate the knowledge to people; hence the structure/representation of the rules that are constructed is important to be able to share with people.
+\item Machine Learning as applied to Data Mining is not a philosophical question.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.5. DM vs ML vs Stats (p4)}
+\begin{itemize}
+\item[] \stronger{Statistics}
+\item Come from different histories
+	\begin{itemize}
+	\item Statistics: proving hypotheses
+	\item Machine Learning: generalising rules for actions/behaviours, classification
+	\end{itemize}
+\item United in Data Mining
+\item Some methods are similar
+	\begin{itemize}
+	\item Decision tree induction (generating trees from examples)
+	\item Nearest-neighbour classification
+	\end{itemize}
+\item Some statistical techniques are applied in the data mining process:
+	\begin{itemize}
+	\item Construction of training set
+	\item Data visualisation
+	\item Attribute selection
+	\item Outlier identification and filtering
+	\item Prediction
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1.6. Data Mining and Ethics}
+\begin{itemize}
+\item Be careful of data about people!
+\item \strong{Re-identification:} identifying an individual from a so-called ``anonymous'' data set
+\item Protecting \strong{personal information:} restricting access
+\item \strong{Risks:} of drawing inaccurate conclusions---are life-and-death decisions being made?
+\item Should a sensitive attribute be used? Depends on the purpose...
+\item[]
+\item What could go wrong?
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Machine Learning: Another Perspective}
+\begin{center}
+\includegraphics[height=0.8\textheight]{images/xkcd-1838-machine_learning.png}\\
+{\footnotesize \url{https://xkcd.com/1838/}}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Data Mining: The Big Picture}
+\begin{center}
+\includegraphics[width=\textwidth]{images/dm-overview-1.png} 
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Data Sets: Attributes and Instances}
+\begin{itemize}
+\item[1.] Attributes
+\item[2.] Instances
+\item[3.] Data issues
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.1. Attributes (p1)}
+\begin{itemize}
+\item \stronger{Attributes} or \stronger{Features} or \stronger{Columns}
+\item Characterise each entry in the data set
+\item[]
+\item[] Types:
+\item \strong{Numeric}: continuous or discrete; distance between values is well defined
+\item \strong{Nominal}: categorical
+\item \strong{Ordinal}: ordered; distance between values is not well defined
+\item \strong{Dichotomous}: binary, Boolean (choice of two)
+\item \strong{Interval} or \strong{Ratio}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.1. Attributes (p2)}
+\begin{itemize}
+\item Attributes might depend on each other
+\item[]
+\item[] For example: \stronger{transportation vehicles}
+\item A \strong{ship} might contain an attribute that is the number of sails
+\item A \strong{train} might contain an attribute that is the number of carriages
+\item A \strong{car} might contain an attribute that is the number of seats or doors
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.2. Instances (p1)}
+\begin{itemize}
+\item \stronger{Instances} or \stronger{Examples} or \stronger{Rows}
+\item Most data mining looks at independent instances
+\item Usually in data mining, a data set containing independent instances (rows) is used\\
+\item However, \strong{relations} can exist between instances
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/wfh-table1-3}
+\cite[Table 1.3]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.2. Instances (p2)}
+\begin{itemize}
+\item \strong{Positive examples:} instances that are labelled with the right answer or instances of relationships that we are looking for
+\item \strong{Negative examples:} instances that are labelled with the wrong answer or instances of relationships other than what we are looking for
+\item[]
+\item The \strong{closed-world assumption} adopts the stance that rules can be constructed by only looking at positive examples.
+\item The closed-world assumption doesn't generally occur in the real world.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.2. Instances (p3)}
+\begin{itemize}
+\item Example: ARFF (attribute-relation file format)
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/wfh-figure2-2}
+\cite[Fig 2.2]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.3. Data Issues (p1)}
+\begin{enumerate}
+\item[] Data preparation for data mining can be time-consuming
+\item[]
+\item[$\rightarrow$] Steps:
+\item Assembly
+\item Integration
+\item Cleaning
+\item Aggregating
+\item Transformation
+\item[]
+\item[] Taken together, also referred to as \stronger{Curation}
+\end{enumerate}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.3. Data Issues (p2)}
+\begin{itemize}
+\item \strong{Sparse data sets}
+	\begin{itemize}
+	\item Lots of $0$'s or \emph{null} values
+	\end{itemize}
+\item \strong{Missing values}
+	\begin{itemize}
+	\item Some entries are empty
+	\item What does this mean?
+	\item Should the missing values be ignored?
+	\item Or is the fact that they are missing significant?
+	\end{itemize}
+\item \strong{Inaccurate values}
+	\begin{itemize}
+	\item Some entries are wrong
+	\item Typographical or measurement errors
+	\item Stale data (out of date)
+	\item Should these be corrected?
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Data Mining Concepts}
+\begin{itemize}
+\item[] There are essentially four types of modelling in data mining:
+\item[1.] \stronger{Classification:} model the relationship between data elements and corresponding labels or ``classes''
+\item[2.] \stronger{Numeric Prediction:} model the relationship between numbers to predict a number
+\item[3.] \stronger{Association:} model rules that associate attributes with each other \item[4.] \stronger{Clustering:} model which groups of instances belong together
+to predict an attribute
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3.1. Classification}
+\begin{itemize}
+\item The thing being modelled is how attributes determine the \strong{class} to which an instance belongs
+\item The data is ``labelled''
+\item For example: UK voters labelled as ``remain'' or ``leave''
+\item Also called \strong{supervised learning}, because we have a labelled training set
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3.2. Numeric Prediction}
+\begin{itemize}
+\item The thing being modelled is how attributes determine a \strong{numeric value}
+\item A variation on classification
+\item Often, the concept description that is constructed is more of interest than the values that can be predicted
+\item For example: the value of a used car given its features
+\item Another form of \strong{supervised learning} if we know what we are trying to predict---in which case, we are really interested in constructing the \strong{model} (set of rules that predict the answer)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3.3. Association}
+\begin{itemize}
+\item The thing being modelled is how some attributes determine \strong{other attributes}
+\item There is no specific class (or label)
+\item In theory, any (set of) attributes can predict any attribute values
+\item Typically only used for nominal data sets
+\item For example: data about movies watched, used to recommend what to watch next (\textit{other customers who watched this also watched that)}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3.4. Clustering}
+\begin{itemize}
+\item The thing being modelled is how instances are similar and different from each other and how they can be \strong{grouped}
+\item Measured in two ways:
+	\begin{itemize}
+	\item \strong{Within} cluster: how close are the instances within a cluster to each other?
+	\item \strong{Between} clusters: how far apart are clusters from each other?
+	\end{itemize}
+\item May be followed by a classification step in order to label the clusters, especially so that people can use the clusters in a meaningful way
+\item For example: data about all customers to be segmented
+\item Also called \strong{unsupervised learning}, because we do not have labels
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Knowledge Representations}
+\begin{itemize}
+\item[1.] Tables
+\item[2.] Trees
+\item[3.] Rules
+\item[4.] Instance-based representations
+\item[5.] Clusters
+\item[6.] Linear models
+\item[7.] Networks
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4.1. Tables}
+\begin{itemize}
+\item A \strong{Decision Table} contains a set of attributes and associates a decision label with each unique attribute set.
+\item We saw examples earlier:
+\end{itemize}
+\begin{center}
+\begin{tabular}{cc}
+\multicolumn{2}{c}{\strong{Weather data}} \\
+\includegraphics[width=0.45\textwidth]{images/wfh-table1-2} &
+\includegraphics[width=0.45\textwidth]{images/wfh-table1-3} \\
+\cite[Table 1.2]{WFH3:2011} &
+\cite[Table 1.3]{WFH3:2011} \\
+\end{tabular}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4.2. Trees (p1)}
+\begin{itemize}
+\item A \strong{Decision Tree} represents a set of rules:\\
+-- a \stronger{node} represents a decision to be made\\
+-- each \stronger{child} is a \stronger{branch} from its parent and represents a possible choice\\
+-- the \stronger{root} is the node at the top of the tree (the first decision)
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.4\textwidth]{images/wfh-figure3-5.png}
+\cite[Fig 3.5]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}[fragile]{II.4.2. Trees (p2)}
+\begin{itemize}
+\item A Decision Tree can represent a summary of a Decision Table
+\item[]
+\item Typically, each decision/branch is made about a single \strong{attribute} in the data set, by comparing the value of the attribute to a constant and branching based on equality/inequality.
+\item[]
+\item For example, in the \strong{numeric weather} data set:
+\begin{lstlisting}[numbers=none]
+if ( temperature < 80 ):
+	branch_left
+else:
+	branch_right
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4.2. Trees (p3)}
+\begin{itemize}
+\item An attribute can be tested more than once in a \strong{path} through a tree.
+\item Decisions can be 2-way (binary), 3-way ($<$,$=$,$>$), or multi-way
+\item[]
+\item One issue: how to handle missing values?
+\item[--] ``\texttt{missing}'' can be considered an attribute value itself; or
+\item[--] The most popular choice for that attribute can be assumed; or
+\item[--] A probabilistic \strong{(weighted)} choice for that attribute can be made (based on other records where the attribute is not missing)
+\item[--] Any of these may propagate errors if there are multiple missing values in a path through the tree
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}[fragile]{II.4.2. Trees (p4)}
+\begin{itemize}
+\item A \strong{Functional Tree} makes decisions at nodes by computing a function of one or more attribute values and making a choice on the value returned by the function.
+\begin{lstlisting}[numbers=none]
+if (petal_length * petal_width > threshold):
+	make_decision...
+else:
+	make_different_decision...
+\end{lstlisting}
+%
+\item An \strong{option node} may encode a choice about which attribute(s) to use for decisions further down the path in the tree.
+\item For example:
+\begin{lstlisting}[numbers=none]
+if split_on(petal_length, petal_width):
+	make_decision( petal_length )
+else:
+	make_decision( petal_width )
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4.2. Trees (p5)}
+\begin{itemize}
+\item A \strong{Regression Tree} is a decision tree where decisions are based on averaged attribute values
+\item One attribute is selected for the root and its values are averaged
+\item That average forms a \strong{decision boundary}
+\item For the children of the root, another attribute is selected, and each average value of the instances in the partitions of the training set are used as decision boundaries for the next level; and so on.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%\begin{frame}{II.4.2. Trees (p6)}
+%\begin{itemize}
+%\item A \strong{Model Tree} is like a regression tree, except that multiple regression equations, which describe partitions of the training set, are used to predict values at the leaves.
+%\item This means that the model tree likely has fewer nodes than a regression tree; but a regression equation still has to be computed at the leaf.
+%\item A regression tree has lower prediction error rates than a regression equation, and a model tree has error rates even lower than either.
+%\end{itemize}
+%\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4.3. Rules (p1)}
+\begin{itemize}
+\item Rules are typically expressed in \lstinline+if-then+ format
+\item The \lstinline+if+ part is called the \strong{antecedent} or \strong{pre-condition}
+\item The \lstinline+then+ part is called the \strong{consequent} or \strong{conclusion}
+\item An antecedent may contain multiple \strong{clauses} that can be:
+\item[--] \lstinline+and+-ed (all clauses must be \lstinline+true+ in order for the rule to ``fire'', called \strong{conjunction})
+\item[--] \lstinline+or+-ed (at least one clause must be \lstinline+true+ in order for the rule to fire, called \strong{disjunction})
+\item Types of rules common in Data Mining:
+	\begin{itemize}
+    \item Classification rules
+    \item Association rules
+	\end{itemize}
+\item Rule sets can be \strong{hand-crafted} or \strong{learned} or a combination
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}[fragile]{II.4.3. Rules (p2)}
+\begin{itemize}
+\item \strong{Classification rules} predict the class (label) of an instance
+\item Typically comprised of a set of \lstinline+if-then+ statements that can be derived from a decision tree, and vice versa.
+\item An antecedent is comprised of a clause for one or more node choice(s) along a path in the tree, and the consequent is represented at the leaf.
+\item Rule sets created in this way can contain redundancies, especially if multiple leaves contain the same consequent.
+\item The \strong{replicated subtree problem}:
+\item[--] Which rule choice belongs at the root of the decision tree?
+\item[--] No matter which one is chosen, the other will be replicated in the tree
+\begin{lstlisting}[numbers=none]
+if A and B:
+	x
+if C and D:
+	x
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4.3. Rules (p3)}
+\begin{itemize}
+\item In a \strong{Decision Tree}, there is an implicit \strong{order} in which the decisions are made.
+\item[]
+\item In a set of rules (e.g., \strong{covering rules}), the rules are evaluated independently, in any order.
+\item This means that a set of rules can produce multiple conclusions for one example (e.g., if there are multiple leaves in the decision tree that contain the same value).
+\item[]
+\item The \strong{disjunctive normal form} applied to a set of rules can ensure that any application of the rules will not conflict (a \strong{disjunction} of \strong{conjunctions}).
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4.3. Rules (p4)}
+\begin{itemize}
+\item \strong{Association Rules} predict an attribute of an instance 
+\item These can be very specific.
+\item[]
+\item We are interested in \strong{coverage} of a rule: how many instances are predicted correctly
+\item[--] Also called \strong{accuracy} of the rule, expressed as a percentage of correctly identified instances over all instances
+\item[]
+\item Typically, minimum coverage and accuracy values are prescribed for a set of rules
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}[fragile]{II.4.3. Rules (p5)}
+\begin{itemize}
+\item Rule sets can be \strong{learned} through the process of adding new rules and refining existing rules as more instances (in a training set) are seen.
+\item A refinement might be adding another conjunctive (\lstinline+and+) clause to an antecedent.
+%
+\item A rule might contain functions that operate on attribute values:
+\lstinline+height(child)+
+%
+\item A rule might contain comparisons between attribute values, raw or as input to functions:
+\lstinline+height(child)>age(child)+
+%
+\item A rule might be \strong{recursive}, because it might apply to one part of a data set that relates to another part:
+\lstinline+tallerThan(child,parent)+
+%
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4.4. Instance-based representations (p1)}
+\begin{itemize}
+\item Instead of trying to construct rules, we could just represent all the \strong{instances} (like rote memorisation)
+\item[]
+\item Each new instance is classified against existing (known) instances and a \strong{distance} between them is computed
+\item[]
+\item The distance is used to determine the \strong{nearest neighbour}
+\item Sometimes we want to know \textbf{one} nearest neighbour, and sometimes we want to know more than one, e.g., \textbf{$k$} nearest neighbours
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4.4. Instance-based representations (p2)}
+\begin{itemize}
+\item Distance computation is straightforward for \strong{numeric} attributes
+\item For example, we can use the \strong{Euclidean} distance:
+\[
+	d = \sqrt{ \sum_{a=1,n}{ (X_1[a] - X_2[a]) ^2 }}
+\]
+where:\\
+$d$ = distance metric\\
+$X_1$ = first instance, consisting of $n$ attributes\\
+$X_2$ = second instance, consisting of $n$ attributes\\
+$a$ = index of attribute of interest, $a \in \{1..n\}$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4.4. Instance-based representations (p3)}
+\begin{itemize}
+\item For \strong{nominal} attributes, the typical approach is:
+\[
+	d = ( X_1[a] == X_2[a] \rightarrow 0 : 1 )
+\]
+\item[] which means that:
+\item[--] distance is $0$ if the attributes are the same
+\item[--] distance is $1$ if the attributes are different
+\item Some nominal values, like colours, have an underlying numeric encoding (e.g., RGB scale).
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4.4. Instance-based representations (p4)}
+\begin{itemize}
+\item Deciding which instances to \strong{remember} and which to \strong{forget} is a key problem with instance-based representations.
+\item The order in which new instances are presented can have a significant impact.
+\item Some instance-based representations create \strong{rectangular generalizations}, which include upper and lower bounds on two attributes at a time.
+\item The rectangles are another way to partition the space, like linear models do, except the partitions are drawn in two dimensions rather than one.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4.5. Clusters (p1)}
+\begin{itemize}
+\item \strong{Clustering} partitions the entire training set into \strong{regions}
+\item The simplest representations find \strong{non-overlapping} regions:
+\begin{center}
+\includegraphics[width=0.3\textwidth]{images/wfh-figure3-11a}
+\cite[Fig 3.11a]{WFH3:2011}
+\end{center}
+\item Other methods allow for \strong{overlapping} regions, where one instance might be in multiple clusters:
+\begin{center}
+\includegraphics[width=0.3\textwidth]{images/wfh-figure3-11b}
+\cite[Fig 3.11b]{WFH3:2011}
+\end{center}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4.5. Clusters (p2)}
+\begin{itemize}
+\item Other methods allow for \strong{hierarchical} regions---e.g., \strong{dendrogram}
+\begin{center}
+\includegraphics[width=0.5\textwidth]{images/wfh-figure3-11d}
+\cite[Fig 3.11d]{WFH3:2011}
+\end{center}
+	\begin{itemize}
+	\item This is a kind of \strong{tree diagram}.
+	\item Top-level partitions the space into two (or more) groups.
+	\item Then these groups are further partitioned into subgroups.
+	\item And so on...
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4.6. Linear Models (p1)}
+\begin{itemize}
+\item A \strong{linear model} is a weighted sum of attribute values.
+\item All attribute values must be \strong{numeric}.
+\item Typically visualised as a 2D scatter plot with a \strong{regression line} showing a linear function that best represents the data:
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/wfh-figure3-1}\\
+\cite[Fig 3.1]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4.6. Linear Models (p2)}
+\begin{itemize}
+\item Linear models can be applied to \strong{classification} problems, which is like drawing boundaries to separate unrelated instances:
+\begin{center}
+\includegraphics[width=0.9\textwidth]{images/wfh-figure3-2}\\
+\cite[Fig 3.2]{WFH3:2011} \strong{(perceptron training rule)}
+\end{center}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4.6. Linear Models (p3)}
+\begin{itemize}
+\item A \strong{Perceptron} is a simple type of linear network model.
+\item As in the example on the previous slide, a perceptron can be used to classify data that is \strong{linearly separable}.
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/perceptron}
+\end{center}
+\item A \strong{Neural Network} is a more complex type of network model.
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/hand-figure5-5}
+\cite[Fig 5.5]{hand-et-al:2001}
+\end{center}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.5. Model Evaluation (p1)}
+\begin{center}
+\includegraphics[height=0.75\textheight]{images/xkcd-difference-trim}\\
+{\footnotesize \url{https://xkcd.com/242/}}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.5. Model Evaluation (p2)}
+\begin{itemize}
+\item \stronger{How good is the model?}
+\item How well does it \strong{match} the data?
+\item How well does it \strong{predict} the value or class?
+\item A \strong{scoring} function computes the difference between what we got (the \strong{prediction}) and what we wanted to get (the \strong{target})
+\item Also called the \strong{error} function
+\item Typically we want to \strong{increase the score} or \strong{reduce the error} in order to make the model better
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.5. Model Evaluation (p3)}
+\begin{itemize}
+\item \stronger{Different types of data mining use different types of score functions}
+\item We will cover each type of \strong{scoring} and \strong{evaluation} techniques as we cover each data mining method
+\item Evaluation will depend on:
+	\begin{itemize}
+	\item The type of data being modelled
+	\item The values being predicted
+	\end{itemize}
+\item We might want to measure a quantitative difference
+\item We might want to count how many times we got the ``right'' answer
+\item We might want to compute the difference between two data sets (e.g., \strong{t-test})
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.5. Model Evaluation (p4)}
+\begin{itemize}
+\item In order to construct a data mining model, we need to start with the right data set
+\item Typically we divide the data into two sets:
+	\begin{itemize}
+	\item \strong{Training set}
+	\item \strong{Test set}
+	\end{itemize}
+\item Construct the model using the \textbf{training} set
+\item Evaluate the model using the \textbf{test} set
+\item If the training set (or test set) is not a representative sample, then we will not build a correct model
+\item[$\Rightarrow$] \stronger{The model is only as good as the data used to build it.}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.5. Model Evaluation (p5)}
+\begin{center}
+\includegraphics[height=0.7\textheight]{images/xkcd-605-extrapolating}\\
+{\footnotesize \url{https://xkcd.com/605/}}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+
+%--------------------------------------------------------------------------------
+\section{SUMMARY AND TO DO}
+%--------------------------------------------------------------------------------
+\begin{frame}{SUMMARY}
+\begin{center}
+\includegraphics[width=0.9\textwidth]{images/dm-overview-2.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{TO DO}
+\begin{enumerate}
+\item \strong{Attend the Workshop today} @ 4pm OR 5pm in INB2102
+	\begin{itemize}
+	\item Install WEKA on your computer (stable version 3.8):\\
+	{\small\url{https://waikato.github.io/weka-wiki/downloading_weka/}}
+	\end{itemize}
+\item Locate the Blackboard page for this module (AGR9013)
+\item Get access to either version of the WFH textbook\\
+	\begin{itemize}
+	\item \strong{Read chapters 1-2 (either edition)}\\
+	\end{itemize}
+\item[]
+\item Contact me if you have questions: \url{imoraru@lincoln.ac.uk}
+\end{enumerate}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+% use 'allowframebreaks' if refs flow onto multiple slides (each will be numbered 'REFERENCES I', 'REFERENCES II' etc)
+%\begin{frame}[allowframebreaks]{REFERENCES}
+\begin{frame}{REFERENCES}
+\bibliographystyle{plain}
+\bibliography{refs}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+\end{document}

@@ -1,0 +1,1291 @@
+\documentclass[handout]{beamer}
+\usetheme{boxes}
+
+\usecolortheme{orchid}
+\definecolor{teal}{HTML}{009999}
+\definecolor{lightteal}{HTML}{00CCCC}
+\definecolor{purple}{HTML}{990099}
+\definecolor{lightpurple}{HTML}{CC00CC}
+\definecolor{darkgrey}{HTML}{666666}
+\definecolor{lightgrey}{HTML}{AAAAAA}
+\definecolor{darkred}{HTML}{660000}
+\definecolor{darkgreen}{HTML}{006600}
+\definecolor{darkblue}{HTML}{000066}
+\definecolor{lightred}{HTML}{AA0000}
+\definecolor{lightgreen}{HTML}{00AA00}
+\definecolor{lightblue}{HTML}{0000AA}
+\setbeamercolor{title}{fg=darkblue}
+\setbeamercolor{frametitle}{fg=darkblue}
+\setbeamercolor{itemize item}{fg=teal}
+\setbeamercolor{itemize subitem}{fg=lightteal}
+
+\usepackage{fancybox}
+\usepackage{adjustbox}
+\usepackage{mathptmx}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{amsmath}
+
+% For math brackets
+\usepackage{amsmath}
+
+% gets rid of bottom navigation bars
+\setbeamertemplate{footline}[frame number]{}
+
+% gets rid of bottom navigation symbols
+\setbeamertemplate{navigation symbols}{}
+
+% uses number labels in bibliography
+\setbeamertemplate{bibliography item}{\insertbiblabel}
+
+% my style for emphasising stuff in colours
+\newcommand{\strong}[1]{\textbf{\color{teal} #1}}
+\newcommand{\stronger}[1]{\textbf{\color{purple} #1}}
+
+% title, etc
+\title{Classification\\{\small (lecture 2)}}
+\subtitle{AGR9013 -- Introduction to Data Mining\\
+{\tiny (version 1.1)}}
+\author{Dr Ionut Moraru}
+\institute{University of Lincoln, \\ School of Agri-Food Technology and Manufacturing}
+\logo{\includegraphics[width=1cm]{images/uol-logo.png}}
+\date{3rd of October, 2024}
+
+\addtobeamertemplate{navigation symbols}{}{\hspace{1em}    \usebeamerfont{footline}%
+    \insertframenumber / \inserttotalframenumber }
+
+% Remove navigation symbols
+\beamertemplatenavigationsymbolsempty
+
+\begin{document}
+
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+  belowcaptionskip=0pt,            % reduce space after the listings caption
+  belowskip=0pt,                   % how much vertical space to skip after a listing
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  caption={},                      % default to no caption
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{lightgreen}, % comment style
+  deletekeywords={...},            % if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  frame=single,                    % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=Python,                 % the language of the code
+  mathescape=true,                 % allow math mode within code
+  morekeywords={then,...},         % if you want to add more keywords to the set
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\sf\color{lightgrey}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{darkred},     % string literal style
+  tabsize=3,                       % sets default tabsize to 3 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+%--------------------------------------------------------------------------------
+\frame{\titlepage}
+
+
+%--------------------------------------------------------------------------------
+\section*{OUTLINE}
+%--------------------------------------------------------------------------------
+\begin{frame}{Outline: Classification}
+\begin{itemize}
+\item[] Part I: Classifying Nominal Data
+	\begin{itemize}
+	\item[I.1.] Overview
+    \item[I.2.] Rules
+    \item[I.3.] Decision Trees
+    \item[I.4.] Discussion
+	\end{itemize}
+\item[] Part II: Evaluating Classification Results
+	\begin{itemize}
+    \item[II.1.] Overview of Evaluation
+    \item[II.2.] Confusion Matrix
+    \item[II.3.] Cohen's Kappa
+    \item[II.4.] Lift
+    \item[II.5.] ROC
+    \item[II.6.] Precision and Recall
+    \item[II.7.] Summary
+	\end{itemize}
+\vspace*{0.3cm}
+\item To Do
+\end{itemize}
+\end{frame}
+%--------------------------------------------------------------------------------
+\begin{frame}{Module Material}
+\centering
+\huge{The material in this module has been developed by Prof. Elizabeth Sklar}
+\vspace{1cm}
+
+\large I have made slight adaptations and changes, but it is all based on her materials.
+\end{frame}
+
+
+%--------------------------------------------------------------------------------
+\section{PART I: Classifying nominal data}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part I: Classifying nominal data}
+\begin{itemize}
+\item[I.1.] Overview
+\item[I.2.] Rules
+\item[I.3.] Decision Trees
+\item[I.4.] Discussion
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}[fragile]{I.1. Overview of Classification (p1)}
+\begin{itemize}
+\item Suppose we think that certain attribute values in our data that can be used to predict the \stronger{label} or \stronger{class} for each instance in the data set:
+\begin{lstlisting}[numbers=none]
+if (temperature == hot) and (humidity == high):
+	play = no
+\end{lstlisting}
+\item In this example, two \strong{attribute} values predict the \strong{label}:
+\end{itemize}
+\begin{center}
+\begin{tabular}{|c|c||c|c|l}
+\multicolumn{2}{|c||}{\strong{\emph{attributes}}}
+                                     & \multicolumn{2}{|c|}{\strong{\emph{play} (label)}} \\
+\emph{temperature} & \emph{humidity} & \emph{observed} & \emph{predicted} \\
+$(x_1)$            & $(x_2)$         & $(y)$           & $(\hat{y})$ \\
+\cline{1-4}
+hot & high & no  & {\color{blue}no} & $\leftarrow$ \emph{right}\\
+hot & high & yes & {\color{blue}no} & $\leftarrow$ \emph{wrong}\\
+\cline{1-4}
+\end{tabular}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Overview of Classification (p2)}
+\begin{itemize}
+\item We want to build a \stronger{model} --- a set of rules or a function --- that can be applied to our data to \strong{predict} the \strong{class} or \strong{label} for new, unseen data
+\item If each instance in our existing data set already has a \strong{label} or a \strong{class}, then this process is referred to as \stronger{supervised learning}
+\item ``\stronger{Supervised}'' because we already have an ``answer'' against which we can compare the \strong{prediction} made by our \strong{model}
+\item Our goal is to find a \stronger{rule} or a \stronger{function} or a \stronger{concept definition}, based on the existing data set
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Overview of Classification (p3)}
+\begin{itemize}
+\item Two main steps:
+	\begin{itemize}
+	\item[(1)] Training
+	\item[(2)] Evaluation
+	\end{itemize}
+\item[]
+\item[(1)] \stronger{Training} step involves:
+	\begin{enumerate}[(a)] 
+	\item Select a portion of the existing data $\rightarrow$ \strong{training set}
+	\item Initialise a (random) rule / function / concept definition
+	\item Apply the rule to the training set and compute the \strong{error rate}
+	\item Adjust the rule/function/concept, \emph{according to some method...}
+	\item Iterate back to step {\color{beamer@blendedblue}(c)} until the \strong{error rate} is ``low enough''
+	\item[$\rightarrow$] Output is the \stronger{model}
+	\end{enumerate}
+\item[]
+\item[(2)] \stronger{Evaluation} step involves:
+	\begin{enumerate}[(a)]
+	\item Select (the remaining) portion of the existing data $\rightarrow$ \strong{test set}
+	\item Apply the rule to the test set and compute the \strong{error rate}
+	\item[$\rightarrow$] Output is the \stronger{evaluation error}
+	\end{enumerate}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Overview of Classification (p4)}
+\begin{center}
+\includegraphics[width=\textwidth]{materials/images/training_process.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Overview of Classification (p5)}
+\begin{itemize}
+\item[] Today we will talk about two different types of methods for classifying data:
+\item[]
+\item Rules
+\item[]
+\item Decision Trees
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Rules}
+\begin{itemize}
+\item[] We'll discuss two types of \strong{rule}-based algorithms:
+\item[] (an \emph{algorithm} is a method or recipe for doing something---
+\item[] in this case, a method for building a model that describes our data)
+\item[]
+\item[I.2.1] Inferring rudimentary rules with 1R
+\item[]
+\item[I.2.2] Covering Rules
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}[fragile]{I.2.1. Inferring rudimentary rules with 1R (p1)}
+\begin{itemize}
+\item[] \stronger{1R} or \stronger{1-rule}
+\item one-level decision tree that tests one attribute 
+\end{itemize}
+\begin{center}
+\begin{lstlisting}
+# loop through all attributes:
+for each attribute $A \in$ attributes:
+	# loop through each attribute and class:
+	for each value of $A$:
+		for each class $C \in$ classes:
+			$A\_count[C]=$ how often $(A,C)$ appears
+		# build rule based on most frequent class
+		# for this attribute:
+		$A\_freq=$ index of max($A\_count[]$) 
+		rules.append( $A \rightarrow A\_freq$ )
+# calculate the error rate of the rules
+for each $r \in$ rules:
+	r.score $\leftarrow$ correct answers / total answers
+# choose the rules with the smallest error rates
+for each $r \in$ rules:
+	if ( r.score $<$ threshold ):
+		r.delete()
+\end{lstlisting}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2.1. Inferring rudimentary rules with 1R (p2)}
+\begin{itemize}
+\item Let's try it
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{images/wfh-table1-2.png}\\
+\cite[Table 1.2]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2.1. Inferring rudimentary rules with 1R (p3)}
+\begin{itemize}
+\item $A$ = outlook, possible values = $\{$ sunny, overcast, rainy $\}$
+\item[] $C$ = play, possible values = $\{$ yes, no $\}$
+\item total number of entries with \lstinline+(outlook == sunny)+ ?
+\item[] and how many of these are \lstinline+(play == yes)+ and \lstinline+(play == no)+ ?
+\item total number of entries with \lstinline+(outlook == overcast)+ ?
+\item[] and how many of these are \lstinline+(play == yes)+ and \lstinline+(play == no)+ ?
+\item total number of entries with \lstinline+(outlook == rainy)+ ?
+\item[] and how many of these are \lstinline+(play == yes)+ and \lstinline+(play == no)+ ?
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2.1. Inferring rudimentary rules with 1R (p4)}
+\begin{center}
+\includegraphics[width=\textwidth]{materials/images/wfh-table4-1_b.png}\\
+\cite[Table 4.1]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2.1. Inferring rudimentary rules with 1R (p5)}
+\begin{itemize}
+\item How does this work when some attributes are \strong{numeric}?
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{images/wfh-table1-3.png}\\
+\cite[Table 1.3]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2.1. Inferring rudimentary rules with 1R (p6)}
+\begin{center}
+\includegraphics[width=\textwidth]{images/wfh-ch4-1-example}\\
+\cite[ch 4.1]{WFH3:2011}
+\end{center}
+\begin{itemize}
+\item Numeric values can be \stronger{discretised}
+\item Create a list of $<$ \emph{attribute}, \emph{class} $>$ pairs (example above)
+\item Order list numerically (by \strong{attribute value})
+\item Identify partitions in list where \strong{class} value changes between consecutive entries
+\item Choose \stronger{decision boundaries} halfway between the endpoints of adjacent partitions
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2.1. Inferring rudimentary rules with 1R (p7)}
+\begin{itemize}
+\item[] Variations:
+\item[]
+\item Amended discretisation procedure:
+	\begin{itemize}
+	\item Set partitions so that there is a specified minimum number of instances of the majority class (e.g., $3$) in each partition
+	\item Adjacent partitions with the same majority class can be merged
+	\item Select class randomly if there is no majority class in a partition
+	\end{itemize}
+\item Another variant:
+	\begin{itemize}
+	\item Define a different \strong{conjunction} rule for each class that combines separate tests for each attribute (using $AND$)
+	\item For \strong{numeric} data: test if attribute values match within an interval
+	\item For \strong{nominal} data: test if attribute values match entries in a subset
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2.1. Inferring rudimentary rules with 1R (p8)}
+\begin{itemize}
+\item[] Potential Issues:
+\item[]
+\item \strong{Missing values}: can be treated as another attribute value\\
+		(i.e., an attribute whose value is actually called ``missing'')
+\item \strong{Mixed partition} = if one attribute value is multiple classes
+\item \strong{Overfitting} = may result from (too) many partitions
+\item[]
+\item[] Benefits:
+\item[]
+\item \emph{1R} has been shown to do as well as much more sophisticated methods on some data sets, so it is worth trying initially because it is relatively easy to apply
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}[fragile]{I.2.2. Covering rules (p1)}
+\begin{center}
+\includegraphics[width=0.9\textwidth]{images/wfh-figure4-6a}\\
+\cite[Fig4.6a]{WFH3:2011}
+\end{center}
+\begin{itemize}
+\item Define a rule for a class and then test how much of the training set is \emph{covered} by the rule
+\begin{center}
+\begin{lstlisting}[]
+if x > 1.2 and y > 2.6 then class = a
+if x > 1.4 and y < 2.4 then class = a
+if x <= 1.2 then class = b
+if x > 1.2 and y <= 2.6 then class = b
+\end{lstlisting}
+\end{center}
+\item The first two rules cover class \emph{a}, the last two cover class \emph{b}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2.2. Covering rules (p2)}
+\begin{itemize}
+\item \strong{Covering rules} are constructed over time
+\item Start with constructing a simple rule that appears to cover initial examples in the training set...
+\item ...and then add to the rule to cover more examples that fall into the class which the rule is attempting to cover
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/wfh-figure4-7}\\
+\cite[Fig4.7]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2.2. Covering rules (p3)}
+\begin{itemize}
+\item[] Potential issues:
+\item[]
+\item Rule covers \strong{more} than just the class it is designed to cover---i.e., all instances in the class are covered, in addition to instances from other classes
+\item Rule covers \strong{less} than the class it was designed to cover---i.e., there are instances in the class that are left out
+\item Or maybe both...
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2.2. Covering rules (p4)}
+\begin{itemize}
+\item How good are the rules?
+\item[] 
+\item We compute a measure of \stronger{Efficiency} or \stronger{Accuracy}:
+\[
+\mathit{accuracy} = \frac{\mathit{number\_of\_true\_positive\_instances\_classified}}{\mathit{number\_of\_instances\_classified}}
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Decision Trees}
+\begin{itemize}
+\item[I.3.1] Definitions
+\item[I.3.2] Tree-building process
+\item[I.3.3] Metrics
+\item[I.3.4] Famous algorithms
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.1. Decision Trees: Definitions}
+\begin{itemize}
+\item A \stronger{decision tree} is a \strong{hierarchical collection of rules} that describe ways to partition instances into groups
+\item As the groups split into smaller groups, they (should) become more similar
+\item Tree terminology: \strong{node}, \strong{edge}, \strong{root}, \strong{parent}, \strong{child}, \strong{leaf}, \strong{breadth}, \strong{depth}
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.4\textwidth]{images/wfh-figure1-2}\\
+\cite[Fig 1.2]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.2. Decision Trees: Tree building process (p1)}
+\begin{itemize}
+\item Construction is based on \strong{divide-and-conquer}
+\item[]
+\item \strong{Recursive} method:
+\item[(1)] Select an attribute (randomly) to be the \strong{root} of the tree
+\item[(2)] Make one branch for each possible attribute value (assume a finite set of possible values)
+\item[(3)] Repeat back to (1) for each branch, partitioning the groups of instances in the training set that reach each branch
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.2. Decision Trees: Tree building process (p2)}
+\begin{itemize}
+\item How do we decide which \strong{split} is best?
+\item[]
+\item A measure of a potential split is the \stronger{purity} of the target attribute in the children nodes:
+\item[--] \strong{low purity}: the distribution of the target attribute in the children nodes is similar to the parent node
+\item[--] \strong{high purity}: members of a single class predominate
+\item The best split will increase purity by the greatest amount
+\item A good split generates nodes of similar size
+\item A good split does not generate nodes that are too small
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.2. Decision Trees: Tree building process (p3)}
+\begin{itemize}
+\item[] What does a good split look like? (A good split increases \strong{purity})
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{images/lb2-figure7-4.png}\\
+\cite[ch7]{LB2:2004}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.2. Decision Trees: Tree building process (p4)}
+\begin{itemize}
+\item[] When do you stop splitting (growing the tree)?
+\item[]
+\item There are no more nodes left which increase the purity of any node's resulting children.
+\item[--OR--]
+\item The number of instances per nodes reaches a pre-set lower bound.
+\item[--OR--]
+\item The \strong{depth} of the tree reaches a limit.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.3. Decision Trees: Metrics}
+\begin{itemize}
+\item Different purity measures will result in different splits
+\item[] ... but as they are all trying to capture the same idea, the resulting trees are similar
+\item[]
+\item Metrics for representing \strong{purity} include:
+\item[--] \strong{Gini}
+\item[--] \strong{Entropy} or \strong{Information Gain}
+\item[--] \strong{$\chi^2$}
+\item[--] and many more...
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.3. Decision Trees: Gini measure}
+\begin{itemize}
+\item Proposed by C. Gini Economist and Statistician
+\item Used by biologists and ecologists to study \strong{population diversity}
+\item Gives the \strong{probability} that two items at random from the same population are in the same class:
+\item Calculated as the sum of squares of the proportion of the classes in the node:
+\[
+	gini(node) = \sum_{c=1}^{C} Pr(c|node)^2
+\]
+\begin{itemize}
+	\item $gini=0.5$ if both classes are represented equally in a node
+	\item $gini=1$ for a pure node (all one class)
+\end{itemize}
+\item We want to maximise the Gini measure of a split in the tree
+\item Impact of split is average of Gini measures for each branch
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.3. Decision Trees: Gini measure example}
+\begin{center}
+\small
+\begin{tabular}{cc}
+\includegraphics[width=0.25\textwidth]{images/lb2-figure6-4a.png} &
+\includegraphics[width=0.5\textwidth]{images/lb2-figure6-4b.png} \\
+(a) $10 \bigcirc, 10 \bigtriangleup$ & 
+(b) L: $5 \bigcirc, 5 \bigtriangleup$, R: $5 \bigcirc, 5 \bigtriangleup$\\
+\includegraphics[width=0.5\textwidth]{images/lb2-figure6-4c.png} &
+\includegraphics[width=0.5\textwidth]{images/lb2-figure6-4d.png} \\
+(c) L: $10 \bigcirc, 8 \bigtriangleup$, R: $2 \bigcirc, 0 \bigtriangleup$ & 
+(d) L: $10 \bigcirc, 0 \bigtriangleup$, R: $0 \bigcirc, 10 \bigtriangleup$ \\
+\end{tabular}\\
+\cite[Fig 6.4]{LB2:2004}
+\end{center}
+\begin{itemize}
+\item[(b)] $gini(L) = Pr(\bigcirc)^2 + Pr(\bigtriangleup)^2 = (0.5)^2 + (0.5)^2 = 0.5$
+\item[(c)] $gini(L) = Pr(\bigcirc)^2 + Pr(\bigtriangleup)^2 = (0.56)^2 + (0.44)^2 = 0.5072$
+\item[(d)] $gini(L) = Pr(\bigcirc)^2 + Pr(\bigtriangleup)^2 = (1.0)^2 + (0.0)^2 = 1.0$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.3. Decision Trees: Entropy (p1)}
+\begin{itemize}
+\item The concept comes from \strong{Information Theory}:
+based on the idea that \textbf{messages} are communicated as binary strings.
+The longer the string, the more information is conveyed; if the information necessary to communicate can be represented in a shorter string, then the message is more efficient
+\item Intuitively:
+\item[--] If a leaf is entirely pure, then the classes in the leaf can be described efficiently (short message)
+\item[--] If a leaf is not pure, then more information is required to describe the classes in the leaf
+\item Effectively, \strong{entropy} is a measure of how \stronger{disorganised} a system is
+\item Thus we want to \stronger{minimize} entropy
+%\item \strong{Information Gain = Entropy Reduction}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.3. Decision Trees: Entropy (p2)}
+\begin{itemize}
+\item Entropy is calculated as:
+\[
+	entropy(node) = -1 * \sum_{c=1}^{C} Pr(c|node) * log_2( Pr(c|node) )
+\]
+\item Multiplication by -1 is to obtain a positive value (since $log_2$ of a probability will be negative)
+\item Where Gini is the probability multiplied by itself,\\
+Entropy is the probability multiplied by the $log_2$ of itself
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.3. Decision Trees: Entropy example}
+\begin{center}
+{\small
+\begin{tabular}{cc}
+\includegraphics[width=0.25\textwidth]{images/lb2-figure6-4a.png} &
+\includegraphics[width=0.5\textwidth]{images/lb2-figure6-4b.png} \\
+(a) $10 \bigcirc, 10 \bigtriangleup$ & 
+(b) L: $5 \bigcirc, 5 \bigtriangleup$, R: $5 \bigcirc, 5 \bigtriangleup$\\
+\includegraphics[width=0.5\textwidth]{images/lb2-figure6-4c.png} &
+\includegraphics[width=0.5\textwidth]{images/lb2-figure6-4d.png} \\
+(c) L: $10 \bigcirc, 8 \bigtriangleup$, R: $2 \bigcirc, 0 \bigtriangleup$ & 
+(d) L: $10 \bigcirc, 0 \bigtriangleup$, R: $0 \bigcirc, 10 \bigtriangleup$ \\
+\end{tabular}\\
+\cite[Fig 6.4]{LB2:2004}
+}
+\end{center}
+{\small
+\begin{itemize}
+\item[(b)] $entropy(L) = -1*(0.5*log_2(0.5) + Pr(0.5)*log_2(0.5)) = 1.0$
+\item[(c)] $entropy(L) = -1*(0.56)*log_2(0.56) + (0.44)*log_2(0.44) = 0.9896$
+\item[(d)] $entropy(L) = -1*(1.0)*log_2(1.0) + (0.0)*log_2(0.0) \rightarrow 0.0$
+\end{itemize}
+}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%\begin{frame}{I.3. Decision Trees (p14): comparison}
+%\begin{center}
+%\begin{tabular}{cc}
+%\includegraphics[width=0.5\textwidth]{images/lec3-gini.png} &
+%\includegraphics[width=0.5\textwidth]{images/lec3-entropy.png} \\
+%(a) $y=$ Gini measure, & (b) $y=$ Entropy measure, \\
+%    $x=$ probability   &     $x=$ probability \\ 
+%\end{tabular}
+%\end{center}
+%\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.3. Decision Trees: $\chi^2$ (chi-square)}
+\begin{itemize}
+\item Assesses statistically whether the split is due to \strong{chance}
+\item The higher the value of the $\chi^2$ statistic, the less likely this is a chance split
+\item In other words, high values of $\chi^2$ means subsets have significantly different distributions
+\item If a split is not by chance, then it is \strong{important}
+\item For a child node, the $\chi^2$ value is the sum of squares of the difference between \strong{expected} and \strong{observed} frequencies of the target attribute
+\[
+\begin{array}{l}
+	( 100 - 100 )^2 / 100 = 0 \\
+	( 100 - 50 )^2 / 100 = 25 \\
+\end{array}
+\]
+\item $\chi^2$ grows as the size of the data set grows (not always between $0$ and $1$ like Gini and Entropy)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.3. Decision Trees: Improving metrics}
+\begin{itemize}
+\item A basic tree algorithm will continue to split, but this risks \strong{overfitting} to the training data
+\item In order to avoid overfitting:
+\item[--] Set a large minimum leaf size
+\item[--] Grow a tree as long as splits are significant
+\item[--] Try \stronger{pruning} to eliminate splits that are not significant
+\item When pruning, it is possible to stop a tree as it is growing (pre-pruning) or to trim it once it is grown (post-pruning)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.4. Decision Trees: Famous algorithms}
+\begin{itemize}
+\item[] Three famous decision tree methods:
+\item[]
+\item CART
+\item[]
+\item ID3
+\item[]
+\item C4.5
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.4. Decision Trees: CART}
+\begin{itemize}
+\item \stronger{CART} = \emph{Classification And Regression Trees}~\cite{breiman-cart:1984}
+\item The model (classification tree) consists of:
+\item[] \strong{univariate binary decisions}
+\item[] i.e., yes-no decisions made based on \emph{one} variable at a time
+\item The tree structure is derived from the data
+\item CART first decides which is the best variable for splitting the data into two disjoint subsets to maximize the \strong{homogeneity} of each subset
+\item Strategy:
+\item[--] Keep splitting, recursively
+\item[--] Then prune
+\item Prune first the branches providing the least predictive power
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.4. Decision Trees: ID3 (p1)}
+\begin{itemize}
+\item \stronger{ID3} = \emph{Iterative Dichotomiser}~\cite{quinlan-id3:1986}
+\item Uses \strong{Top-Down Induction of Decision Trees (TDIDT)}
+\item Algorithm:
+\item[--] A \strong{window} is chosen randomly, which is a subset of the training set
+\item[--] A decision tree is formed from the window which correctly classifies all instances in the window
+\item[--] Then the decision tree is applied to all the other instances in the training set
+\item[--] If this decision tree correctly classifies all the other instances in the training set, then we're done
+\item[--] If not, then the incorrectly classified instances are added to the window, and the process repeats
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.4. Decision Trees: ID3 (p2)}
+\begin{itemize}
+\item The abstract goal of \strong{ID3} is to define a test $T$ which partitions an arbitrary set of instances $I$ into classes $C$
+\item All the instances in a partition will have the same value of $C$
+\item How do we decide what the test is?
+\item ID3 uses ideas from \strong{Information Theory}
+\item Based on two assumptions:
+\item[(1)] Any correct decision tree for $I$ will create partitions that are proportional to the representation of instances in $I$
+\item[--] $Pr( i \in P ) = \frac{p}{p+n}$ 
+\item[--] $Pr( i \in N ) = \frac{n}{p+n}$
+\item[(2)] The decision tree can communicate the message $P$ or $N$ using the following amount of information:
+\[
+inf(p,n) = - \frac{p}{p+n}log_2\frac{p}{p+n} - \frac{n}{p+n}log_2\frac{n}{p+n}
+\]
+\item ID3 looks at the \strong{expected information gain} of the set of trees, and selects accordingly
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.4. Decision Trees: ID3 (p3)}
+\begin{itemize}
+\item Attribute $A = \{a_1,a_2,\ldots,a_v\}$ is the root of the decision tree
+\item This will partition $I = \{i_1,i_2,\ldots,i_v\}$ where $i_j$ contains the instances in $I$ that have the value $a_j$
+\item Let $i_j$ contain $p_j$ instances of class $P$ and $n_j$ instances of class $N$
+\item The expected information for the decision tree for $i_j=inf(p_j,n_j)$
+\item For tree with root $A$, the expected information is:
+\[
+E[A] = \sum_{i=1}^v{ \frac{ p_j + n_j }{ p + n } inf(p_j,n_j) }
+\]
+\item and thus the \strong{expected information gain} is:
+\[
+gain(A) = inf(p,n) - E[A]
+\]
+\item In general, we want to choose the attribute $A$ which gains the most information
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.4. Decision Trees: C4.5 (p1)}
+\begin{itemize}
+\item \stronger{C4.5} and \stronger{C5.0}~\cite{quinlan-c4.5:1987,quinlan-c4.5:1996}
+\item This work extends ID3 and introduces \strong{reduced error pruning}
+\item The error rate is estimated using the upper bound (UB) of the statistical confidence interval:
+\[
+\varepsilon_{UB}(T,S) = \varepsilon(T,S) + Z_\alpha \cdot \sqrt{\frac{\varepsilon(T,S) \cdot ( 1 - \varepsilon(T,S) ) }{|S|}}
+\]
+\item[] where
+\item[--] $\varepsilon(T,S)$ = misclassification rate of $T$ on $S$
+\item[--] $Z$ is the inverse of the standard normal cumulative distribution
+\item[--] $\alpha$ is the desired significance level
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3.4. Decision Trees: C4.5 (p2)}
+\begin{itemize}
+\item The C4.5 pruning process computes three values:
+	\begin{enumerate}
+	\item $\varepsilon_{UB}(subtree(T,t),S_t)$
+	\item $\varepsilon_{UB}(pruned(subtree(T,t),t),S_t))$
+	\item $\varepsilon_{UB}(subtree(T,maxchild(T,t)),S_{maxchild(T,t)})$
+	\end{enumerate}
+\item[] where
+	\begin{itemize}
+	\item $subtree(T,t)$ is the subtree with root $t$
+	\item $maxchild(T,t)$ is the most popular child node of $t$ (i.e., the node reached by the most instances in $S$)
+	\item $S_t$ is the subset of instances in $S$ that reach node $t$
+	\end{itemize}
+\item Selecting the lowest value of these, we either:
+	\begin{enumerate}
+	\item Do nothing
+	\item Prune node $t$
+	\item Replace $t$ with $maxchild(T,t)$
+	\end{enumerate}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.4. Discussion (p1)}
+\begin{itemize}
+\item[] Summary
+\item[]
+\item Advantages
+\item[--] Tree structure can easily handle variables of mixed data types
+\item[--] Tree structure is built based on one variable at a time
+\item[--] Trees can handle missing data
+\item[]
+\item Disadvantages
+\item[--] Decision boundaries must form hyper-rectangles (i.e., parallel to input axes)
+\item[--] Overfitting is a potentially significant problem
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.4. Discussion (p2)}
+\begin{itemize}
+\item CART, ID3, C4.5, CART are all \strong{top-down}, \strong{recursive}, \strong{divide-and-conquer} approaches to decision tree induction
+\item CART 
+	\begin{itemize}
+	\item Input: numerical and categorical
+	\item Splitting: Gini index %and Twoing criterion
+%	\item Missing values handling: Surrogate splits
+	\item Pruning: bottom-up minimal cost complexity pruning
+	\end{itemize}
+\item ID3 
+	\begin{itemize}
+	\item Input: categorical only
+	\item Splitting: Maximum Information Gain and Minimum Entropy
+%	\item Missing values handling : no
+	\item Pruning: no
+	\end{itemize}
+\item C4.5, C5.0
+	\begin{itemize}
+	\item Input: numerical and categorical
+	\item Splitting: Information Gain and Gain Ratio
+%	\item Missing values handling: handles by omitting from calculations
+	\item Pruning: compares confidence intervals of error rate for split vs prune
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.4. Discussion (p3)}
+\begin{itemize}
+\item[] Other variants:
+\item[]
+\item \stronger{Random Forest}~\cite{breiman:2001}
+	\begin{itemize}
+	\item Multiple CART on samples with replacement
+	\item $m<M$ attributes as input
+	\item Grow tree
+	\item Combine with votes
+	\end{itemize}
+\item[]
+\item \stronger{Gradient Boosting Tree}~\cite{friedman:1999}
+	\begin{itemize}
+	\item Weak learner to strong learner
+	\item After the first tree is built:
+	\item[] Resamples data and builds next tree on oversampled instances misclassified by previous
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.4. Discussion (p4)}
+\begin{itemize}
+\item[] \strong{Decision Trees} vs \strong{Covering Rules}
+\item[]
+\item \emph{Covering Rules} operate by adding conditions to the rule under construction with the objective of maximum accuracy
+\item[]
+\item \emph{Divide and Conquer} operates by adding conditions to the split under construction to maximise separation
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+%--------------------------------------------------------------------------------
+\section{PART II: Evaluating Classification Results}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part II: Evaluating Classification Results}
+\begin{itemize}
+\item[II.1.] Overview of Evaluation
+\item[II.2.] Confusion Matrix
+\item[II.3.] Cohen's Kappa
+\item[II.4.] Lift
+\item[II.5.] ROC
+\item[II.6.] Precision and Recall
+\item[II.7.] Summary
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Evaluation (p1)}
+\begin{itemize}
+\item Evaluating performance on the \strong{training set} is \textbf{not} a reliable predictor of performance on some other independent data set
+\item[--] That's why we define a \strong{test set}
+\item[--] Good quality data is often scarce, even in large data sets
+\item \strong{Statistical tests} can compare the performance of different methods on the same data
+\item[--] Different tests are needed depending on what is being compared
+%\item[$\bullet$] Classification of instances
+%\item[$\bullet$] Prediction of values
+\item It is also important to estimate the \strong{cost} or \strong{risk} associated with \stronger{incorrect} results (e.g. life or death?)
+\item And to be able to understand \stronger{why} mis-classification happened
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Evaluation (p2)}
+\begin{itemize}
+\item The \strong{error rate} is the proportion of errors over all instances:
+\[
+error\_rate = ( incorrect ) / ( correct + incorrect )
+\]
+\item The error rate on \stronger{training data} is called \strong{resubstitution error}
+\item[] It is still useful information, even if it's not a good predictor of the error rate on independent data
+\item The \stronger{test set} is considered a valid independent data set for evaluation because it was not used to train the classifier
+\item The term \strong{holdout} refers to the amount of data held for testing
+\item Be suspicious of a perfect classifier! i.e. $error\_rate = 0$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Evaluation (p3)}
+\begin{itemize}
+\item When there are plenty of instances, split them into 2 or 3 independent sets:
+	\begin{enumerate}
+	\item \stronger{Training set} --- used to learn classification rules
+	\item \stronger{Validation set} --- used to optimise classification parameters or select a classifier; not always used
+	\item \stronger{Test set} --- used to evaluate classification rules
+	\end{enumerate}
+\item If data is sparse, then the \strong{training set} can be re-integrated into the \strong{test set} in order to create a larger data set for evaluation
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Evaluation (p4)}
+\begin{itemize}
+\item There are trade-offs between the size of the training vs test sets:
+	\begin{itemize}
+	\item[--] Larger training set means exposing the classifier to a larger portion of the space to be learned
+	\item[--] Larger test set means a more accurate estimate of the error rate
+	\end{itemize}
+\item When there are not enough instances, \stronger{cross-validation} techniques can be used
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Evaluation (p5)}
+\begin{itemize}
+\item \stronger{Stratification} is the process of randomly sampling a data set to create training and test sets that each contain proper representations of each class
+\item This can also be called \stronger{stratified holdout} (which refers to the creation of the test set)
+\item Or by creating several different training and test sets, called \stronger{repeated holdout} (this can be done using stratification or any other selection method)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Evaluation (p6)}
+\begin{itemize}
+\item \stronger{Cross-validation} is the process of partitioning the data into $N$ \strong{folds} (partitions or subsets)
+\item Then $1$ fold is used for testing (the holdout) and the remaining $N-1$ folds are used for training
+\item If the instances for each fold are selected using stratification, then this is called \stronger{stratified N-fold cross-validation}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Evaluation (p7)}
+\begin{itemize}
+\item \stronger{Tenfold cross-validation}:
+\item[]
+\item With $N-$fold cross-validation, the learning process is repeated $N$ times, once for each of the $N$ training/test set combinations
+\item The \emph{error rate} is computed $N$ times
+\item[] and averaged to yield an overall error rate
+\item $N=10$ is most commonly used
+\item For accuracy, it is common to repeat the whole process $10$ times, thus yielding \emph{10 times tenfold cross-validation}; and average the results
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Evaluation (p8)}
+\begin{itemize}
+\item \stronger{Leave-one-out cross-validation}:
+\item[]
+\item An alternative to $N$-fold cross-validation where $N$ is the number of instances in the data set
+\item This means that the size of the test set is exactly $1$
+\item[] and the size of the training set is the maximal it could be given the data set at hand
+\item This also means that the folds are not randomly sampled, so there is not really any chance of \strong{sampling bias}
+\item But this also means the error rate may be artificially high (or low) because the test set is not stratified
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Evaluation (p9)}
+\begin{itemize}
+\item \stronger{Bootstrap}:
+\item[]
+\item Sampling can be done \strong{with} or \strong{without} \strong{replacement}
+\item[--] \strong{with replacement} means that an instance is selected, at random, from the data set and placed into either the training or the test set; the instance is \emph{not removed} from the data set, so when the next instance is selected, \emph{the same instance could be chosen again}
+\item[--] \strong{without replacement} means that the selected instance \emph{is removed} from the data set and it cannot be chosen again
+\item[]
+\item \stronger{Bootstrap} refers to the process of \stronger{sampling with replacement}
+\item It is useful when there is not very much data available
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Evaluation (p10)}
+\begin{itemize}
+\item \stronger{$0.632$ Bootstrap}:
+\item[]
+\item In a dataset of $N$ instances, each instance has a $1/N$ probability of being picked for the training set
+\item This means that each instance also has a $1-(1/N)$ probability of \emph{not} being picked
+\item What is the probability that an instance will \emph{never} be picked for the training set if the dataset is sampled $N$ times?
+\[
+Pr( never ) = ( 1 - \frac{1}{N} )^N \approx e^{-1} = 0.368
+\]
+\item[] which means that the training set will contain approximately $63.2\%$ of the instances in the data set
+\item[] and the test set will contain approximately $36.8\%$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Evaluation (p11)}
+\begin{itemize}
+\item \stronger{$0.632$ Bootstrap}, continued:
+\item[]
+\item This is not as good as tenfold cross-validation, where $90\%$ of the instances are in the training set
+\item Because the bootstrap training and test sets are constructed \strong{with replacement}, there will be a \strong{resubstitution error} (since some portion of the training and test sets are probably the same)
+\item So the error rate is weighted accordingly:
+\[
+error\_rate = 0.632 \times error_{test} + 0.368 \times error_{training}
+\]
+\item But still, the error rates with bootstrap can be artificially high (or low)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Confusion Matrix (p1)}
+\begin{itemize}
+\item \stronger{True Positive rate} $=\frac{TP}{(TP+FN)}$
+	\begin{itemize}
+	\item[--] TP = the total number of instances that were predicted as belonging and actually belong to a class
+	\item[--] TP+FN = the total number of instances that actually do belong to the class
+	\end{itemize}
+\item The \stronger{true positive rate} is the proportion of instances that actually do belong to the class that were correctly identified
+\item[]
+\item \stronger{False positive rate} $=\frac{FP}{(TN+FP)}$
+	\begin{itemize}
+	\item[--] FP = the total number of instances that were predicted as belonging to the class, but actually do not belong to the class
+	\item[--] TN+FP = the total number of instances that actually do not belong to the class
+	\end{itemize}
+\item The \stronger{false positive rate} is the proportion of instances that actually do not belong to the class that were incorrectly identified
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Confusion Matrix (p2)}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{images/wfh-table5-3.png} \\
+\cite[Table 5.3]{WFH4:2016}
+\end{center}
+\begin{itemize}
+\item \stronger{true positive rate} = $TP / ( TP + FN )$
+\item \stronger{false positive rate} = $FP / ( FP + TN )$
+\item \stronger{overall success rate} = $( TP + TN )/( TP + TN + FP + FN )$
+\item \stronger{error rate} = $1 - \frac{ TP + TN }{ TP + TN + FP + FN }$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Confusion Matrix (p3)}
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/wfh-table5-4a}\\
+\cite[Table 5.4a]{WFH3:2011}
+\end{center}
+\begin{itemize}
+\item In a \emph{multi-class prediction problem}, a confusion matrix contains a row and column for each class
+\item The number of \emph{correctly predicted} instances lies in the diagonal
+\item e.g., $M[b,a]=14$ says that $14$ instances were incorrectly predicted as $a$ when they should have been predicted as $b$
+\item success rate = $(88 + 40 + 12) / (100 + 60 + 40) = 140/200 = 70\%$
+\item error rate = $1 - 0.7 = 30\%$ 
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Confusion Matrix (p4)}
+\begin{itemize}
+\item Does this give us a good metric?
+\item One way to evaluate the performance of a classifier is to compute the confusion matrix for that classifier, and also compute a confusion matrix for a \strong{random} classifier --- i.e., one that randomly predicts the classification for each instance
+\item Then we can compare the success rate (or error rate) to determine whether our classifier does better than random (which is, of course, what we want!)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Cohen's Kappa (p1)}
+\begin{itemize}
+\item The Kappa statistic~\cite{cohen:1960} can be used to measure the agreement between two outcomes, especially when expressed as confusion matrices
+\item This might be used to compare a particular classifier with random
+\item[] or it might be used to compare the agreement (or disagreement) between predictions of individuals
+\[
+\kappa = \frac{ Pr(a) - Pr(e) }{ 1 - Pr(e) }
+\]
+where:
+\item[--] $Pr(a)$ is the proportion of agreement
+\item[--] $Pr(e)$ is the proportion of agreement expected by chance
+\item[--] $1-Pr(e)$ is the proportion for which a hypothesis of ``no association'' would predict disagreement
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Cohen's Kappa (p2)}
+\begin{itemize}
+\item For example---tally the number of instances that two people, $i$ and $j$, classify as $A$ or $B$:\\
+\begin{center}
+\begin{tabular}{r||c|c||c}
+      & $A_i$       & $B_i$       & \\
+\hline
+\hline
+$A_j$ & aa          &  ab         & $\sum{A_j}$ \\
+\hline
+$B_j$ & ba          &  bb         & $\sum{B_j}$ \\
+\hline
+\hline
+      & $\sum{A_i}$ & $\sum{B_i}$ & \\
+\end{tabular}
+\end{center}
+\item \emph{agreement:}
+	\begin{itemize}
+	\item $aa$ is the number of instances that both people classify as $A$
+	\item $bb$ is the number of instances that both people classify as $B$
+	\end{itemize}
+\item \emph{disagreement:}
+	\begin{itemize}
+	\item $ab$ is the number of instances that person $j$ classifies as $A$ but person $i$ classifies as $B$
+	\item $ba$ is the number of instances that person $j$ classifies as $B$ but person $i$ classifies as $A$
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Cohen's Kappa (p3)}
+\begin{itemize}
+\item $N = (aa + bb + ab + ba)$ is the number of instances
+\item $Pr(a)$ is the proportion of agreement:
+\[
+= \frac{(aa + bb)}{N}
+\]
+\item $Pr(e)$ is the proportion of agreement expected by chance:
+\[
+= \left(\frac{(aa + ab)}{N} \times \frac{(aa + ba)}{N} \right) + \left(\frac{(bb + ba)}{N} \times \frac{(bb + ab)}{N}\right)
+\]
+\item and Kappa is:
+\[
+\kappa = \frac{ Pr(a) - Pr(e) }{ 1 - Pr(e) }
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Lift (p1)}
+\begin{itemize}
+\item The idea of \stronger{lift} is to increase the positive ``hit rate'' from a sample data set by artificially increasing the likelihood that a positive instance is found
+\item \stronger{Lift factor} is the \strong{success proportion} of the sample divided by the success proportion of the complete set, where a success proportion is the number of positive instances divided by size of the data set (sample or complete)
+\item A biased sample can be selected by sorting instances in descending order, according to predicted probability that the instance matches the class we're looking for; then selecting the top $N$ from the sorted list, where $N$ is the sample size we seek
+\item This will produce a higher success rate than a random sample, hence the \emph{lift}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Lift (p2)}
+\begin{columns}
+\begin{column}{0.4\textwidth}
+\includegraphics[width=\textwidth]{images/wfh-table5_6.png}\\
+\cite[Table 5.6]{WFH3:2011}
+\end{column}
+\begin{column}{0.6\textwidth}
+\begin{itemize}
+\item This example has 150 instances
+\item There are two classes: \emph{(yes, no)}
+\item 50 are Yes - 33\%
+\item Taking 10 rows randomly = 33\% will be \emph{yes}
+\item Taking the top 10 ranked rows = 80\% will be \emph{yes}
+\item This is lift
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Lift (p3)}
+\begin{itemize}
+\item A \stronger{lift chart} shows expected result from random samples (diagonal line) and result from a sample biased toward producing success (curve)
+\item we want to be in the \emph{upper left corner}\\
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{images/wfh-figure5-1}\\
+\cite[Fig 5.1]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.5. Receiver Operating Characteristic (ROC) (p1)}
+\begin{itemize}
+\item \stronger{ROC} is a term used in signal detection to characterise the trade-off between \strong{hit rate} and \strong{false alarm rate} over a channel
+\item[]
+\item \stronger{ROC curves} are a graphical way of relating the success to failure rate
+\item[]
+\item Typically we measure the \stronger{Area Under the Curve (AUC)} of ROC
+\item If AUC of ROC $=1.0$, then the model is perfect
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.5. ROC (p2)}
+\begin{itemize}
+\item Vertical ($y$) axis contains \strong{true positive rate}
+\item Horizontal ($x$) axis contains the \strong{false positive rate}
+\item Perfect model is when $y=1 \forall x$
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{images/wfh-figure5-3} \\
+\cite[Fig 5.3]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.5. ROC (p3)}
+\begin{itemize}
+\item \stronger{ROC curve} vs \stronger{Lift chart}:
+\item[]
+\item Vertical axis of ROC curve is the same as lift chart, but expressed as a percentage
+\item Horizontal axis of ROC curve is the percentage of negatives, whereas lift chart uses sample size
+\item The curves for different learning algorithms can help you select which algorithm to use, based on your priorities, e.g., we want a smaller sample size, we want a higher proportion of true positives, etc.
+\item Lift charts are used in \emph{marketing}
+\item ROC curves are used in \emph{communications}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.6. Precision and Recall}
+\begin{itemize}
+\item \stronger{Precision}: \emph{(How right are we?)}
+\[
+\mathit{precision} = \frac{ \mathsf{retrieved~and~relevant} }{ \mathsf{retrieved}} = \frac{ TP }{ TP + FP }
+\]
+\item[]
+\item \stronger{Recall}: \emph{(How complete are we?)}
+\[
+\mathit{recall} = \frac{ \mathsf{retrieved~and~relevant} }{ \mathsf{relevant}} = \frac{ TP }{ TP + FN }
+\]
+\item[]
+\item \stronger{F-measure}:
+\[
+\mathit{F\_measure} = \frac{ 2 \times \mathsf{recall} \times \mathsf{precision} }{ \mathsf{recall} + \mathsf{precision} } = \frac{ 2 \times TP }{ 2 \times TP + FP + FN }
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.7. Summary of Evaluation Metrics}
+\begin{center}
+\includegraphics[width=\textwidth]{images/wfh-table5-7}\\
+\cite[Table 5.7]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+%--------------------------------------------------------------------------------
+\section*{SUMMARY AND TO DO}
+%--------------------------------------------------------------------------------
+\begin{frame}[fragile]{Summary (p1)}
+\begin{itemize}
+\item Today we talked about \stronger{Classification}: Nominal $\rightarrow$ Nominal
+\item When certain attribute values in a data set can be used to predict the \stronger{class} or \stronger{label}:
+\begin{lstlisting}[numbers=none]
+if (temperature == hot) and (humidity == high):
+	play = no
+\end{lstlisting}
+\item For example, two \strong{attribute} values predict the \strong{label}:
+\end{itemize}
+\begin{center}
+\begin{tabular}{|c|c||c|c|l}
+\multicolumn{2}{|c||}{\strong{\emph{attributes}}}
+                                     & \multicolumn{2}{|c|}{\strong{\emph{play} (label)}} \\
+\emph{temperature} & \emph{humidity} & \emph{observed} & \emph{predicted} \\
+$(x_1)$            & $(x_2)$         & $(y)$           & $(\hat{y})$ \\
+\cline{1-4}
+hot & high & no  & {\color{blue}no} & $\leftarrow$ \emph{right}\\
+hot & high & yes & {\color{blue}no} & $\leftarrow$ \emph{wrong}\\
+\cline{1-4}
+\end{tabular}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}[fragile]{Summary (p2)}
+\begin{itemize}
+\item The type of \stronger{rule} or \stronger{function} or \stronger{concept definition} we build is based on the type of \textbf{input data} we have and the type of \textbf{output data} we want to predict:
+\end{itemize}
+\begin{center}
+\begin{tabular}{rr||c|c|}
+ & & \multicolumn{2}{|c|}{\textbf{output data:}} \\
+ & & \strong{numeric} & \strong{nominal} \\
+\hline
+\hline
+& & & \\
+& \strong{numeric} & {\color{lightgrey} Regression}  & {\color{lightgrey} Classification} \\
+\textbf{input} & & & \\
+\cline{2-4}
+\textbf{data:} & & & \\
+& \strong{nominal} & {\color{lightgrey} (Classification)} & \stronger{Classification} \\
+& & & \\
+\hline
+\end{tabular}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{Summary (p3)}
+\begin{itemize}
+\item Next Week: Numeric $\rightarrow$ Numeric / Nominal
+\begin{center}
+\begin{tabular}{cc}
+\includegraphics[width=0.3\textwidth]{materials/images/lecture2-screenshot1.png} &
+\includegraphics[width=0.3\textwidth]{materials/images/lecture2-screenshot2.png} \\
+(a) regression &
+(b) classification \\
+\end{tabular}
+\end{center}
+\item \stronger{Regression}:
+\item[--] Model returns a \strong{number} based on a \strong{numeric relationship} between numeric attributes
+\item[--] We compute a \stronger{regression equation}, e.g., $\hat{y} = w_0 + w_1 * x_1$
+\item \stronger{Classification}:
+\item[--] Model returns a \strong{class} based on a \strong{numeric relationship} between numeric attributes
+\item[--] We compute a \strong{decision boundary}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{To Do}
+\begin{enumerate}
+\item Finish the Workshop exercises from Week 1
+\item Reading:
+	\begin{itemize}
+	\item Output: Knowledge representation: \cite[ch 3]{WFH3:2011} or \cite[ch 4]{WFH4:2016}
+	\item Training and testing: \cite[ch 5.1]{WFH3:2011} or \cite[ch 5.1]{WFH4:2016}
+	\end{itemize}
+\item Advanced Reading (optional):
+	\begin{itemize}
+	\item Inferring rudimentary rules: \cite[ch 4.1]{WFH3:2011} or \cite[ch 4.1]{WFH4:2016}
+	\item Divide and conquer: Construction decision trees: \cite[ch 4.3]{WFH3:2011} or \cite[ch 4.3]{WFH4:2016}
+	\item Covering algorithms: Constructing rules: \cite[ch 4.4]{WFH3:2011} or \cite[ch 4.4]{WFH4:2016}
+	\item Predicting Performance: \cite[ch 5.2]{WFH3:2011} or \cite[ch 5.2]{WFH4:2016}
+	\item Cross-validation: \cite[ch 5.3]{WFH3:2011} or \cite[ch 5.3]{WFH4:2016}
+	\item Other estimates: \cite[ch 5.4]{WFH3:2011} or \cite[ch 5.4]{WFH4:2016}
+	\end{itemize}
+\end{enumerate}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+%--------------------------------------------------------------------------------
+\section*{REFERENCES}
+%--------------------------------------------------------------------------------
+% use 'allowframebreaks' if refs flow onto multiple slides (each will be numbered 'REFERENCES I', 'REFERENCES II' etc)
+\begin{frame}[allowframebreaks]{REFERENCES}
+%\begin{frame}{REFERENCES}
+\bibliographystyle{plain}
+\bibliography{refs}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+\end{document}

@@ -1,0 +1,818 @@
+\documentclass[handout]{beamer}
+\usetheme{boxes}
+
+\usecolortheme{orchid}
+\definecolor{teal}{HTML}{009999}
+\definecolor{lightteal}{HTML}{00CCCC}
+\definecolor{purple}{HTML}{990099}
+\definecolor{lightpurple}{HTML}{CC00CC}
+\definecolor{darkgrey}{HTML}{666666}
+\definecolor{lightgrey}{HTML}{AAAAAA}
+\definecolor{darkred}{HTML}{660000}
+\definecolor{darkgreen}{HTML}{006600}
+\definecolor{darkblue}{HTML}{000066}
+\definecolor{lightred}{HTML}{AA0000}
+\definecolor{lightgreen}{HTML}{00AA00}
+\definecolor{lightblue}{HTML}{0000AA}
+\setbeamercolor{title}{fg=darkblue}
+\setbeamercolor{frametitle}{fg=darkblue}
+\setbeamercolor{itemize item}{fg=teal}
+\setbeamercolor{itemize subitem}{fg=lightteal}
+
+\usepackage{fancybox}
+\usepackage{adjustbox}
+\usepackage{mathptmx}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{amsmath}
+
+% For math brackets
+\usepackage{amsmath}
+
+% gets rid of bottom navigation bars
+\setbeamertemplate{footline}[frame number]{}
+
+% gets rid of bottom navigation symbols
+\setbeamertemplate{navigation symbols}{}
+
+% uses number labels in bibliography
+\setbeamertemplate{bibliography item}{\insertbiblabel}
+
+% my style for emphasising stuff in colours
+\newcommand{\strong}[1]{\textbf{\color{teal} #1}}
+\newcommand{\stronger}[1]{\textbf{\color{purple} #1}}
+
+% title, etc
+\title{Mixture Models\\{\small (lecture 9)}}
+\subtitle{AGR9013 -- Introduction to Data Mining\\
+{\tiny (version 1)}}
+\author{Dr Ionut Moraru}
+\institute{University of Lincoln, School of Agri-Foods Technology and Manufacturing}
+\logo{\includegraphics[width=1cm]{images/uol-logo.png}}
+\date{28-November-2023}
+
+\addtobeamertemplate{navigation symbols}{}{\hspace{1em}    \usebeamerfont{footline}%
+    \insertframenumber / \inserttotalframenumber }
+
+% Remove navigation symbols
+\beamertemplatenavigationsymbolsempty
+
+\begin{document}
+
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+  belowcaptionskip=0pt,            % reduce space after the listings caption
+  belowskip=0pt,                   % how much vertical space to skip after a listing
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  caption={},                      % default to no caption
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{lightgreen}, % comment style
+  deletekeywords={...},            % if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  frame=single,                    % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=Python,                 % the language of the code
+  mathescape=true,                 % allow math mode within code
+  morekeywords={then,...},         % if you want to add more keywords to the set
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\sf\color{lightgrey}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{darkred},     % string literal style
+  tabsize=3,                       % sets default tabsize to 3 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+%--------------------------------------------------------------------------------
+\frame{\titlepage}
+
+
+%--------------------------------------------------------------------------------
+\section*{OUTLINE}
+%--------------------------------------------------------------------------------
+\begin{frame}{Outline}
+\begin{itemize}
+\item Part I: Mixture Models
+\item Part II: Methods for Complex Data
+\item To Do
+\vspace*{0.3cm}
+\end{itemize}
+\end{frame}
+%--------------------------------------------------------------------------------
+
+%--------------------------------------------------------------------------------
+\section{PART I}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part I: Mixture Models}
+\begin{itemize}
+\item[I.1.] Introduction to Mixture Models
+\item[I.2.] Gaussian Mixture Models
+\item[I.3.] Expectation-Maximization
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Introduction to Mixture Models (p1)} % hand ch 9.2.4
+\begin{itemize}
+\item \stronger{Mixture Models} are comprised of linear components of simple distributions
+\item[]
+\item Provide a good application of parametric models
+\item[]
+\item Useful for modelling probability densities\\
+	(as we're doing here)
+\item[]
+\item Widely used for modelling complex distributions
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Introduction to Mixture Models (p2)}
+\begin{itemize}
+\item Data is often \stronger{heterogeneous}, containing multiple subgroups or sub-populations of a larger data set
+\item Figure is ``a histogram of the number of weeks during 1996 in which owners of a particular credit card used that card to make supermarket purchases''~\cite[p.57]{hand-et-al:2001} and the $x$ axis represents numbers of weeks ($[0,52]$) in the year
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/hand-figure3-1}\\
+\cite[Figure 3.1]{hand-et-al:2001}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Introduction to Mixture Models (p3)}
+\begin{center}
+\includegraphics[width=0.4\textwidth]{images/hand-figure3-1-annotated}\\
+\end{center}
+\begin{itemize}
+\item We can use this histogram to build a finite, 2-component mixture model by splitting the histogram in two groups, with one function (e.g. pdf) describing each group:
+\[
+	f(x) = Pr(Gr_1) pdf(Gr_1,w_1) + Pr(Gr_2) pdf(Gr_2,w_2)
+\]
+{\small where:}
+\item[--] {\small $x$ is the point on the $x$-axis where we divide the data into two subgroups, $0 \le x \le 52$, e.g. $x=16$}
+\item[--] {\small $Pr(Gr_1)$ is the probability that a person belongs to the 1st group}
+\item[--] {\small $Pr(Gr_2)$ is the probability that a person belongs to the 2nd group}
+\item[--] {\small $w_1$ and $w_2$ are the parameters of two distribution models}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Introduction to Mixture Models (p4)}
+\begin{itemize}
+\item General form of a \stronger{mixture distribution}:
+\[
+	{\bf f}(\chi) = \sum_{k=1}^{K} \pi_k ~ {\bf f_k}( \chi; \omega_k )
+\]
+\item[] where there are $K$ components (each is $k$)
+\item ${\bf f_k}( \chi; \omega )$ is the distribution for component $k$
+\item $\omega_k$ are the parameters for component $k$
+\item $\pi_k$ is the \strong{weighting} of component $k$ in the mixture, $0 \le \pi_k \le 1$, i.e., the probability that a randomly chosen data point was generated by component $k$
+\item all $\pi_k$'s sum to $1$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Introduction to Mixture Models (p5)}
+\begin{itemize}
+\item[]\textbf{When $K=1$:}
+\item Simple parametric distribution
+\item Density estimation = parameter estimation\\
+	(e.g., maximum likelihood)
+\item[]
+\item[]\textbf{When $K \rightarrow M$:}
+\item[] (where $M$ is the number of observations or instances)
+\item \strong{Kernel density} estimation (each $K$ is a ``kernel'')
+\item The complexity of the mixture model increases as $K$ increases
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Introduction to Mixture Models (p6)}
+\begin{itemize}
+\item For example:
+\end{itemize}
+\begin{center}
+\begin{tabular}{ccc}
+\includegraphics[width=0.3\textwidth]{images/hand-figure6-6a} &
+\includegraphics[width=0.3\textwidth]{images/hand-figure6-6b} &
+\includegraphics[width=0.3\textwidth]{images/hand-figure6-6c} \\
+(a) data points & 
+(b) underlying  & 
+(c) contours of \\
+generated from &
+component densities &
+overall mixture \\
+three distributions &
+within $\mu \pm 3\sigma$ & 
+density function \\
+\end{tabular}\\
+\cite[Figure 6.6]{hand-et-al:2001}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Introduction to Mixture Models (p7)}
+\begin{itemize}
+\item Probabilistic model-based clustering can be used in mixture models
+\item The likelihood of the data, given the mixture model, is used as the score function, which we aim to maximize:
+%, although other criteria (such as the so-called classification likelihood) can also be used
+\[
+	L(\omega) = log \big[ \sum_{k=1}^{K} ~ \pi_k ~ {\bf f_k}( \chi; \omega_k) \big]
+\]
+\item Once a mixture decomposition has been found, the data can then be assigned to clusters (each cluster represented by $k$)
+\item For example, by assigning each point, $x \in \chi$, to the cluster, $k$, from which it is most likely to belong
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Gaussian Mixture Model (p1)}
+\begin{itemize}
+\item A \stronger{Gaussian Mixture Model (GMM)} is a probabilistic version of K-Means clustering
+\item A GMM can be represented as:
+\[
+Pr(\chi_j) = \sum_{k=1}^{K}{ Pr(C_k) Pr(\chi_j|C_k) }
+\]
+\item[] where:
+\item $\chi_j$ represents one observation (instance)
+\item $C_k$ represents the \textbf{component} of the mixture model, where there are $k$ components
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Gaussian Mixture Model (p2)}
+\begin{itemize}
+\item We assume that each component, $C_k$, of the mixture model is represented by a Gaussian distribution
+\item[]
+\item[] The parameters of each component are:
+\item $Pr(C_k)$ --- the weight (probability) of each component
+\item $\mu_k$ --- the mean of each component
+\item $\sigma_k$ --- the standard deviation of each component
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Gaussian Mixture Model (p3)}
+\begin{itemize}
+\item We use the \stronger{Expectation-Maximization (E-M)} algorithm to find the probability distribution of each GMM component
+\item[]
+\item With E-M, we make a guess assigning each observation ($\chi_j$) to a component ($C_k$) and $\omega$ for each component ($C_k$)
+\item[]
+\item \strong{Expectation:} We have to learn which component $C_k$ each observation (in $\chi$) most likely belongs to
+\item \strong{Maximization:} And we have to learn the parameters (mean and standard deviation) for that component
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Gaussian Mixture Model (p4)}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/lb2-figure11-8.png}\\
+Expectation: for each Gaussian, assign ``responsibility'' for instances; closer Gaussians have more ``responsibility'' (weight)\\
+\cite[Figure 11.8]{LB2:2004}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Gaussian Mixture Model (p5)}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/lb2-figure11-9.png}\\
+Maximization step: compute new Gaussians; recompute centroids and distributions using weights from previous step\\
+\cite[Figure 11.9]{LB2:2004}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Gaussian Mixture Model (p6)}
+\begin{itemize}
+\item This is a \stronger{mixture model} because each instance is assigned a probability that it ``belongs'' to each Gaussian
+\item[]
+\item We can consider each Gaussian to represent a \stronger{cluster}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Expectation-Maximization (p1)}
+\begin{itemize}
+\item \stronger{Expectation-Maximization (E-M)} consists of two steps:
+\item[]
+\item \stronger{E-step}:
+\item[--] Guess at parameter values for each component ($\omega$ for each $C_k$, i.e., mean ($\mu$) and standard deviation ($\sigma$) of its Gaussian)
+\item[--] Then calculate the probability that each data point came from that component's distribution,
+$Pr(\chi_j|C_k)$
+\item[]
+\item \stronger{M-step}:
+\item[--] Given the probability that each data point came from component, calculate new parameters, $\omega$, for each component (mean ($\mu$) and standard deviation ($\sigma$))
+\item[--] Then re-calculate probabilistic membership of each observation for each component
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Expectation-Maximization (p2)}
+\begin{itemize}
+\item The aim is to maximize the \stronger{log likelihood} of the observed data:
+\[
+	L( \omega ) = \sum_{k=1}^{K}{ log ~ {\bf f}( \omega; \chi ) }
+\]
+where $\omega$ represents the parameters of $C_k$
+\item[]
+\item So we could also say:
+\[
+\begin{array}{rcl}
+L( \omega | \chi_N ) & = & Pr( \chi_N | \omega ) \\
+                     & = & Pr( \chi_1,\ldots,\chi_N | \omega ) \\
+                     & = & Pr( \chi_1 | \omega ) * Pr( \chi_2 | \omega ) \ldots Pr( \chi_N | \omega )\\
+\end{array}
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Expectation-Maximization (p3)}
+\begin{itemize}
+\item Each step of E-M is guaranteed not to decrease $L(\omega)$
+\item This is an important property of E-M.
+\item E-M is essentially a \strong{hill-climbing} algorithm in multivariate parameter space where direction and distance are specified by the E and M steps
+\item[]
+\item Typically it is good to run E-M from several different starting points, which is called \strong{restart}ing
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Expectation-Maximization (p4)}
+\begin{itemize}
+\item E-M is characterised by taking big steps initially, and then converging more slowly
+\item Often, the algorithm converges in 5-20 iterations
+\item \strong{Multiple restarts} is key
+\item Cautions:
+\item[--] If the standard deviation of a component is $0$, then the likelihood will increase to $\infty$
+\item[--] This can happen if a component has only one member
+\item[--] One alternative is to constrain the model, e.g., so all standard deviations are equal and non-$0$...
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Expectation-Maximization (p5)}
+\begin{center}
+\begin{tabular}{cc}
+\includegraphics[width=0.45\textwidth]{images/rn-figure20-11b.png} &
+\includegraphics[width=0.45\textwidth]{images/rn-figure20-11c.png} \\
+(a) raw data & (b) mixture model from E-M \\
+\end{tabular}\\
+Example from~\cite[ch.20]{RN3:2009}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+%--------------------------------------------------------------------------------
+\section{PART II}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part II: Methods for Complex Data}
+\begin{itemize}
+\item[II.1.] Ensemble Methods $\Rightarrow$ \emph{Classification}
+\item[II.2.] Kernel Methods $\Rightarrow$ \emph{Regression}
+\item[II.3.] Hidden Models $\Rightarrow$ \emph{Sequence analysis}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Ensemble Methods (p1)} % from dietterich
+\begin{itemize}
+\item \stronger{Ensemble methods} combine predictions from multiple classifiers using some type of function, such as a weighted average of their predictions
+\item[]
+\item Methods include:
+	\begin{enumerate}
+	\item \stronger{Bayesian voting}
+	\item \stronger{Bagging}
+	\item \stronger{Boosting}
+	\end{enumerate}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Ensemble Methods (p2)}
+\begin{itemize}
+\item A classifier is considered \strong{accurate} if its results are better than random 
+\item[] i.e., error rate $< 50\%$ for a binary classifier
+\item An \strong{ensemble of classifiers} must be more accurate than any of its individual members
+\item There are three reasons why ensemble methods can produce better results than its individual members:
+	\begin{itemize}
+	\item Statistical
+	\item Computational
+	\item Representational
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Ensemble Methods (p3)}
+\begin{itemize}
+\item \strong{Statistical reasons}: each classifier produces an hypothesis, $h_i$, about the data
+\item The true hypothesis is $f$
+\item The average over all the $h_i$'s is better than any of them alone
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.4\textwidth]{images/dietterich-fig2a.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Ensemble Methods (p4)}
+\begin{itemize}
+\item \strong{Computational reasons}: learning methods use techniques like gradient descent and can get stuck in local optima
+\item Multiple searchers would be less likely to all end up in the same local optima
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.4\textwidth]{images/dietterich-fig2b.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Ensemble Methods (p5)}
+\begin{itemize}
+\item \strong{Representional reasons}: each classifier can only represent some aspects of the true hypothesis
+\item By combining representations from multiple classifiers, we represent more aspects
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.4\textwidth]{images/dietterich-fig2c.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Ensemble Methods (p6)}
+\begin{itemize}
+\item[] \emph{One method:} \stronger{Bayesian voting} --- 
+combining results from multiple classifiers
+\item Given data point $x$ and training data $D$, the problem of computing our hypothesis $f(x)$ is the problem of computing:
+\[
+	Pr(f(x)=y|D,x)
+\]
+\item[] which can be computed as a weighted sum over all the hypotheses:
+\[
+	Pr(f(x)=y|D,x) = \sum_{h \in H}{ h(x) ~ Pr(h|D) }
+\]
+\item This can be approximated as $Pr(h|D) \approx Pr(D|h)~Pr(h)$
+\item And it is usually possible to compute $Pr(D|h)$ and $Pr(h)$
+\item \emph{Does this look familiar??}\\
+Hint: it's the formula for \textbf{likelihood}, the top of the Bayes theorem equation fraction (see Lecture 5, slide 25)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Ensemble Methods (p7)}
+\begin{itemize}
+\item[]  \emph{Another method:} \stronger{Bagging} ---
+manipulating the \strong{training set}
+\item In each training run, a sample of $m<M$ instances are drawn from the full training set (of size $M$), \strong{with replacement}
+\item \emph{Remember \textbf{Boostrap}?} the process of sampling with replacement
+(see Lecture 2, slide 55)
+\item The training set is called a \strong{bootstrap replicate} of the original training set---containing (on average) $63.2\%$ of the original training set
+\item The technique is called \stronger{Bootstrap Aggregation}, or \stronger{Bagging} for short
+\item The method helps improve results when a learning algorithm is not very stable and is sensitive to small variations in the training data (e.g., decision trees and neural networks)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Ensemble Methods (p8)}
+\begin{itemize}
+\item[] \emph{A third method:} \stronger{Boosting} --- manipulating the \strong{training set} and maintaining a set of weights over the training examples
+\item Particularly: \stronger{AdaBoost} algorithm \cite{freund-schapire:1997}
+\item Expands on \strong{Bagging}
+\item The learning algorithm minimises the weighted error on the training set
+and updates the weights on the training examples
+\item The training examples that were mis-classified by a particular hypothesis are weighted more highly than those that were correctly classified
+\item The idea is that the next hypothesis will then work more to classify the higher weighted (possibly more difficult) training examples
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Ensemble Methods (p9)}
+\begin{itemize}
+\item[] \emph{Other approaches:}
+\item Manipulating the \strong{input features}
+	\begin{itemize}
+	\item e.g. not using all the input features or grouping together input features
+	\item But this only seems to work when there is redundancy in the input features
+	\end{itemize}
+\item Manipulating the \strong{output targets}
+	\begin{itemize}
+	\item e.g. \stronger{error-correcting output coding}
+	\item Suppose data set has many classes: partition the classes into subclasses and classify the data using voting (instance belongs to the class for which it received the most votes); repeat and repartition.
+	\item Has been shown to work with decision trees (e.g., C4.5) and neural networks
+	\end{itemize}
+\item Injecting \strong{randomness in the learning algorithm}
+	\begin{itemize}
+	\item e.g. learn using multiple different neural networks, each with a different set of initial random weights
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Ensemble Methods --- Summary}
+\begin{itemize}
+\item Enumerating hypotheses: \stronger{Bayesian voting}
+\item Manipulating training examples: \stronger{Bagging} and \stronger{Boosting}
+\item Manipulating input features
+\item Manipulating output features: \stronger{error-correcting output coding}
+\item Injecting randomness in the learned model
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Kernel Methods (p1)}
+\begin{itemize}
+\item A \stronger{parametric} model is appropriate if we make assumptions about the distribution of the \strong{population} from which the data set (considered a \strong{sample} or subset of the population) is drawn
+\item Parametric models have a fixed number of parameters, regardless of the size of the data set % murphy p16
+\end{itemize}
+\begin{center}
+\begin{tabular}{cc}
+\includegraphics[width=0.4\textwidth]{images/boslaugh-fig3-9.png} &
+\includegraphics[width=0.4\textwidth]{images/hand-figure9-3d.png} \\
+(a) parametric & (b) non-parametric \\
+\cite[Figure 3.9]{boslaugh:2013} &
+\cite[Figure 9.3d]{hand-et-al:2001} \\
+\end{tabular}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Kernel Methods (p2)}
+\begin{itemize}
+\item A \stronger{non-parametric} model is needed if we cannot make any assumptions about how the data is distributed
+\end{itemize}
+\begin{center}
+\begin{tabular}{cc}
+\includegraphics[width=0.4\textwidth]{images/boslaugh-fig3-9.png} &
+\includegraphics[width=0.4\textwidth]{images/hand-figure9-3d.png} \\
+(a) parametric & (b) non-parametric \\
+\cite[Figure 3.9]{boslaugh:2013} &
+\cite[Figure 9.3d]{hand-et-al:2001} \\
+\end{tabular}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Kernel Methods (p3)} % some from hand ch 6.3
+\begin{itemize}
+\item Non-parametric Models are more complex than parametric models
+\item Number of parameters increase with the size of the data set % murphy p16
+\item A \stronger{histogram} is an example of a non-parametric model
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/wolfram-histogram.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Kernel Methods (p4)}
+\begin{itemize}
+\item A histogram is:
+	\begin{itemize}
+	\item A non-smooth function
+	\item Non-deterministic to create (because the number of ``bins'', the location of the bin centres and bin widths are heuristic choices)
+	\end{itemize}
+\item One type of non-parametric density estimation is the \stronger{Kernel Density} method, which involves computing a data-driven weighted average of $x$ measurements about a point of interest
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Kernel Methods (p5)}
+\begin{itemize}
+\item A \stronger{Kernel Estimator} is a type of model that attempts to improve on histograms
+\item The idea is that they smooth out the contribution of a single observation over a local neighbourhood
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/wolfram-kernel.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Kernel Methods (p6)}
+\begin{itemize}
+\item With a kernel function, we can model the data as a weighted sum of all data points in the set proportional to the density at any point $x$:
+\[
+	f(x) = \frac{1}{n} \sum_{i=1}^{n}{ w_i }
+\]
+\item[] for example
+\[
+	w_i = K( \frac{x-x(i)}{h} )
+\]
+\item[--] $K(\cdot)$ is the \stronger{kernel function}
+\item[--] $h$ is the \stronger{bandwidth} of the kernel
+\item The density at point $x$ is proportional to the sum of weights evaluated at $x$
+\item All points are retained (stored) in the model
+\item Note: This is \underline{not} a type of summarisation model
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Kernel Methods (p7)}
+\begin{itemize}
+\item Choice of kernel function:
+	\begin{itemize}
+	\item Usually a smooth, univariate function that integrates to $1$
+	\item For example, the normal distribution
+	\end{itemize}
+\item[]
+\item Choice of $h$:
+	\begin{itemize}
+	\item Determines how smooth the function is
+	\item Large $h \Rightarrow$ smooth function
+	\item Small $h \Rightarrow$ spiky function
+	\item There is no clear method for selecting $h$ (a heuristic choice)
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Kernel Methods (p8)}
+\begin{center}
+\begin{tabular}{cc}
+(a) histogram: & (b) $h$ too big: \\
+\includegraphics[width=0.4\textwidth]{images/hand-figure9-3a} &
+\includegraphics[width=0.4\textwidth]{images/hand-figure9-3b} \\
+(c) $h$ too small: & (d) $h$ just right! \\
+\includegraphics[width=0.4\textwidth]{images/hand-figure9-3d} & 
+\includegraphics[width=0.4\textwidth]{images/hand-figure9-3c} \\
+\end{tabular}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Kernel Methods (p9)}
+\begin{itemize}
+\item Kernel models are harder to define when the number of attributes ($N = |\omega|$) increases, because we need an $N$-dimensional kernel
+\item One approach is to define $N$ one-dimensional kernels, each with its own $h$ value
+\item But in data sets with high dimensions (large $N$), we need \underline{many} data points (i.e., instances, high $M$) to create a reliable model
+\item $\Rightarrow$ Kernel models are impractical with high-dimensional data
+\item In addition, the memory requirement gets complex with high-dimensional data because kernel methods are memory-based (rather than summarisation based)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Kernel Methods (p10)}
+\begin{itemize}
+\item A common kernel function is the \stronger{Gaussian} curve:
+\[
+K(x - x_i,h) = c ~ e^{\frac{1}{2}(\frac{x - x_i}{h})^2}
+\]
+\item[] where:
+\item[--] $c$ is a \stronger{normalisation constant}
+\item[--] $h$ is the \stronger{bandwidth}, in this case $\sigma$ (standard deviation)
+\item[--] $x$ is called the \stronger{query point} and $x_i$ is a data point
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Kernel Methods (p11)} % from hand ch 10.9, wfh ch 6.4
+\begin{itemize}
+\item example: \stronger{Support Vector Machines (SVM)}
+\item SVMs extend the concept of \stronger{perceptrons}
+\item Perceptrons assume that classes are \strong{separable} and look for the \strong{hyperplane} that separates the classes
+\item The hyperplane should maximise between-class distances and minimise within-class distances
+\item SVMs do the same thing, but in more complex space
+\item An SVM can perform \strong{transformations} or \strong{combinations} of raw variables
+\item Linear divisions in transformed space are equivalent to non-linear divisions in non-transformed (i.e., raw) space
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Kernel Methods --- Summary}
+\begin{itemize}
+\item Kernel methods are similar in effect to \textbf{nearest neighbour} methods, where \stronger{bandwidth} is the number of nearest neighbours (i.e., $k$)
+\item[]
+\item Advantages of these types of \stronger{local kernel models}:
+\item[$\bullet$] Non-parametric (i.e., no parameters to estimate, $\omega$), except $h$
+\item[$\bullet$] Good for data of 1-2 dimensions
+\item[]
+\item Disadvantages:
+\item[$\bullet$] Require large numbers of data points (observations, instances)
+\item[$\bullet$] Bad for high-dimensional data
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Hidden Models (p1)}
+\begin{itemize}
+\item Often there are well-defined relationships in data
+\item For example:
+	\begin{itemize}
+	\item Linear chains, sequences (e.g., protein sequences)
+	\item Time series
+	\item Spatial or image data
+	\end{itemize}
+\item Many techniques assume \strong{independence} between instances, but the techniques listed above are cases where \strong{dependence} and \strong{order} between instances is important and should be modelled
+\item Here we look at models with \stronger{hidden variables}, which can be used to capture these properties of a data set
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Hidden Models (p2)}
+\begin{itemize}
+\item The joint density function for \strong{independent} variables is:
+\[
+	{\bf f}(\chi) = {\bf f}(x_1,x_2,\ldots,x_N) = \prod_{i=1}^{N}{{\bf f_i}(x_i)}
+\]
+where ${\bf f_i}$ is the (1-dim) probability density function for $x_i$
+\item But we typically cannot assume independence in the real world
+\item Thus we need:
+\[
+	{\bf f}(\chi) = {\bf f_1}(x_1) \prod_{i=2}^{N}{ {\bf f}(x_i|x_1,x_2,\ldots,x_{i-1})}
+\]
+\item The quantity in the product ($\prod$) is a \strong{sequence of conditional distributions}
+\item This often simplifies because all the $x_i$'s are not\\
+ conditional on others
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Hidden Models (p3)}
+\begin{itemize}
+\item A \stronger{Markov chain} is a common model where all information relevant to $x_i$ is contained in $x_{i-1}$
+\item in which case:
+\[
+{\bf f}(x_i|x_1,x_2,\ldots,x_{i-1}) = {\bf f}(x_i | x_{i-1})
+\]
+\item This can be represented visually as:
+\includegraphics[width=0.7\textwidth]{images/hand-figure6-7}
+\item For example:
+\begin{center}
+\begin{tabular}{r||c|c|c|}
+$col~\rightarrow~row$    & \emph{age} & \emph{education} & \emph{baldness} \\
+\hline
+\hline
+\emph{age}       &            & $\rightarrow$    & $\rightarrow$ \\
+\hline
+\emph{education} & X          &                  & X \\
+\hline
+\emph{baldness}  & X          & X                & \\
+\hline
+\end{tabular}
+\end{center}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Hidden Models (p4)}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/hand-figure6-10}\\
+\cite[Figure 6.10]{hand-et-al:2001}
+\end{center}
+\begin{itemize}
+\item When there is no direct correlation between variables, then it is possible that \strong{hidden} or \strong{latent} variables may exist
+\item The data may contain only the $Y$'s and the $X$'s, but the model may include hidden variables ($Z$'s) that enable better predictions
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Hidden Models (p5)}
+\begin{itemize}
+\item If we assume that variables are \strong{conditionally independent}, then:
+\[
+{\bf f}(x|y) = \prod_{i=1}^{N}{{\bf f_i}(x_i|y)}
+\]
+where $y$ is a class value
+\item We can create a \strong{mixture model} using this form:
+\[
+{\bf f}(x) = \sum_{k=1}^{K} \left[ \prod_{i=1}^{N}{{\bf f_i}(x_i|y=k)} \right] {\bf f}(y=k)
+\]
+\item[] where $y$ is now a \stronger{hidden variable}
+\item For example, this type of model might be used to predict purchases by customers where customers are grouped into $K$ classes and there is a conditionally independent model for each class (e.g., ``women over 40'')
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Hidden Models (p6)} 
+\begin{itemize}
+\item Example: \stronger{Hidden Markov Model (HMM)}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/hand-figure6-11}\\
+\cite[Figure 6.11]{hand-et-al:2001}
+\end{center}
+\item We can model \strong{hidden} state variables in a Markov model
+\item $X$ is the hidden state variable (above)
+\item $Y$ is the output
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Hidden Models --- Summary}
+\begin{itemize}
+\item When dependence and order between instances is relevant, there may be \emph{hidden} (unobserved) information that can help build a more reliable model (more reliable than models that don't incorporate this information)
+\item It is important to understand \emph{dependence} vs \emph{independence} of variables in the data
+\item and whether the \emph{order} or \emph{sequence} in which instances appears is relevant
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+%--------------------------------------------------------------------------------
+\section*{SUMMARY AND TO DO}
+%--------------------------------------------------------------------------------
+% \begin{frame}{Summary: Mixture Models}
+% \begin{itemize}
+% \item
+% \end{itemize}
+% \end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{To Do}
+\begin{enumerate}
+\item Reading:
+	\begin{itemize}
+	\item \cite{WFH3:2011}: Chapters 3.5, 4.7, 4.9, 6.5
+	\item[OR]
+	\item \cite{WFH4:2016}: Chapters 3.5, 4.7, 7.1
+	\item[AND]
+	\item \cite{LB3:2011}: Chapter 9
+	\end{itemize}
+\item Assessment 1: Marks available 5th December
+% \item Assessment 2: Will be posted 4th December; due 11th January
+\end{enumerate}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+%--------------------------------------------------------------------------------
+\section*{REFERENCES}
+%--------------------------------------------------------------------------------
+% use 'allowframebreaks' if refs flow onto multiple slides (each will be numbered 'REFERENCES I', 'REFERENCES II' etc)
+\begin{frame}[allowframebreaks]{REFERENCES}
+%\begin{frame}{REFERENCES}
+\bibliographystyle{plain}
+\bibliography{refs}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+\end{document}

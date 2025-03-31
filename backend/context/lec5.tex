@@ -1,0 +1,948 @@
+\documentclass[handout]{beamer}
+\usetheme{boxes}
+
+\usecolortheme{orchid}
+\definecolor{teal}{HTML}{009999}
+\definecolor{lightteal}{HTML}{00CCCC}
+\definecolor{purple}{HTML}{990099}
+\definecolor{lightpurple}{HTML}{CC00CC}
+\definecolor{darkgrey}{HTML}{666666}
+\definecolor{lightgrey}{HTML}{AAAAAA}
+\definecolor{darkred}{HTML}{660000}
+\definecolor{darkgreen}{HTML}{006600}
+\definecolor{darkblue}{HTML}{000066}
+\definecolor{lightred}{HTML}{AA0000}
+\definecolor{lightgreen}{HTML}{00AA00}
+\definecolor{lightblue}{HTML}{0000AA}
+\setbeamercolor{title}{fg=darkblue}
+\setbeamercolor{frametitle}{fg=darkblue}
+\setbeamercolor{itemize item}{fg=teal}
+\setbeamercolor{itemize subitem}{fg=lightteal}
+
+\usepackage{fancybox}
+\usepackage{adjustbox}
+\usepackage{mathptmx}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{amsmath}
+
+% For math brackets
+\usepackage{amsmath}
+
+% gets rid of bottom navigation bars
+\setbeamertemplate{footline}[frame number]{}
+
+% gets rid of bottom navigation symbols
+\setbeamertemplate{navigation symbols}{}
+
+% uses number labels in bibliography
+\setbeamertemplate{bibliography item}{\insertbiblabel}
+
+% my style for emphasising stuff in colours
+\newcommand{\strong}[1]{\textbf{\color{teal} #1}}
+\newcommand{\stronger}[1]{\textbf{\color{purple} #1}}
+
+% title, etc
+\title{Clustering\\{\small (lecture 5)}}
+\subtitle{AGR9013 -- Introduction to Data Mining\\
+{\tiny (version 1)}}
+\author{Dr Ionut Moraru}
+\institute{University of Lincoln, School of Agri-Foods Technology and Manufacturing}
+\logo{\includegraphics[width=1cm]{images/uol-logo.png}}
+\date{24-October-2024}
+
+\addtobeamertemplate{navigation symbols}{}{\hspace{1em}    \usebeamerfont{footline}%
+    \insertframenumber / \inserttotalframenumber }
+
+% Remove navigation symbols
+\beamertemplatenavigationsymbolsempty
+
+\begin{document}
+
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+  belowcaptionskip=0pt,            % reduce space after the listings caption
+  belowskip=0pt,                   % how much vertical space to skip after a listing
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  caption={},                      % default to no caption
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{lightgreen}, % comment style
+  deletekeywords={...},            % if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  frame=single,                    % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=Python,                 % the language of the code
+  mathescape=true,                 % allow math mode within code
+  morekeywords={then,...},         % if you want to add more keywords to the set
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\sf\color{lightgrey}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{darkred},     % string literal style
+  tabsize=3,                       % sets default tabsize to 3 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+%--------------------------------------------------------------------------------
+\frame{\titlepage}
+
+
+%--------------------------------------------------------------------------------
+\section*{OUTLINE}
+%--------------------------------------------------------------------------------
+\begin{frame}{Outline}
+\begin{itemize}
+\item[] Part I: Finishing up on Probability in Data Mining
+	\begin{itemize}
+	\item[I.0.] Quick review of Terms from Last Lecture
+	\item[I.1.] Scoring Functions that use Probability
+	\end{itemize}
+\vspace*{0.3cm}
+\item[] Part II: Clustering Numeric Data
+	\begin{itemize}
+	\item[II.1] Overview of Clustering
+	\item[II.2] Approaches to Clustering
+	\item[II.3] Metrics for Clustering
+	\item[II.4] Evaluating Clustering
+	\end{itemize}
+\vspace*{0.3cm}
+\item To Do
+\end{itemize}
+\end{frame}
+%--------------------------------------------------------------------------------
+
+
+
+
+%--------------------------------------------------------------------------------
+\section{PART I}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part I: Finishing up on Probability in Data Mining}
+\begin{itemize}
+\item[I.0.] Review of Probability Terms 
+\item[I.1.] Log-likelihood: A Probabilistic Method for Scoring
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.0. Review of Probability Terms}
+\begin{itemize}
+\item \stronger{Prior} probability (i.e. \emph{before} observing any data, $D$)
+	\begin{itemize}
+	\item $Pr(\theta) = $ probability that hypothesis $\theta$ is true, without observing any data\\
+	\item $Pr(D) = $ probability of observing data set $D$, without having a hypothesis\\
+	\end{itemize}
+%
+\item[]
+\item \stronger{Posterior} probability (i.e. \emph{after} observing data, $D$)
+	\begin{itemize}
+	\item $Pr(\theta|D) = $ probability of hypothesis $\theta$ being true, given that we have observed data set $D$
+	\end{itemize}
+%
+\item[]
+\item \stronger{Likelihood}
+	\begin{itemize}
+	\item $Pr(D|\theta) * Pr(\theta) = $ probability of observing data set $D$, given hypothesis $\theta$, multiplied by the probability that hypothesis $\theta$ is true
+	\end{itemize}
+%
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Log-Likelihood (p1)}
+\begin{itemize}
+\item[] \stronger{Log-Likelihood} is a method for scoring models based on probability and likelihood
+\item[]
+\item \strong{Likelihood} is the most common score function used for estimating the parameters of probability functions
+\item[]
+\item \strong{Log-likelihood} is also used
+\item[] (It's just a function of the likelihood and is easier to compute than the likelihood)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Log-Likelihood (p2)}
+\begin{itemize}
+\item Given ${\bf pdf}(D|\theta)$, 
+the probability density function for numeric data associated with
+observing data point $D = \{ x_1, x_2, \ldots, x_n \}$, given hypothesis $\theta$.
+\item For nominal data, ${\bf pdf}$ would be the \textbf{probability distribution function}.
+\item $\theta$ is my theory or my hypothesis about the data
+\item The \stronger{Likelihood} of my hypothesis being correct is:
+\[
+	L(D|\theta) = \prod_{i=1}^{n}{\bf pdf }( x_i | \theta )
+\]
+given the assumption of \stronger{independence}\\
+(i.e., each $x_i$ is not dependent on any other $x_j$)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Log-Likelihood (p3)}
+\begin{itemize}
+\item The \stronger{log-likelihood} is:
+\[
+{\bf log} ~ L (D|\theta) = \sum_{i=1}^{n}{\bf log ~ pdf}( x_i | \theta )
+\]
+\item[] where
+\item $D = \{ x_1, x_2, \ldots, x_n \}$ is the observed data
+\item $\theta$ are our model parameters
+\item[] (We use the rules of logarithms to convert the product $\prod$ on the previous page to a summation $\sum$ in the log)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Log-Likelihood (p4)}
+\begin{itemize}
+\item The \stronger{log-likelihood score} function is:
+\[
+S_L(D|\theta) = - {\bf log} ~ L(D|\theta) = - \sum_{i=1}^{n}{{ \bf log ~ pdf}( x_i | \theta ) }
+\]
+\item The \textbf{log-likelihood score} is a measure of how well the model fits the data
+\item $- {\bf log ~ pdf}()$ is the \strong{error term} --- it increases as ${\bf pdf}$ decreases
+\item maximum ${\bf pdf} = 1$, thus minimum $S_L(D|\theta) = 0$\\
+(we want to \textbf{minimise $S_L$}, hence the negation in the formula)
+\item $S_L$ is good for measuring how well a model fits a \stronger{complete} body of data
+\item $S_L$ is \textbf{not} good for assessing the quality of a model against another model with respect to a small sample of data
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+%--------------------------------------------------------------------------------
+\section{PART II}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part II: Clustering Numeric Data}
+\begin{itemize}
+\item[II.1] Overview of Clustering
+\item[II.2] Approaches to Clustering
+\item[II.3] Metrics for Clustering
+\item[II.4] Evaluating Clustering
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Clustering}
+\begin{itemize}
+\item \stronger{Clustering} can be defined as the process of organising instances in a database into \strong{groups} or \stronger{clusters}, such that:
+\item[--] instances with a high degree of similarity are in the same cluster, and
+\item[--] instances with a low degree of similarity are in different clusters
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Clustering (p2)}
+\begin{center}
+\includegraphics[width=\textwidth]{images/clustering_process.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Clustering (p3)}
+\begin{itemize}
+\item With \strong{classification}, we already have a \strong{class} or a \strong{label}
+\item The goal is to learn which attributes in a data set correspond to particular labels, so that all instances with those attribute values ``belong'' to the correct class
+\item We already know how to \strong{group} the data---by using the \strong{label}
+\item We aim to learn which characteristics are shared by instances belonging to the same group, i.e., the same \strong{class}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Clustering (p4)}
+\begin{itemize}
+\item Then we can look at new instances that don't come with labels (unlike our training set), figure out which class they belong to (by using our learned characteristics) and then we know the label (i.e., its the one that corresponds to the group in the training set which is the best match to our non-training instance)
+\item This is called \strong{classifying unknown instances}
+\item Because we are learned characteristics of classes from labelled data, this is called \stronger{Supervised Learning}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Clustering (p5)}
+\begin{itemize}
+\item In contrast, with \stronger{clustering}, we do not have labels
+\item Our training set is \strong{unlabelled}
+\item The goal is to learn ways of grouping instances together, based on attribute values, so that the \strong{distances amongst instances within a group are minimized} and the \strong{distances between groups are maximized}
+\item Because we are learning from \strong{unlabelled} data, this is called \stronger{Unsupervised Learning}
+\item With the training set, we learn how to group the data
+\item Then we can \strong{cluster unknown instances} by finding which cluster they match best---this part is similar to classification, but we just don't have a label (name) for the cluster
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Clustering (p6)}
+\begin{itemize}
+\item So, we need to learn which instances in a data set are similar and can be grouped together.
+\item The result of a clustering process is measured in two ways:
+	\begin{itemize}
+	\item \stronger{Within Cluster metric}: How close are the instances within a cluster to each other? (aim is to minimise)
+	\item \stronger{Between Cluster metric}: How far apart are clusters from each other? (aim is to maximise)
+	\end{itemize}
+\item Clustering may be followed by a classification step in order to associate new instances with the learned clusters
+\item Clusters can be (manually) labelled, \strong{post priori}, especially so that people can use the clusters in a meaningful way---in this case, typically by looking at the characteristics of each cluster and devising a sensible label
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Clustering (p7)}
+\begin{itemize}
+\item \stronger{Clustering} partitions the entire training set into \strong{regions}
+\item The simplest representations find \strong{non-overlapping} regions
+\begin{center}
+\includegraphics[width=0.5\textwidth]{images/wfh-figure3-11a}\\
+\cite[Figure 3.11a]{WFH3:2011}
+\end{center}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Clustering (p8)}
+\begin{itemize}
+\item Other methods allow for \strong{overlapping} regions, where one instance might be in multiple clusters---e.g., \stronger{Venn diagram}
+\begin{center}
+\includegraphics[width=0.5\textwidth]{images/wfh-figure3-11b}\\
+\cite[Figure 3.11b]{WFH3:2011}
+\end{center}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}[fragile]{II.2. Approaches to Clustering}
+\begin{itemize}
+\item There are many approaches used for \stronger{Clustering}
+\item A large number of them are based on the \stronger{nearest neighbour} principle:
+\item[--] First, we need to define a \strong{similarity} or \strong{distance} metric that computes how close two instances are to each other
+\item[--] Then, we iterate
+\begin{lstlisting}
+randomly partition data into $k$ clusters
+compute the $\mathit{within\_cluster}$ distance metric
+compute the $\mathit{between\_cluster}$ distance metric
+randomly select a candidate instance to move out of the cluster with the highest $\mathit{within\_cluster}$ metric to another cluster
+select the "move to" cluster by determining which selection will produce the most improvement in $\mathit{between\_cluster}$ metric without sacrificing $\mathit{within\_cluster}$ metrics
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Approaches to Clustering (p2)}
+\begin{itemize}
+\item \stronger{Segmentation} or \stronger{Dissection} is a process similar to clustering, but where some aspect of practical convenience leads the partitioning
+\item[--] Practical and/or administrative reasons
+\item \stronger{Clustering} has its advantages:
+\item[--] Natural subclasses of objects
+\item[--] ``Discovery'' is key
+\item \strong{Aim:} to see whether the data fall into distinct groups, with members within each group being similar to other members in that group, but different from members of other groups
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Approaches to Clustering (p3)}
+\begin{itemize}
+\item There are many methods of \strong{representing} clusters:
+\item[]
+\item[--] \strong{Mean} and \strong{standard deviation} of (normally distributed) numeric attributes
+\item[]
+\item[--] \strong{Mode} of nominal attributes
+\item[]
+\item[--] \stronger{Instance-based} methods involve storing every instance (can be expensive for large data sets)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Approaches to Clustering (p4)}
+\begin{itemize}
+\item[] Four general methodologies for performing clustering:
+\item[]
+\item[II.2.1.] \stronger{K-Means} clustering
+\item[]
+\item[II.2.2.] \strong{Hierarchical} clustering
+\item[]
+\item[II.2.3.] \strong{Incremental} clustering
+\item[]
+\item[II.2.4.] \strong{Density-based} clustering
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.1. K-Means Clustering}
+\begin{itemize}
+\item Iterative
+\item Partition-based method
+\item Uses Distance metrics
+\item steps:
+	\begin{itemize}
+	\item[1.] Randomly select $k$ points, which represent cluster centres
+	\item[2.] Assign all (remaining) data points to the closest cluster
+	\item[3.] Compute new cluster centres
+	\item[4.] For each point, find its closest cluster
+	\item[5.] Repeat from step 3, until new cluster centres are the same as the old ones (convergence)
+	\end{itemize}
+\item Called \strong{K-Means} because the cluster centre is computed as the \strong{mean} of the data points (so this only works for numeric data sets)
+\item Called \strong{K-Mode} for nominal data, when cluster centre is computed based on the \strong{mode} (most popular value)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.1. K-Means Clustering (p2)}
+\begin{center}
+\includegraphics[width=0.9\textwidth]{images/ng-kmeans}\\
+\cite{ng-see:2022}\\
+\footnotesize{fixed number of clusters ($k$); green dots = training examples; crosses = cluster centroids; blue \& red dots depict current clustering.\\
+(a) = original dataset; (b) = random initial centroids; (c)-(f) iterations.}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.2. Hierarchical Clustering}
+\begin{itemize}
+\item \stronger{Agglomerative} (merge instances)
+\item[]
+\item[] or
+\item[]
+\item \stronger{Divisive} (split groups of instances)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.2. Hierarchical Clustering (p2)}
+\begin{center}
+\begin{tabular}{ccc}
+$\Uparrow$ &
+\includegraphics[width=0.5\textwidth]{images/wfh-figure3-11d} &
+$\Downarrow$ \\
+agglomerative &
+\cite[Figure 3.11d]{WFH3:2011} &
+divisive \\
+\end{tabular}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.2. Hierarchical Clustering (p3)}
+\begin{itemize}
+\item[] \stronger{Agglomerative method}
+\item Nearby points are in the same cluster
+\item[1.] Start with \strong{clusters} containing one data point (instance) each (\strong{singleton clusters})
+\item[2.] Repeat until one cluster is left:
+	\begin{itemize}
+	\item Find pair of clusters that are closest
+	\item Merge the pair
+	\item Remove previous 2 clusters
+	\end{itemize}
+\item Whole process produces a dendrogram
+\item Relies on \stronger{Between Cluster} metric
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.2. Hierarchical Clustering (p4)}
+\begin{itemize}
+\item[] \stronger{Between Cluster} metric
+\item Measures the \strong{separation} of clusters---how far the clusters are from each other
+\[
+BC = \sum_{1 \le i < \ell \le K}{ d(c_i,c_\ell)^2 }
+\]
+where:\\
+$d(c_i,c_\ell)^2$ is the \stronger{between-cluster sum-of-squares distance} from the centre of each cluster $i$ to the centre of every other cluster $\ell$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.2. Hierarchical Clustering (p5)}
+\begin{itemize}
+\item[] \stronger{Divisive method}
+\item[]
+\item \stronger{Monothetic Divisive} method splits clusters using one variable at a time
+\item[]
+\item \stronger{Polythetic Divisive} method makes splits on the basis of all of the variables together
+\item[]
+\item Computationally expensive, not widely used
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.3. Incremental Clustering}
+\begin{itemize}
+\item Steps:
+\item[]
+\item[1.] Build a tree starting with just the root
+\item[]
+\item[2.] Add instances to the tree, one at a time, by either creating a new leaf where each instance belongs or restructuring the tree (decisions based on \stronger{Category Utility} metric)
+\item[]
+\item[3.] Repeat step 2, until all the instances are added to the tree
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.3. Incremental Clustering (p2)}
+\begin{itemize}
+\item[] \stronger{Category Utility} metric
+\[
+CU = \frac{ \sum_{q \in K}{Pr(C_q)} \sum_i{\sum_j{(Pr(x_i=v_{ij}|C_q)^2 - Pr(x_i=v_{ij})^2)}}}{K}
+\]
+\item[] where:
+\item[] $K$ is the number of clusters
+\item[] $C_q$ is a particular cluster, the $q$-th cluster
+\item[] $x_i$ is the $i$-th attribute
+\item[] $v_{ij}$ is a particular possible value for attribute $i$
+\item $Pr(x_i=v_{ij}|C_q)$ is the probability that attribute $x_i$ has value $v_{ij}$ given that it is in cluster $C_q$
+\item This should be higher than $Pr(x_i=v_{ij})$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.4. Density-based Clustering}
+\begin{itemize}
+\item Goal is to find regions in the data space that are of \strong{high density} and \strong{low density}, particularly looking for separation between the two types of regions
+\item \stronger{DBSCAN} is the classic method
+\item For each instance, count the number of instances within a particular radius of that, $Eps$ (including the instance itself)
+\item That count is the \strong{density} for that instance.
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth,width=0.25\textwidth]{images/tskk-figure7-20}\\
+density of \textbf{A}$=7$\\
+\cite[Figure 7.20]{tan-et-al:2018}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.4. Density-based Clustering (p2)}
+\begin{itemize}
+\item Instances are categorised as:
+\item[--] \strong{Core point}: if the density of an instance is above a particular threshold, $MinPts$
+\item[--] \strong{Border point}: if an instance is not a core point but is in the neighbourhood of a core point
+\item[--] \strong{Noise point}: all other points
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth,width=0.60\textwidth]{images/tskk-figure7-21}\\
+%\textbf{A} is a \strong{core point}; \textbf{B} is a \strong{border point}; \textbf{C} is a \strong{noise point}\\
+\cite[Figure 7.21]{tan-et-al:2018}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.4. Density-based Clustering (p3)}
+\begin{itemize}
+\item Steps:
+\item[]
+\item[1.] Categorise all points (as core, border or noise)
+\item[2.] Ignore noise points
+\item[3.] Create an edge between all core points that is within $Eps$ of each other
+\item[4.] Create a cluster for each group of connected core points
+\item[5.] Assign each border point to the cluster of its core point
+\item[]
+\item Score, and then adjust $Eps$ and $MinPts$ to try and improve score
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2.4. Density-based Clustering (p4)}
+\begin{itemize}
+\item The key parameters are $Eps$ and $MinPts$
+\item Consider the distance to the $k$ nearest neighbours for each instance and analyse this data, looking for marked changes
+\item The plot below shows the distances to the 4th nearest neighbour for each point in a data set. A sharp change occurs at distance$=10$, so we set $Eps=10$, as a good threshold for determining cluster membership.
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth,width=0.50\textwidth]{images/tskk-figure7-23}\\
+$k=4$, so $MinPts=4$ and $Eps=10$\\
+\cite[Figure 7.23]{tan-et-al:2018}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Approaches to Clustering -- Are we done yet?}
+\begin{itemize}
+\item[] \strong{How many clusters?}
+\item With \stronger{K-Means} clustering, you need to know $k$ in advance
+\item[--] But you could guess at $k$ and then iteratively re-cluster and decide if a better $k$ exists
+\item[--] \strong{Bottom-up approach:} Start with $k=1$, and then split
+\item[--] \strong{Top-down:} Start with $k=M$, and then merge (where $M$ is the number of instances in the data set)
+\item With \stronger{Hierarchical} clustering, you need to know when to stop merging or dividing
+\item With \stronger{DBSCAN} clustering, you analyse the distances between instances to choose an appropriate cluster density; the number of clusters ($k$) is a side effect of that analysis
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Metrics for Clustering}
+\begin{itemize}
+\item Primary metric is \strong{Distance} or \strong{Similarity}
+\item \strong{Distance} is complementary to \strong{Similarity}
+\item Three different types of distances:
+\item[--] Distance between \strong{individual attributes} in different instances:
+\[
+	d( x_{i,j}, x_{i,j'} )
+\]
+\item[--] Distance between different instances, \strong{aggregated across attributes}:
+\[
+	d( x_j, x_j' )
+\]
+\item[--] Distance between different clusters, \strong{aggregated across instances}:
+\[
+	d( cluster_k, cluster_k' )
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Metrics for Clustering (p2)}
+\begin{itemize}
+\item \stronger{cluster centre} or \stronger{centroid}
+\item for \strong{numeric} data, this is the \strong{centre of mass} or \strong{mean}:\\
+\[
+c_i = \frac{\sum{\chi}}{m_i}
+\]
+\item[] where:
+\item[] $c_i$ = $i$-th cluster
+\item[] $\sum{\chi}$ = sum of scores for instances belonging to $i$-th cluster
+\item[] $m_i$ = size of cluster (number of instances in cluster)
+\item for \strong{nominal} and \strong{ordinal} data, this is typically the \stronger{mode}
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.4\textwidth]{images/cluster-centers.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Metrics for Clustering (p3)}
+\begin{itemize}
+\item[] Methods for computing the distance between \strong{attributes}, e.g. $i$-th attribute from instances $A$ and $B$, written as $A_i$ and $B_i$:
+%
+\item \strong{Numeric} attributes:
+{\footnotesize
+\item[$\bullet$] Simple difference $d=A_i-B_i$
+\item[$\bullet$] Absolute value $d=|A_i-B_i|$ {\scriptsize (Manhattan distance)}
+\item[$\bullet$] Squared difference $d=(A_i-B_i)^2$
+\item[$\bullet$] Square root of squared diff. $d=\sqrt{(A_i-B_i)^2}$ {\scriptsize (Euclidean distance)}
+\item[$\bullet$] Normalised absolute value $d=\frac{|A_i-B_i|}{C}$
+\item[$\bullet$] Absolute value of the diff. of standardised values: 
+$d=|\frac{A_i}{C} - \frac{B_i}{C}|$
+}
+%
+\item \strong{Nominal} attributes:
+{\footnotesize
+\item[$\bullet$] Categorical distance (is it the same or not?)
+	${ d=(A_i==B_i) \rightarrow 0 : 1 }$
+}
+%
+{\footnotesize
+\item In order to measure the distance between two \strong{instances}, use the Euclidean distance across all ($n$) attributes:
+\[
+	\sqrt{ \sum_{i=1}^n d( A_i, B_i )^2 }
+\]
+with the \textbf{simple difference} for \strong{numeric} attributes and the \textbf{categorical distance} for \strong{nominal} attributes
+}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Metrics for Clustering (p4)}
+\begin{itemize}
+\item[] \stronger{Single-link} or \stronger{Single-linkage} metric
+\item[] The smallest distance between any two clusters:
+\item[1.] Compute the pairwise distances between all members of each cluster
+\item[2.] Identify the smallest distance
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.4\textwidth]{images/tsk-figure8-14a.png}\\
+\cite[Figure 8.14a]{tan-et-al:2005}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Metrics for Clustering (p5)}
+\begin{itemize}
+\item[] \stronger{Cluster diameter} metric
+\item[] The largest distance between any two members of the same cluster:
+\item[1.] Compute the distance between all pairs of members within the same cluster
+\item[2.] Identify the largest distance
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.14\textwidth]{images/cluster-diameter.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Metrics for Clustering (p6)}
+\begin{itemize}
+\item[] \stronger{Complete-link} or \stronger{Complete-linkage} metric
+\item[] The largest distance between any two clusters:
+\item[1.] Compute the pairwise distances between all members of each cluster
+\item[2.] Identify the largest distance
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.4\textwidth]{images/tsk-figure8-14b.png} \\
+\cite[Figure 8.14b]{tan-et-al:2005}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Metrics for Clustering (p7)}
+\begin{itemize}
+\item[] \stronger{Centroid-link} or \stronger{Centroid-linkage} metric
+\item[] Compute the centroid of each cluster and the compute the distance between each centroid
+\item Centroid $c$ is computed as:
+\[
+(c.x_1,c.x_2,\ldots,c.x_n) = ( \frac{\sum{c.\chi_1}}{m_c}, \frac{\sum{c.\chi_2}}{m_c}, \ldots, \frac{\sum{c.\chi_n}}{m_c} )
+\]
+\item[] where
+\item $\chi_i$ is set of all $i$-th attribute values belonging to instances in the cluster
+\item $n$ is the number of attributes in the data set
+\item $m_c$ is the size of cluster $c$ (the number of instances in the cluster)
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.4\textwidth]{images/centroid-link.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Metrics for Clustering (p8)}
+\begin{itemize}
+\item \stronger{Average-link} or \stronger{Average-linkage} or \stronger{Group-average} metric
+\item Average distance between cluster members:
+\item[1.] Compute the pairwise distances between all members of each cluster
+\item[2.] Compute the average
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.4\textwidth]{images/tsk-figure8-14c.png} \\
+\cite[Figure 8.14c]{tan-et-al:2005}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Evaluating Clustering}
+\begin{itemize}
+\item[] It is difficult to evaluate the ``goodness'' of a clustering because there are no objective measures---like predicting the right label in classification.
+\item[] Key methods:
+\item \stronger{Within Cluster Score}
+\item \stronger{Between Cluster Score}
+\item \stronger{Overall Clustering Score} (but simple)
+\item \stronger{Calinski-Harabaz Index}
+\item \stronger{Silhouette Coefficient}
+\item \stronger{Minimum Description Length}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Evaluating Clustering (p2)}
+\begin{itemize}
+\item \stronger{Within Cluster} score
+\item measures the compactness of clusters---how close the cluster elements are to each other
+\[
+WC = \sum_{i=1}^{K} ~ \langle \sum_{x_j \in C_i}{ d(x_j,c_i)^2 } ~ \rangle
+\]
+where:\\
+$K$ = number of clusters in the clustering\\
+$C_i$ = the $i$-th cluster\\
+$x_j$ = the $j$-th instance in the data set (data point)\\
+$c_i$ = centre of cluster $i$\\
+$d$ = distance function, where $d(x_j,c_i)^2$ is the \strong{within-cluster sum-of-squares distance}, measured from each point ($x_j$) in the cluster to the centre of its cluster ($c_i$)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Evaluating Clustering (p3)}
+\begin{itemize}
+\item \stronger{Between Cluster} score
+\item Measures the separation of clusters---how far the clusters are from each other
+\[
+BC = \sum_{1 \le i < \ell \le K}{ d(c_i,c_\ell)^2 }
+\]
+where:\\
+$d(c_i,c_\ell)^2$ is the \stronger{between-cluster sum-of-squares distance} from the centre of each cluster $i$ to the centre of every other cluster $\ell$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Evaluating Clustering (p4)}
+\begin{itemize}
+\item \stronger{Overall Clustering Score}
+\item The overall quality of a clustering can be measured as:
+\[
+	\frac{BC}{WC}
+\]
+\item But this is a simple fraction and there are more sophisticated methods to be considered...
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Evaluating Clustering (p5)}
+\begin{itemize}
+\item \stronger{Calinski-Harabasz Index}
+\item Uses the concept of \strong{dispersion} of a set of points = the sum of squared distances of the points from their centroid
+\[
+	\frac{BGSS}{WGSS} \times \frac{ ( n-k ) }{ ( k - 1 ) }
+\]
+\item $k =$ number of clusters
+\item $n =$ number of instances
+\item $BGSS$ maximum = between group sum of squares (dispersion)
+\item $WGSS$ minimum = within group sum of squares (dispersion)
+\item higher when clusters are well separated and dense
+\item relatively fast to compute
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Evaluating Clustering (p6)}
+\begin{itemize}
+\item \stronger{Silhouette Coefficient}
+\[
+	\frac{ b - a }{ max(a,b) }
+\]
+\item[] where
+\item $a$ is the mean distance between an instance and all other points in the same cluster
+\item $b$ is the mean distance between an instance and all other points in the nearest cluster
+\item $\rightarrow 1$ for dense clusters that are well separated
+\item $= 0$ overlapping clusters
+\item $\rightarrow -1$ for incorrect clustering 
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Evaluating Clustering (p7)}
+\begin{itemize}
+\item \stronger{Minimum Description Length (MDL)}
+\item The aim is to reduce the amount of information required to store the clustered data
+\item We want this to be smaller than an Instance-based representation
+\item But we need this to be large enough to not lose important information
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Evaluating Clustering (p8)}
+\begin{itemize}
+\item \stronger{MDL} is related to \strong{Occam's Razor}: the best theory is the simplest...
+\item We aim to minimise the number of bits required to communicate the information
+\item With clustering, we need to represent:
+\item[--] The number of clusters
+\item[--] A ``membership'' description for each cluster (e.g., centre)
+\item MDL is a way to evaluate how good a clustering is, by determining how much information is required to communicate what the clustering criterion are
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Evaluating Clustering (p9)}
+\begin{itemize}
+\item[] Given:
+\item $\theta$ = theory (or set of rules)
+\item $len(\theta)$ = number of bits to encode the theory
+\item $D$ = set of examples, e.g., class labels in the training set
+\item $len(D|\theta)$ = encoding of the training set using our theory
+\item[]
+\item \strong{total description length} = $len(\theta) + len(D|\theta)$
+\item[]
+\item We want to \strong{minimise} $len(\theta) + len(D|\theta)$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Evaluating Clustering (p10)}
+\begin{itemize}
+\item The MDL principle is related to probability theory
+\item Given training set $D$, we want to find the \strong{most likely} theory $\theta$ to describe the data
+\item Thus, we want to \strong{maximize the posterior probability} $Pr(\theta|D)$,
+i.e., the probability that the theory $\theta$ is correct given the set of examples $D$
+\item[]
+\item \strong{``Maximizing the probability is the same as minimizing its negative logarithm.''}
+\cite[Section 5.9]{WFH3:2011}\\
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Evaluating Clustering (p11)}
+\begin{itemize}
+\item We can use Bayes rule to compute the \stronger{posterior probability}:
+\[
+Pr(\theta|D) = \frac{Pr(D|\theta)Pr(\theta)}{Pr(D)}
+\]
+\item If we take the negative log of both sides, to \strong{minimise the negative logarithm}, we end up with:
+\begin{eqnarray*}
+-(log ~ Pr(\theta|D)) & = & -(log ~ \frac{ Pr(D|\theta)Pr(\theta) }{ Pr(D) }) \\ 
+\end{eqnarray*}
+\item To simplify this equation, we need to remember some of the laws of logarithms...
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Evaluating Clustering (p12)}
+\begin{itemize}
+\item definition:
+\[
+\mathsf{if} ~ b^y = x ~ \mathsf{, then} ~ log_b{x} = y
+\]
+%
+\item addition / multiplication:
+\[
+log_b{x} + log_b{y} = log_b{xy}
+\]
+\[
+log_b{xy} = log_b{x} + log_b{y}
+\]
+%
+\item subtraction / division:
+\[
+log_b{x} - log_b{y} = log_b\frac{x}{y}
+\]
+\[
+log_b\frac{x}{y} = log_b{x} - log_b{y}
+\]
+%
+\item exponent:
+\[
+log_b{x^n} = n ~ log_b{x}
+\]
+%
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Evaluating Clustering (p13)}
+\begin{eqnarray*}
+-(log ~ Pr(\theta|D))& = & -(log ~ \frac{ Pr(D|\theta)Pr(\theta) }{ Pr(D) }) \\
+& = & -(log ~ Pr(D|\theta)Pr(\theta) - log ~ Pr(D))\\
+& = & -(log ~ Pr(D|\theta)Pr(\theta)) + log ~ Pr(D)\\
+& = & -(log ~ Pr(D|\theta) + log ~ Pr(\theta)) + log ~ Pr(D)
+\end{eqnarray*}
+\begin{itemize}
+\item We can drop $log ~ Pr(D)$, because that depends only on the training data, not on the theory
+\item[] which leaves us with:
+\[
+- log ~ Pr(\theta|D) = - (log ~ Pr(D|\theta) + log ~ Pr(\theta))
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Evaluating Clustering (p14)}
+\begin{itemize}
+\item Thus, in order to maximize the \stronger{posterior probability}:
+\[
+	Pr(\theta|D)
+\]
+\item[] (the probability that the theory $\theta$ is correct given the set of examples $D$),
+\item[] we minimise:
+\[
+	- (log ~ Pr(D|\theta) + log ~ Pr(\theta))
+\]
+\item Oh wait! This looks like the \stronger{Minimum Description Length}...
+\[
+len(\theta) + len(D|\theta)
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+
+%--------------------------------------------------------------------------------
+\section*{SUMMARY AND TO DO}
+%--------------------------------------------------------------------------------
+\begin{frame}{Summary}
+\begin{itemize}
+\item Na\"{i}ve Bayes is a probabilistic method of \textbf{classification}, which assumes independence amongst attributes being used by the classifier.
+\item Log-Likelihood is a probabilistic method of scoring a model, which measures how well the model fits the data.
+\item Clustering is a form of \emph{unsupervised learning}, where the goal is to organise instances into groups such that instances with a high degree of similarity are in the same group and instances with a low degree of similarity are in different groups.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{To Do}
+\begin{enumerate}
+\item Reading:
+	\begin{itemize}
+	\item Clustering: from \cite[ch 4.8]{WFH3:2011} or \cite[ch 4.8]{WFH4:2016}
+	\item Clustering: \cite[ch 6.8]{WFH3:2011} or Probabilistic Methods: \cite[ch 9.1-9.3;9.5]{WFH4:2016}
+	\end{itemize}
+\item Advanced Reading:
+	\begin{itemize}
+	\item Semisupervised Learning: \cite[ch 6.9]{WFH3:2011} or Probabilistic Methods: \cite[ch 9.4,9.6-9.8]{WFH4:2016}
+	\end{itemize}
+\item Assessment 1 will be posted next week!
+\end{enumerate}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+
+%--------------------------------------------------------------------------------
+\section*{REFERENCES}
+%--------------------------------------------------------------------------------
+% use 'allowframebreaks' if refs flow onto multiple slides (each will be numbered 'REFERENCES I', 'REFERENCES II' etc)
+\begin{frame}[allowframebreaks]{REFERENCES}
+%\begin{frame}{REFERENCES}
+\bibliographystyle{plain}
+\bibliography{refs}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+\end{document}

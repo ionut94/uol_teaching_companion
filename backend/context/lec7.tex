@@ -1,0 +1,910 @@
+\documentclass[handout]{beamer}
+\usetheme{boxes}
+
+\usecolortheme{orchid}
+\definecolor{teal}{HTML}{009999}
+\definecolor{lightteal}{HTML}{00CCCC}
+\definecolor{purple}{HTML}{990099}
+\definecolor{lightpurple}{HTML}{CC00CC}
+\definecolor{darkgrey}{HTML}{666666}
+\definecolor{lightgrey}{HTML}{AAAAAA}
+\definecolor{darkred}{HTML}{660000}
+\definecolor{darkgreen}{HTML}{006600}
+\definecolor{darkblue}{HTML}{000066}
+\definecolor{lightred}{HTML}{AA0000}
+\definecolor{lightgreen}{HTML}{00AA00}
+\definecolor{lightblue}{HTML}{0000AA}
+\setbeamercolor{title}{fg=darkblue}
+\setbeamercolor{frametitle}{fg=darkblue}
+\setbeamercolor{itemize item}{fg=teal}
+\setbeamercolor{itemize subitem}{fg=lightteal}
+
+\usepackage{fancybox}
+\usepackage{adjustbox}
+\usepackage{mathptmx}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{amsmath}
+
+% For math brackets
+\usepackage{amsmath}
+
+% gets rid of bottom navigation bars
+\setbeamertemplate{footline}[frame number]{}
+
+% gets rid of bottom navigation symbols
+\setbeamertemplate{navigation symbols}{}
+
+% uses number labels in bibliography
+\setbeamertemplate{bibliography item}{\insertbiblabel}
+
+% my style for emphasising stuff in colours
+\newcommand{\strong}[1]{\textbf{\color{teal} #1}}
+\newcommand{\stronger}[1]{\textbf{\color{purple} #1}}
+
+% title, etc
+\title{Association Rule Mining\\{\small (lecture 7)}}
+\subtitle{AGR9013 -- Introduction to Data Mining\\
+{\tiny (version 1)}}
+\author{Dr Ionut Moraru}
+\institute{University of Lincoln, School of Agri-Foods Technology and Manufacturing}
+\logo{\includegraphics[width=1cm]{images/uol-logo.png}}
+\date{14-November-2024}
+
+\addtobeamertemplate{navigation symbols}{}{\hspace{1em}    \usebeamerfont{footline}%
+    \insertframenumber / \inserttotalframenumber }
+
+% Remove navigation symbols
+\beamertemplatenavigationsymbolsempty
+
+\begin{document}
+
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+  belowcaptionskip=0pt,            % reduce space after the listings caption
+  belowskip=0pt,                   % how much vertical space to skip after a listing
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  caption={},                      % default to no caption
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{lightgreen}, % comment style
+  deletekeywords={...},            % if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  frame=single,                    % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=Python,                 % the language of the code
+  mathescape=true,                 % allow math mode within code
+  morekeywords={then,...},         % if you want to add more keywords to the set
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\sf\color{lightgrey}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{darkred},     % string literal style
+  tabsize=3,                       % sets default tabsize to 3 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+%--------------------------------------------------------------------------------
+\frame{\titlepage}
+
+
+%--------------------------------------------------------------------------------
+\section*{OUTLINE}
+%--------------------------------------------------------------------------------
+\begin{frame}{Outline}
+\begin{itemize}
+\item Part I. Association Rule Mining
+\item Part II. Sequence Analysis
+\item Part III. Link Analysis
+\vspace*{0.3cm}
+\item To Do
+\end{itemize}
+\end{frame}
+%--------------------------------------------------------------------------------
+
+
+%--------------------------------------------------------------------------------
+\section{PART I}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part I: Association Rule Mining}
+\begin{itemize}
+\item[I.1.] Association Rules 
+\item[I.2.] Evaluating Association Rules
+\item[I.3.] Computing Association Rules
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Association Rules (p1)}
+\begin{center}
+\includegraphics[width=\textwidth]{images/association_process.pdf}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Association Rules (p2)}
+\begin{itemize}
+\item \stronger{Association Rule Mining}: learn rules that associate attributes with each other
+\item[]
+\item \stronger{Association Rules}: attribute values predict other attributes
+\item[]
+\item For example:
+\[
+IF \; temperature == cool \; THEN \; humidity = normal
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Association Rules (p3)}
+\begin{itemize}
+\item IF-THEN format (e.g. $if~A~then~C$), written as:
+\[
+	A \rightarrow C
+\]
+\item the IF part is called the \stronger{antecedent} or \stronger{pre-condition} or \stronger{Left-Hand Side (LHS)}
+\item the THEN part is called the \stronger{consequent} or \stronger{conclusion} or \stronger{Right-Hand Side (RHS)}
+\item[]
+\item An antecedent may contain multiple \strong{clauses}:
+\item \stronger{conjunction} -- clauses are ANDed: all clauses must be TRUE in order for the rule to fire
+\item \stronger{disjunction} -- clauses are ORed: at least one clause must be TRUE in order for the rule to fire
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Association Rules (p4)}
+\begin{itemize}
+\item \stronger{Association rules} are like \strong{classification rules}
+\item They are found using divide-and-conquer rule induction procedures
+\item But contrary to supervised classification approaches (where one attribute is pre-defined as the \strong{class}), association rules can be created with any attribute as the \strong{target}
+\item This involves \strong{rule induction} for every possible combination of attribute values
+\item Resulting in potentially very large numbers of rules
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Association Rules (p5)}
+\begin{itemize}
+\item \strong{Association rules} predict any attribute of an instance
+\item These can be very specific
+\item We are interested in \stronger{coverage} or \stronger{support} of a rule -- indicates how many instances are predicted correctly 
+\item If expressed as a percentage, this is called the \stronger{accuracy} or \stronger{confidence} of the rule (correctly identified instances over all instances)
+\item Typically, \strong{minimum coverage} and \strong{minimum accuracy} values are prescribed for a set of rules
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Association Rules (p6)}
+\begin{itemize}
+\item \stronger{Market basket analysis} -- looks at what items customers are buying and when
+\item[]
+\item[] Other applications:
+\item Analysing how to bundle services
+\item Finding fraud cases by finding unusual combinations of insurance claims
+\item Predicting likelihood of experiencing a complication or side effect of medication based on combination of treatments (medications and procedures)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Association Rules (p7)}
+\begin{center}
+\textbf{Example: Market Basket Analysis}\\
+\bigskip
+\includegraphics[width=\textwidth]{images/lb-table15-1.png} \\
+\cite[Table 15.1]{LB3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Association Rules (p8)}
+\begin{itemize}
+\item An \stronger{item} is an \stronger{(attribute, value)} pair
+\item An \stronger{item-set} is a combination of (attribute, value) pairs that have a pre-specified minimum coverage
+\item Examples of item sets:
+	\begin{itemize}
+	\item $ outlook = sunny $  \\This is a \strong{one item set}
+	\item $ outlook = sunny  $ AND $ temperature =  mild $ \\ This is a \strong{two item set}
+	\end{itemize}
+\item \stronger{Association Rules} are derived from item sets
+\item Terminology is derived from market basket analysis
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Association Rules (p9)}
+\begin{itemize}
+\item[] \textbf{Scoring Association Rules}
+\item[]
+\item[] \stronger{support} or \stronger{coverage}
+\item Determines how often a rule is applicable to a given data set
+\item Count of number of transactions containing all the items in the rule
+\item Divide the count by the number of transactions
+\item[]
+\item[] \stronger{confidence} or \stronger{accuracy}
+\item Determines how frequently items in the RHS appear in transactions with a specific LHS
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Association Rules (p10)}
+\begin{itemize}
+\item[] \emph{(Refer to the Market Basket Analysis Example)}
+\item[]
+\item Score the following association rule:
+\[
+	orange\_juice \rightarrow detergent
+\]
+\item \strong{support count} of the rule:\\
+	number of transactions where both items occur $=2$
+\item[]
+\item \strong{coverage} is often represented as a fraction:
+\[
+	\frac{support\_count}{num\_transactions} = \frac{2}{5}
+\]
+\item[]
+\item \strong{confidence}: 
+\[
+	\frac{support\_count}{support\_count\_antecedent} = \frac{2}{4}
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Association Rules (p11)}
+\begin{enumerate}
+\item[] \strong{A simplistic approach to generating association rules:}
+\item Find all one-item sets and calculate their coverage (number of transactions where the item set occurs)
+\item Find all two-item sets by making pairs of the one-item sets
+\item Retain only the two-item sets that have coverage above the minimum coverage value
+\item Find all three-item sets, retaining only ones that have above minimum cover
+\item Repeat until no larger item sets are possible
+\item Each item set can now produce more than one association rule by splitting the items across the antecedent and consequent of the rule
+\item for each rule, evaluate confidence and retain if this meets the minimum requirement
+\end{enumerate}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Association Rules (p12)}
+\begin{itemize}
+\item[] \emph{(Refer to the Market Basket Analysis Example)}
+\item[]
+\item Find all \strong{one-item sets} and their \strong{coverage}
+\item Assume $minimum\_coverage=2$
+\end{itemize}
+\begin{center}
+\begin{tabular}{|c|c|l}
+\emph{one-item sets} & \emph{coverage} \\
+\cline{1-2}
+orange juice & 4 \\
+\cline{1-2}
+soda & 3 \\
+\cline{1-2}
+milk & 1 & $\leftarrow$ \\
+\cline{1-2}
+window cleaner & 2 \\
+\cline{1-2}
+detergent & 2 \\
+\cline{1-2}
+\end{tabular}
+\end{center}
+\begin{itemize}
+\item Discard the one-item sets that don't meet the minimum coverage
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Association Rules (p13)}
+\begin{itemize}
+\item Find all \strong{two-item sets} and their \strong{coverage}
+\item Assume $minimum\_coverage=2$
+\end{itemize}
+\begin{center}
+\begin{tabular}{|c|c|l}
+\emph{two-item sets} & \emph{coverage} \\
+\cline{1-2}
+orange juice \& soda & 2 \\
+\cline{1-2}
+orange juice \& window cleaner & 1 & $\leftarrow$ \\
+\cline{1-2}
+orange juice \& detergent & 2 \\
+\cline{1-2}
+soda \& window cleaner & 1 & $\leftarrow$ \\
+\cline{1-2}
+soda \& detergent & 1 & $\leftarrow$ \\
+\cline{1-2}
+window cleaner \& detergent & 0 & $\leftarrow$ \\
+\cline{1-2}
+\end{tabular}
+\end{center}
+\begin{itemize}
+\item Discard the two-item sets that don't meet the minimum coverage
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Association Rules (p14)}
+\begin{itemize}
+\item Find all \strong{three-item sets} and their \strong{coverage}
+\item Assume $minimum\_coverage=2$
+\end{itemize}
+\begin{center}
+\begin{tabular}{|c|c|l}
+\emph{three-item sets} & \emph{coverage} \\
+\cline{1-2}
+orange juice \& soda \& detergent & 1 & $\leftarrow$ \\
+\cline{1-2}
+\end{tabular}
+\end{center}
+\begin{itemize}
+\item No \strong{three-item set} meets the minimum coverage requirements!
+\item Therefore, \strong{association rules} can only be built from the list of \strong{two-item sets} which meet the minimum coverage requirement
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Association Rules (p15)}
+\begin{itemize}
+\item Now we can generate the \strong{association rules} from the following \strong{two-item} sets that met the minimum coverage
+\end{itemize}
+\begin{center}
+\begin{tabular}{|c|c|}
+\emph{two-item sets} & \emph{coverage} \\
+\hline
+orange juice (OJ) \& soda (S) & 2 \\
+\hline
+orange juice (OJ) \& detergent (D) & 2 \\
+\hline
+\end{tabular}
+\end{center}
+\begin{itemize}
+\item The following possible association rules can be generated from the \strong{two-item} sets with $coverage \ge minimum\_coverage = 2$
+\item Assume $minimum\_confidence=0.6$
+\end{itemize}
+\begin{center}
+\begin{tabular}{|c|c|l}
+\emph{rule} & \emph{confidence} \\
+\cline{1-2}
+$OJ \rightarrow S$ & $\frac{2}{4} = 0.5$ & $\leftarrow$ \\
+\cline{1-2}
+$S \rightarrow OJ$ & $\frac{2}{3} = 0.667$ \\
+\cline{1-2}
+$OJ \rightarrow D$ & $\frac{2}{4} = \frac{1}{2} = 0.5$ & $\leftarrow$ \\
+\cline{1-2}
+$D \rightarrow OJ$ & $\frac{2}{2} = 1.0$ \\
+\cline{1-2}
+\end{tabular}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Evaluating Association Rules (p1)}
+\begin{itemize}
+\item[] Once we have association rules, we ask:
+\item[]
+\item Are they good rules?
+\item Are they useful rules?
+\item Are they interesting rules?
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Evaluating Association Rules (p2)}
+\begin{enumerate}
+\item[] We will discuss multiple approaches to measuring rules:
+\item[]
+\item[] \strong{goodness}:
+\item \stronger{support}
+\item \stronger{confidence}
+\item[]
+\item[] \strong{importance}:
+\item \stronger{lift} or \stronger{interest}
+\item \stronger{leverage}
+\item \stronger{conviction}
+\item[]
+\item[] \strong{interestingness}:
+\item \stronger{$\chi^2$}
+\end{enumerate}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Evaluating Association Rules (p3)}
+\begin{itemize}
+\item Some of the metrics incorporate the \stronger{probability} that an item occurs, either in the antecedent or the consequent
+\item[]
+\[
+	p( X ) =
+	\frac{ \mathit{ number~of~item~sets~with~X }}
+	     { \mathit{ total~number~of~item~sets }}
+\]
+\item[]
+\item[]
+\item[]
+
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Evaluating Association Rules (p4)}
+\begin{itemize}
+\item[] \stronger{support}
+\item The number or proportion of transactions that contain all the items in the set that make the rule
+\item Also called \stronger{coverage}
+\item Can be reported as a \stronger{count}
+\item Often reported as a fraction (the count over the total number of transactions)
+\item[]
+\[
+	support( A \rightarrow C ) = 
+	\frac{ \mathit{ number~of~item~sets~with~both~A~and~C }}
+	     { \mathit{ total~number~of~item~sets }}
+\]
+\item Note that this is also $p(A,C)$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Evaluating Association Rules (p5)}
+\begin{itemize}
+\item[] \stronger{confidence}
+\item Measures how good the rule is at predicting the consequent
+\item Compares number of transactions containing the whole item set of the rule divided by the number of transactions containing the \strong{antecedent}
+\item Also called \stronger{accuracy}
+\item[]
+\[
+	confidence( A \rightarrow C ) = 
+	\frac{ \mathit{ number~of~item~sets~with~both~A~and~C }}
+	     { \mathit{ total~number~of~item~sets~with~A }}
+\]
+\item[] which can also be expressed as:
+\[
+	confidence( A \rightarrow C ) = 
+	\frac{ p(A,C) }{ p(A) }
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Evaluating Association Rules (p6)}
+\begin{itemize}
+\item \stronger{lift} or \stronger{interest}
+\item Measures \strong{improvement} or \strong{utility} (usefulness or importance) -- the power of the rule, by comparing the full rule to randomly guessing the antecedent of the rule
+\item Compares the proportion of transactions with the \strong{consequent} (and no or NULL antecedent) with the \strong{confidence} of the rule
+\item if $lift > 1$, then the rule predicts the outcome better than just guessing based on the frequency of the consequent
+\item For example:
+	\begin{itemize}
+	\item Rule $S \rightarrow OJ$ had a confidence of $0.667$
+	\item 4 out of 5 ($0.8$) transactions contain $OJ$
+	\item So this rule will not improve our aim to target customers who buy orange juice 
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Evaluating Association Rules (p7)}
+\begin{itemize}
+\item Computing \stronger{lift} 
+\item[]
+\[
+	lift( A \rightarrow C ) = 
+	\frac{ confidence( A \rightarrow C ) }
+	     { \mathit{ fraction~of~item~sets~with~C }}
+\]
+\item in example on previous page:
+\[
+	lift( S \rightarrow OJ ) = \frac{ 0.667 }{ 0.8 } = 0.83375
+\]
+\item[]
+\item lift can also be expressed as:
+\[
+	lift( A \rightarrow C ) = 
+	\frac{ \frac{ p(A,C) }{ p(A) }}{ p(C) } =
+	\frac{ p(A,C) }{ p(A) \times p(C) }
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Evaluating Association Rules (p8)}
+\begin{itemize}
+\item \stronger{leverage}
+\item Measures the proportion of additional examples covered by both the premise and the consequent beyond those expected if the premise and consequent were statistically independent
+\[
+	leverage( A \rightarrow C ) = 
+		support( A \rightarrow C ) - support( A ) \times support( C )
+\]
+or
+\[
+	leverage( A \rightarrow C ) = p(A,C) - p( A ) \times p( C )
+\]
+\item \textbf{lift} measures the ratio between $p(A,C)$ and $p(A) \times p(C)$, whereas \textbf{leverage} measures the difference
+\item If $leverage = 0$, then $A$ and $C$ are \emph{independent}, i.e. do not depend on each other
+\item If $leverage > 0$, then $p(A,C)$ is more likely than either $A$ or $C$ alone
+($A$ and $C$ are \emph{positively correlated})
+\item If $leverage < 0$, then $p(A,C)$ is less likely
+(\emph{negative correlation})
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Evaluating Association Rules (p9)}
+\begin{itemize}
+\item \stronger{conviction}~\cite{brin-et-al:1997}
+\item[]
+\item Measures implication, not just co-occurrence
+\item i.e. \textbf{conviction} is \strong{directional}
+\item[]
+\[
+	conviction( A \rightarrow C ) = 
+	\frac{ p(A) \times p(\neg C) }
+	     { p(A,\neg C) }
+\]
+(where $\neg$ means ``NOT'')
+\item Equals $1$ when $A$ and $C$ are independent
+\item Maximal for perfect implications
+\item[]
+\item[] (Remember \emph{causation} vs \emph{correlation}?)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Evaluating Association Rules (p10)}
+\begin{itemize}
+\item[] \stronger{$\chi^2$, or chi-square}
+\item[]
+\item Measures \strong{interestingness}
+\item Statistic test used to assess the probability that a \stronger{contingency table} (i.e., a $2 \times 2$ table) is produced by \strong{chance} and there is \strong{no interaction} between the categories involved
+\item If the probability ($p$-value) of the $\chi^2$ statistic is LOW, then it is likely the table was NOT the result of randomness
+\item If the probability ($p$-value) of the $\chi^2$ statistic is HIGH, then it is likely the table WAS the result of randomness
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Evaluating Association Rules (p11)}
+\begin{itemize}
+\item[] The dimensions of the associated contingency table (for association rules) are:
+\item[]
+\item Is the item in the \strong{antecedent (LHS)} of the association rule in the transaction?\\
+No (absent) OR Yes (present)
+\item[]
+\item Is the item in the \strong{consequent (RHS)} of the association rule in the transaction?\\
+No (absent) OR Yes (present)
+\item[]
+\item The number of transactions is equivalent to the sum of the four resulting cells
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Evaluating Association Rules (p12)}
+\begin{center}
+\includegraphics[width=\textwidth]{images/lb3-figure15-7.png}\\
+\cite[Figure 15.7]{LB3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Evaluating Association Rules (p13)}
+\begin{itemize}
+\item An \strong{interesting} association rule would not split the data randomly
+\item[]
+\item This can be an efficient method of eliminating association rules that are not interesting
+\item[]
+\item NOTE: if any of the cells in the table have less than 5 transactions then use \strong{Fisher's exact test}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Evaluating Association Rules (p14)}
+\begin{itemize}
+\item[] \strong{Is a rule useful?}
+\item[]
+\item \strong{Actionable} -- easily understood so reasons for the rule and possible actions can be determined\\
+(e.g., the urban legend linking purchases of beer and diapers)
+\item[]
+\item \strong{Trivial} -- although generated in a valid way and supported by data,  generally bad examples of data mining\\
+\item Can also conceal direct correlations resulting from two items being connected
+\item[]
+\item \strong{Inexplicable} -- can be due to an anomaly and may warrant further analysis
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Evaluating Association Rules (p15)}
+\begin{enumerate}
+\item[] \emph{Example}~\cite[ch 15, referencing Forbes 8/9/1997]{LB3:2011}
+
+\item[]
+\item[] Let's look at the following three rules:
+\item[]
+\item ``Wal-Mart customers who purchase Barbie dolls have a 60 percent likelihood of also purchasing one of three types of candy bars.''
+\item ``Customers who purchase maintenance agreements are very likely to purchase large appliances''
+\item ``When a new hardware store opens, one of the most commonly sold items is toilet bowl cleaners''
+\item[]
+\item[] Which types of rules are these?
+\end{enumerate}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Evaluating Association Rules (p16)}
+\begin{itemize}
+\item ``Wal-Mart customers who purchase Barbie dolls have a 60 percent likelihood of also purchasing one of three types of candy bars.''
+\item[$\rightarrow$] \strong{actionable}:
+\item[]
+\item ``Customers who purchase maintenance agreements are very likely to purchase large appliances''
+\item[$\rightarrow$] \strong{trivial}
+\item[]
+\item ``When a new hardware store opens, one of the most commonly sold items is toilet bowl cleaners''
+\item[$\rightarrow$] \strong{inexplicable}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Computing Association Rules (p1)}
+\begin{itemize}
+\item[] \strong{General procedure for learning association rules}:
+\item[1.] Start by selecting all frequent item sets of size $k=2$
+\item[2.] Grow item sets from size $k=2$ to size $k=k+1$ by \strong{pruning} item sets that contain subsets where $support \le p_s$
+\item[$\bullet$] We can take some shortcuts without going back to the data:\\
+\item[--] Given $(A=1,B=1)$ and $(B=1,C=1)$ $(k=2)$
+\item[--] Consider $(A=1,B=1,C=1)$ $(k=3)$
+\item[$\rightarrow$] We can prune $(A=1,B=1,C=1)$ if either $(A=1,B=1)$ or $(B=1,C=1)$ is not frequent
+\item[3.] If both $(A=1,B=1)$ and $(B=1,C=1)$ are frequent, we compute support for $(A=1,B=1,C=1)$ (across every instance)
+\item[4.] We stop pruning when $k=a$
+\item[5.] Then we compute \strong{accuracy} and evaluate $accuracy > p_a$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Computing Association Rules (p2)}
+\begin{itemize}
+\item[] \stronger{A Priori} algorithm~\cite{agrawal-srikant-vldb:1994}
+\item[]
+\item Algorithm that leverages the fact that \textbf{if an item-set is infrequent, then all its subsets must be infrequent}
+\item In our example: $support(milk) = 1$\\
+Therefore there were no item-sets containing milk that were above the minimum coverage
+\item In order to find all the item-sets that meet the minimum support criteria:
+\item[(1)] Start with one-item sets
+\item[(2)] Determine the support and keep only the ones meeting the minimum cover
+\item[(3)] Using the kept one-item sets from step 2, generate two-item sets for all the combinations 
+\item[(4)] Repeat steps (2) and (3) until no more item sets can be generated
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Computing Association Rules (p3)}
+\begin{itemize}
+\item A priori follows a generate-and-test methodology
+\item Generates successively longer candidate item sets from shorter ones that are known to be frequent
+\item Each different size of candidate set requires a scan through the data set
+\item This can be costly with large data
+\item This can be mitigated by using appropriate data structures
+\item[]
+\item[] Such as an \stronger{FP-Tree}...
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Computing Association Rules (p4)}
+\begin{itemize}
+\item[] \stronger{Frequent Pattern (FP) Tree}
+\item[]
+\item \strong{FP-Growth} algorithm is the method used to generate an \stronger{FP-Tree}
+\item Only two passes on the training data are needed to map it into an \strong{FP-Tree}
+\item \emph{FP-Growth} then processes the tree in a recursive fashion to grow large item sets directly,\\
+instead of generating candidate item sets and then having to test them against the entire database
+\item The first step is to count the frequency of each one-item set
+\item Then a tree structure is created in the second pass
+\item \strong{FP-Tree} is a compressed representation of the input data
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Computing Association Rules (p5)}
+\begin{itemize}
+\item The key to a compact FP-Tree structure is to sort the items in each instance in descending order of their frequency of occurrence in the dataset
+\item[]
+\item This information is computed in the first pass
+\item[]
+\item Individual items that do not meet the minimum support threshold are not inserted into the tree, effectively removing them from the dataset
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Computing Association Rules (p6)}
+\begin{center}
+\begin{tabular}{cc}
+\includegraphics[width=0.45\textwidth]{images/wfh-table6-1.png} &
+\includegraphics[width=0.45\textwidth]{images/wfh-table6-1b.png} \\
+\end{tabular}\\
+\cite[Table 6.1]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Computing Association Rules (p7)}
+\begin{center}
+\includegraphics[width=\textwidth]{images/wfh-figure6-8.png} \\
+\cite[Figure 6.8]{WFH3:2011}
+\end{center}
+\begin{itemize}
+\item The \strong{FP-Tree} generated from the weather data
+\item The only two-item set that results in coverage of $\ge 6$ is
+$windy=FALSE ~ and ~ play=YES$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+
+
+
+
+%--------------------------------------------------------------------------------
+\section{PART II}
+%--------------------------------------------------------------------------------
+\begin{frame}{}
+\begin{itemize}
+\item[] Part II: Sequence Analysis
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II. Sequence Analysis (p1)}
+\begin{itemize}
+\item Adds an element of \strong{time} to associations
+\item Analysis considers not just associations between items, but also their \strong{order}
+\item[]
+\item[] Some sample applications:
+\item \strong{Customer shopping sequences}: new homeowners purchase shower curtains before purchasing furniture
+\item \strong{Customer behaviour}: when a customer asks their bank for a statement of all their accounts, this may be a sign they will move to a competitor
+\item \strong{Clickstream analysis}: websites visited %, KDD 2000
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II. Sequence Analysis (p2)}
+\begin{itemize}
+\item[] There can be many possible objectives, for example:
+\item Find the sequences that are frequent
+\item Find the most frequent position in a sequence for a new product or item
+\item[]
+\item The same approach as with association rules can be applied, but the order is important
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II. Sequence Analysis (p3)}
+\begin{center}
+\begin{tabular}{|c|c|}
+\emph{customer id} & \emph{purchase sequence} \\
+\hline
+1 & Juice $\rightarrow$ Soda $\rightarrow$ Juice $\rightarrow$ Milk $\rightarrow$ Detergent \\
+\hline
+2 &  Juice $\rightarrow$ Milk $\rightarrow$ Milk $\rightarrow$ Detergent \\
+\hline
+3 &  Milk $\rightarrow$ Juice $\rightarrow$ Soda \\
+\hline
+\end{tabular}
+\end{center}
+\begin{itemize}
+\item Given the customer purchase history shown above
+\item The \strong{support} of an item set depends on the order items appear
+\item \strong{support} for
+\[
+	Juice, Soda \rightarrow Milk
+\]
+is $1$ (not $2$)
+\item \strong{Generalised sequential pattern (GSP)} is a mining algorithm suitable for sequence mining~\cite{agrawal-srikant-ieee:1995}
+\item[] Based on \strong{a priori} 
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+%--------------------------------------------------------------------------------
+\section{PART III}
+%--------------------------------------------------------------------------------
+\begin{frame}{}
+\begin{itemize}
+\item[] Part III: Link Analysis
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III. Link Analysis (p1)}
+\begin{itemize}
+\item[] \stronger{Link Analysis}
+\item[]
+\item Another technique used to analyse relationships and connections between items
+\item Based on \strong{graph theory}
+\item Represents relationships between different items as edges in a graph
+\item[]
+\item Not a specific modelling technique
+\item Can be used for both supervised and unsupervised mining
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III. Link Analysis (p2)}
+\begin{itemize}
+\item The relationships between the items can be visualised using a \stronger{graph}
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{images/link-analysis-example.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III. Link Analysis (p3)}
+\begin{itemize}
+\item[] A \stronger{graph} consists of two distinct parts:
+\item[]
+\item \strong{nodes} or \strong{vertices} -- the objects in the graph that have the relationships
+\item \emph{In association rule terms:} these are the items on a shopping list
+\item[]
+\item \strong{edges} are pairs of \strong{nodes} connected by a \strong{relationship}
+\item \emph{In association rule terms:} these represent items that appear together on the same transaction or shopping list
+\item[]
+\item \stronger{weights} can also be represented as part of the edges
+\item \emph{In association rule terms:} these could represent the number of times each pair of items appears in the same transaction
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III. Link Analysis (p4)}
+\begin{itemize}
+\item[] \stronger{Graphs} can be:
+\item[]
+\item \stronger{Undirected} --- the direction of the link is not important
+\item Multiple links between the same item can be represented (\strong{multi-graph})
+\item[]
+\item \stronger{Directed} --- the direction of the link is important
+\item Usually visualised with an arrow in the appropriate direction (\strong{di-graph})
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III. Link Analysis (p5)}
+\begin{center}
+\includegraphics[width=\textwidth]{images/lb3-figure16-3.png}\\ 
+\cite[Figure 16.3]{LB3:2011}\\
+{\footnotesize edges are number of transactions containing items represented by nodes}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III. Link Analysis (p6)}
+\begin{itemize}
+\item[] Analysing the items in transactions using graphs can identify:
+\item[]
+\item \strong{Degree centrality} -- relative importance of a node to the network
+\item \strong{Closeness centrality} -- a measure of how long it takes to go from a particular node to the other nodes in the network
+\item \strong{Clustering coefficient} of a node is the number of links between nodes in its neighbourhood divided by the number of links that could possibly exist
+\item Finding \strong{liques} or \strong{subgraphs} in the item transactions
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III. Link Analysis (p7)}
+\begin{itemize}
+\item[] We have focused on link analysis for association rules data but there are other applications beyond market basked analysis:
+\item[]
+\item Social network analysis
+\item Crime and fraud detection
+\item Social marketing
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+%--------------------------------------------------------------------------------
+\section*{SUMMARY AND TO DO}
+%--------------------------------------------------------------------------------
+\begin{frame}{Summary}
+\begin{itemize}
+\item \strong{Association Rule Mining}: Defines rules that relate attributes to each other within instances, e.g. one attribute (or set of attributes) predicts another; differs from classification because there is no single attribute that is pre-defined with a label (class)
+\item \strong{Sequence Analysis}: Adds an element of time to association rules
+\item \strong{Link Analysis}: A technique based on graph theory for analysing relationships and connections between items in a data set
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{To Do}
+\begin{enumerate}
+\item Reading:
+	\begin{itemize}
+	\item Chapters 4.5 and 6.3 in \cite{WFH3:2011} or \cite{WFH4:2016}
+	\item Chapter 10 in \cite{LB3:2011}
+	\end{itemize}
+\item \stronger{Assessment 1}
+	\begin{itemize}
+	\item Due on Thursday 16th November \textbf{BEFORE} 4pm
+	\item Submitted electronically on Blackboard\\
+	(see \texttt{Assessments / Assessment Documents / Assessment Item 1} for submission link)
+	\end{itemize}
+\end{enumerate}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+%--------------------------------------------------------------------------------
+\section*{REFERENCES}
+%--------------------------------------------------------------------------------
+% use 'allowframebreaks' if refs flow onto multiple slides (each will be numbered 'REFERENCES I', 'REFERENCES II' etc)
+\begin{frame}[allowframebreaks]{REFERENCES}
+%\begin{frame}{REFERENCES}
+\bibliographystyle{plain}
+\bibliography{refs}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+\end{document}

@@ -1,0 +1,1004 @@
+\documentclass[handout]{beamer}
+\usetheme{boxes}
+
+\usecolortheme{orchid}
+\definecolor{teal}{HTML}{009999}
+\definecolor{lightteal}{HTML}{00CCCC}
+\definecolor{purple}{HTML}{990099}
+\definecolor{lightpurple}{HTML}{CC00CC}
+\definecolor{darkgrey}{HTML}{666666}
+\definecolor{lightgrey}{HTML}{AAAAAA}
+\definecolor{darkred}{HTML}{660000}
+\definecolor{darkgreen}{HTML}{006600}
+\definecolor{darkblue}{HTML}{000066}
+\definecolor{lightred}{HTML}{AA0000}
+\definecolor{lightgreen}{HTML}{00AA00}
+\definecolor{lightblue}{HTML}{0000AA}
+\setbeamercolor{title}{fg=darkblue}
+\setbeamercolor{frametitle}{fg=darkblue}
+\setbeamercolor{itemize item}{fg=teal}
+\setbeamercolor{itemize subitem}{fg=lightteal}
+
+\usepackage{fancybox}
+\usepackage{adjustbox}
+\usepackage{mathptmx}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{amsmath}
+
+% For math brackets
+\usepackage{amsmath}
+
+% gets rid of bottom navigation bars
+\setbeamertemplate{footline}[frame number]{}
+
+% gets rid of bottom navigation symbols
+\setbeamertemplate{navigation symbols}{}
+
+% uses number labels in bibliography
+\setbeamertemplate{bibliography item}{\insertbiblabel}
+
+% my style for emphasising stuff in colours
+\newcommand{\strong}[1]{\textbf{\color{teal} #1}}
+\newcommand{\stronger}[1]{\textbf{\color{purple} #1}}
+
+% % title, etc
+\title{Numerical Prediction and Neural Networks\\{\small (lecture 3)}} 
+% \\{\tiny(version 1.0)} \\
+
+% % \subtitle
+
+
+
+\author{Dr Ionut Moraru}
+
+\institute{University of Lincoln, \\ School of Agri-Food Technology and Manufacturing}
+\logo{\includegraphics[width=1cm]{images/uol-logo.png}}
+\date{26th of September, 2024}
+
+% \title{Prediction\\{\small (lecture 3)}}
+% \subtitle{AGR9013-2425 -- Introduction to Data Mining\\
+% {\tiny (version 1.0)}}
+% \author{Dr Ionut Moraru}
+% \institute{University of Lincoln, \\ School of Agri-Food Technology and Manufacturing}
+% \logo{\includegraphics[width=1cm]{images/uol-logo.png}}
+% \date{26th of September, 2024}
+
+\addtobeamertemplate{navigation symbols}{}{\hspace{1em}    \usebeamerfont{footline}%
+    \insertframenumber / \inserttotalframenumber }
+
+% Remove navigation symbols
+\beamertemplatenavigationsymbolsempty
+
+\begin{document}
+
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+  belowcaptionskip=0pt,            % reduce space after the listings caption
+  belowskip=0pt,                   % how much vertical space to skip after a listing
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  caption={},                      % default to no caption
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{lightgreen}, % comment style
+  deletekeywords={...},            % if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  frame=single,                    % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=Python,                 % the language of the code
+  mathescape=true,                 % allow math mode within code
+  morekeywords={then,...},         % if you want to add more keywords to the set
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\sf\color{lightgrey}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{darkred},     % string literal style
+  tabsize=3,                       % sets default tabsize to 3 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+%--------------------------------------------------------------------------------
+\frame{\titlepage}
+
+
+%--------------------------------------------------------------------------------
+\section*{OUTLINE}
+%--------------------------------------------------------------------------------
+\begin{frame}{Outline: Prediction}
+\begin{itemize}
+\item Part I: Review of Numeric Methods
+\item Part II: Regression Methods
+\item Part III: Connectionist Methods
+\vspace*{0.3cm}
+\item To Do
+\end{itemize}
+\end{frame}
+%--------------------------------------------------------------------------------
+
+
+%--------------------------------------------------------------------------------
+\section{PART I}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part I: Review of Numeric Methods}
+\begin{itemize}
+\item[I.1] Review of Numeric Classification
+\item[I.2] Introduction to Numeric Prediction
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Review of Numeric Classification (p1)}
+\begin{itemize}
+\item We want to build a \strong{model} of our data that we can use to \strong{predict} things about new, unseen data
+\item If each instance in the \strong{training} set (our existing data) already has a \strong{label} or a \strong{class}, then this process is referred to as \stronger{supervised learning}
+\item ``\stronger{Supervised}'' because we already have an ``answer'' against which we can compare the \strong{prediction} made by our \strong{model}
+\item Our goal is to find a \stronger{rule} or a \stronger{function} or a \stronger{concept definition}, based on the existing data set
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Review of Numeric Classification (p2)}
+\begin{itemize}
+\item The type of \stronger{rule} or a \stronger{function} or a \stronger{concept definition} we build is based on the type of \textbf{input data} we have and the type of \textbf{output data} we want to predict:
+\end{itemize}
+\begin{center}
+\begin{tabular}{rr||c|c|}
+  &    & \multicolumn{2}{|c|}{\textbf{output data:}} \\
+  &    & \strong{numeric} & \strong{nominal} \\
+\hline
+\hline
+& & & \\
+& \strong{numeric} & \stronger{Regression}  & \stronger{Classification} \\
+\textbf{input} & & & \\
+\cline{2-4}
+\textbf{data:} & & & \\
+              & \strong{nominal} & \stronger{(Classification)} & \stronger{Classification} \\
+& & & \\
+\hline
+\end{tabular}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Review of Numeric Classification (p3)}
+\begin{center}
+\includegraphics[width=\textwidth]{images/training_process.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Review of Numeric Classification (p4)}
+\begin{itemize}
+\item There are two main steps involved in building both Classification and Regression models:
+	\begin{itemize}
+	\item[(1)] \stronger{Training}
+	\item[(2)] \stronger{Evaluation}
+	\end{itemize}
+\item[]
+\item[(1)] \stronger{Training} step involves:
+	\begin{enumerate}[(a)] 
+	\item Select a portion of the existing data $\rightarrow$ \strong{training set}
+	\item Initialise the parameters ($w_i$'s), e.g., to random values
+	\item Apply the rule to the training set and compute the \strong{error rate}
+	\item Adjust the parameters ($w_i$'s), according to some method
+	\item Iterate back to step {\color{beamer@blendedblue}(c)} until the \strong{error rate} is ``low enough''
+	\item[$\rightarrow$] Output is the \stronger{model}
+	\end{enumerate}
+\item[]
+\item[(2)] \stronger{Evaluation} step involves:
+	\begin{enumerate}[(a)]
+	\item Select (the remaining) portion of the existing data $\rightarrow$ \strong{test set}
+	\item Apply the rule to the test set and compute the \strong{error rate}
+	\item[$\rightarrow$] Output is the \stronger{evaluation error}
+	\end{enumerate}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Review of Numeric Classification (p5)}
+\begin{itemize}
+\item[] \textbf{There are many ways to build a model...}
+\item How to select the \strong{training} data set vs the \strong{test} set?
+	\begin{itemize}
+	\item[--] Is a \strong{validation} set needed?
+	\end{itemize}
+\item How to define the \strong{structure} of the model?
+\item[] \emph{nominal classification:}
+	\begin{itemize}
+	\item[--] How many rules?
+	\item[--] What order to execute the rules?
+	\end{itemize}
+\item[] \emph{numeric classification:}
+	\begin{itemize}
+	\item[--] How many parameters? 
+	\item[--] What function(s) to include?
+	\end{itemize}
+\item How to \strong{initialise} the parameters?
+\item How to \strong{adjust} the parameters?
+\item How to compute the \strong{score}?
+\item When to stop \strong{iterating}?
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}[fragile]{I.1. Review of Numeric Classification (p6)}
+\begin{itemize}
+\item[] \strong{Nominal $\rightarrow$ Nominal}
+\item[]
+\item \stronger{Classification}
+\item Suppose that we think there are certain attribute values in our data that can be used to predict the \stronger{class} or \stronger{label}:
+\begin{lstlisting}[numbers=none]
+if (temperature == hot) and (humidity == high):
+	play = no
+\end{lstlisting}
+\item In this example, two \strong{attribute} values predict the \strong{label}:
+\end{itemize}
+\begin{center}
+\begin{tabular}{|c|c||c|c|l}
+\multicolumn{2}{|c||}{\strong{\emph{attributes}}}
+                                     & \multicolumn{2}{|c|}{\strong{\emph{play} (label)}} \\
+\emph{temperature} & \emph{humidity} & \emph{observed} & \emph{predicted} \\
+$(x_1)$            & $(x_2)$         & $(y)$           & $(\hat{y})$ \\
+\cline{1-4}
+hot & high & no  & {\color{blue}no} & $\leftarrow$ \emph{right}\\
+hot & high & yes & {\color{blue}no} & $\leftarrow$ \emph{wrong}\\
+\cline{1-4}
+\end{tabular}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Review of Numeric Classification (p7)}
+\begin{itemize}
+\item[] \strong{Numeric $\rightarrow$ Numeric}
+\item[]
+\item \stronger{Regression}
+\item Suppose that we think there is a numeric relationship between \emph{temperature} and \emph{humidity}
+\item We could test this hypothesis by computing a \stronger{regression equation} (red line in plot below):
+\[
+	\mathsf{humidity} = w_0 + w_1 * \mathsf{temperature}
+\]
+\end{itemize}
+\vspace{-0.7cm}
+
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/weather-regression-wo-equation}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Introduction to Numeric Prediction (p1)}
+\begin{quote}
+``All models are wrong, but some are useful.'' {\small [George Box]}
+\end{quote}
+\begin{itemize}
+\item Goal: devise a \stronger{rule} or \stronger{function} or \stronger{concept description} or \stronger{equation} that produces numeric output from numeric input
+%\item The concept description that is learned can be more interesting than the values that can be predicted...
+%\item a \textbf{model} (numeric or otherwise) is an abstract representation of a real-world process or artefact
+\item Model building in data mining is \stronger{data driven}: the aim is to capture \strong{relationships in the data} (which may or may not correspond to some real-world explanation, phenomenon, artefact, process, etc.)
+\item Such relationships are often referred to as \strong{correlations}
+\item[]
+\item NOTE: \strong{correlation} and \strong{causation} are different!
+\item Two variables may be correlated without \emph{causing} each other's behaviour...
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Introduction to Numeric Prediction (p2)}
+\begin{itemize}
+\item[] Spurious Correlations
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{materials/images/correlations-chart-swimming-nuclear.png}\\
+\url{http://tylervigen.com/spurious-correlations}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Introduction to Numeric Prediction (p3)}
+\begin{itemize}
+\item Weather example again:
+\[
+	\mathsf{temperature} = 45.363 + 0.4931 * \mathsf{humidity}
+\]
+which is an instance of the general model structure:
+\[
+	\hat{y} = w_0 + w_1 x_1
+\]
+\item[] where:
+\item $\hat{y}$ is the \textbf{output} of the model applied to the data
+\item $x_i$'s are the \strong{attributes} or \strong{features} or \strong{variables} in the data
+\item[] ${\chi} = \{ x_1, x_2, \ldots, x_N \}$ is the set of variables
+\item $w_i$'s are the \strong{parameters} of the model
+\item[] $\omega = \{ w_0, w_1, \ldots, w_N \}$ is the set of model parameters
+\item We can use \stronger{estimation} to find values for parameters
+\end{itemize}
+\end{frame}
+
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Introduction to Numeric Prediction (p4)}
+\begin{itemize}
+\item A model whose output produces a straight line is \strong{linear},\\
+ in both the \strong{variables} ($x_i$) and the \strong{parameters} ($w_i$)
+%(e.g., by evaluating at any legal values for $\chi$)
+\item Such a model can also consist of \strong{non-linear variables} ($x_i^i$)\\
+ and \strong{linear parameters} ($w_i$)
+\item In data mining, both types are referred to as \stronger{linear models}
+\end{itemize}
+\begin{center}
+{\footnotesize
+\begin{tabular}{cc}
+\includegraphics[width=4cm]{images/hand-figure6-1b.png} &
+\includegraphics[width=4cm]{images/hand-figure6-1c.png} \\
+(a) \strong{linear variables}  & (b) \strong{non-linear variables} \\
+and \strong{linear parameters} & and \strong{linear parameters} \\
+$\hat{y} = w_0 + w_1 * x_1$ & $\hat{y} = w_0 + w_1 * x_1 + w_2 * (x_2)^2$ \\
+\cite[Fig 6.1b]{hand-et-al:2001} & \cite[Fig 6.1c]{hand-et-al:2001} \\
+\end{tabular}
+}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Introduction to Numeric Prediction (p5)}
+\begin{itemize}
+\item[] \stronger{Linear Regression Models}
+\item Often visualised as a 2D scatter plot showing the \stronger{regression} line that best \strong{fits} the data
+\item Used for \stronger{prediction} by evaluating the regression equation for a set of variables ($\chi$)
+\end{itemize}
+\begin{center}
+\includegraphics[width=5cm]{images/wfh-figure3-1}\\
+(least squares linear regression)\\
+\cite[Figure 3.1]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Introduction to Numeric Prediction (p6)}
+\begin{itemize}
+\item[] \stronger{Linear Classification Models}
+\item Linear models can be used for classification problems by drawing a \stronger{decision boundary} around regions (e.g., sets of points belonging to the same class) 
+\end{itemize}
+\begin{center}
+\includegraphics[width=5cm]{images/wfh-figure3-2}\\
+(perceptron training rule)\\
+\cite[Figure 3.2]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+%--------------------------------------------------------------------------------
+\section{PART II}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part II: }
+\begin{itemize}
+\item[II.1] Linear regression
+\item[II.2] Logistic regression
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Linear Regression (p1)}
+\begin{itemize}
+\item Output of model is expressed as a \strong{linear combination} of attributes, with pre-determined weights:
+\[
+\hat{y} = w_0 + w_1 x_1 + w_2 x_2 + \ldots + w_N x_N
+\]
+\item[] where:
+\item $\hat{y}$ = the output, i.e., the predicted value given the attributes
+\item $x_i \in \chi$ = the variables, $1 \ldots N$
+\item $w_i \in \omega$ = the parameters, $0 \ldots N$
+\item Goal: determine the parameters ($\omega$) such that the \strong{error} (sum of differences between the observed output value and the predicted output value, over all instances) is minimised
+\item Usually \strong{error = sum of squares difference} for Linear Regression
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Linear Regression (p2)}
+\begin{center}
+\begin{tabular}{cc}
+\includegraphics[width=3.5cm]{images/hand-figure6-1a} &
+\includegraphics[width=3.5cm]{images/hand-figure6-1b} \\
+(a) raw data & (b) linear model: $w_0 + w_1 * x_1$ \\
+\includegraphics[width=3.5cm]{images/hand-figure6-1c} &
+\includegraphics[width=3.5cm]{images/hand-figure6-2} \\
+(c) 2nd order polynomial: & (d) piecewise linear model \\
+{\footnotesize $w_0 + w_1 * x_1 + w_2 * (x_2)^2$} & \\
+\end{tabular}\\
+\cite[Fig 6.1-6.2]{hand-et-al:2001}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Linear Regression (p3)} 
+\begin{itemize}
+\item Assume that a linear function exists between the \strong{output} ($y$) and the \strong{variables} ($\chi$):
+\[
+y = w_0 + \sum^N_{i=1}{ w_i x_i }
+\] 
+\item We need to find \strong{parameters} or \strong{weights} or \strong{regression coefficients} ($\omega$) of a function that approximates the relationships between the variables ($\chi$) and the output ($y$)
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.4\textwidth]{images/linear-regression.png}\\
+{\small green line shows ``best fit'' regression line}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Linear Regression (p4)}
+\begin{itemize}
+\item How do we choose the parameters ($\omega$) such that the \strong{error} is minimised?
+% (difference between $y$ and $\hat{y}$)?
+\item The difference between the observed ($y$) and predicted ($\hat{y}$) output, for each instance $\chi_j$, is called the \stronger{error} or ``\stronger{residual}'':
+\[
+\begin{array}{cl}
+	y_j - \hat{y}_j     & \mathsf{raw ~ difference ~ or}\\
+	| y_j - \hat{y}_j | & \mathsf{absolute ~ value ~ of ~ difference ~ or} \\
+	(y_j - \hat{y}_j)^2 & \mathsf{squared ~ difference}
+\end{array}
+\]
+\item Linear Regression trains a model which minimizes the \strong{mean sum of squared error}: 
+\[
+	S(\omega) = \frac{1}{M} \sum_{j=1}^M{ ( y_j - \hat{y}_j )^2 }
+\]
+\item $S(\omega)$ is called the \stronger{objective function}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Linear Regression (p5)}
+\begin{itemize}
+\item We want to find values for $\omega$ such that $S(\omega) \rightarrow 0$
+\item This process is called \stronger{training} or \stronger{fitting}
+\item Note that $S$ is a function of $\omega$
+\item[] which are the \strong{parameters} or \strong{weights} or \strong{coefficients} of the regression equation
+\item[]
+\item There are two different approaches to fit a linear regression hypothesis to a training set:
+\item[$\bullet$] \stronger{Gradient Descent}---Solve using \strong{iterative search}
+\item[$\bullet$] \stronger{Ordinary Least Squares}---Solve \strong{analytically}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Linear Regression (p6)}
+\begin{itemize}
+\item Imagine a 3-dimensional plot of a 2-dimensional linear model where the vertical axis represents values of the objective function $S(\omega)$ and the dimensions represent $w_0$ and $w_1$
+\item The \stronger{gradient descent algorithm} starts with some initial (random) guess of $w_0$ and $w_1$, and repeatedly changes parameter values to make $S(\omega)$ smaller
+\end{itemize}
+\begin{center}
+\includegraphics[width=6cm]{images/mitchell-figure4-4}\\
+\cite[Fig 4.4]{mitchell-book:1997}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\begin{frame}[fragile]{II.1. Linear Regression (p7)}
+\begin{itemize}
+\item For a single training example ($\chi_j$), the \stronger{update rule} is:
+\[
+	\omega' \leftarrow \omega + \alpha ( y_j - \hat{y}_j ) \chi_j
+\]
+\item $\alpha$ is the \strong{learning rate}---a small constant that controls how big the adjustments are from one iteration to another
+\item The \stronger{gradient descent algorithm} consists of two steps:
+\item[(1)] Initialize $\omega$ with zeros (or random values):
+\begin{lstlisting}
+for $i \in \{1 \ldots N\}$:
+  $w_i \leftarrow 0$
+\end{lstlisting}
+\item[(2)] Repeat until \strong{convergence} is achieved:
+\begin{lstlisting}
+repeat:
+  for $j \in \{1 \ldots M\}$:
+    for $i \in \{1 \ldots N\}$:
+      $w_{i}' \leftarrow w_i + \alpha ~ ( y_j - \hat{y}_j ) ~ x_{j,i} ~ ( 1 / M )$
+until $S(\omega) \rightarrow 0$
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}[fragile]{II.1. Linear Regression (p8)}
+% from hand ch 8.5
+\begin{itemize}
+\item This algorithm computes gradients with respect to all training examples
+\item This is called \strong{batch} or \strong{off-line} gradient descent, and moves the solution in the direction of the gradient of vector $S(\omega)$
+\item \strong{Convergence} is assessed after all instances in the data set have been examined, and the process is repeated---likely viewing each instance multiple times---until $S(\omega)$ is close to $0$
+\item This is also called a \strong{multi-pass} method, because each instance in the data set is visited more than once
+\item In the real world, this method may be problematic because all the data may not be available \emph{a priori} (i.e., before needing or wanting to construct the regression model)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}[fragile]{II.1. Linear Regression (p9)}
+\begin{itemize}
+\item An alternative is called an \strong{single-scan} or \strong{on-line} method which updates after each example individually:
+\begin{lstlisting}
+for $j \in \{1 \ldots M\}$:
+  repeat:
+    for $i \in \{1 \ldots N\}$:
+      $w_i \leftarrow w_i + \alpha ( y_j - \hat{y}_j ) x_{j,i}$
+  until $S(\omega) \rightarrow 0$
+\end{lstlisting}
+\item \strong{Convergence} is assessed after each instance in the data set has been examined once---repeating until $S(\omega)$ converges for one instance at a time, and then moving to the next instance.
+\item In this case, because we don't have all the data when the process runs, we are \emph{approximating} the gradient after looking at each instance once, over a partial set of instances (from the beginning of the data set until the current instance)---this is referred to as \strong{online approximation}.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}[fragile]{II.1. Linear Regression (p10)}
+\begin{itemize}
+\item Because the approximations can be noisy, the guesses are referred to as \strong{stochastic} and so this method is also called \stronger{stochastic gradient descent}
+\item[]
+%\item Also note that similar methods for implementing gradient descent can be applied to update $\omega$ for logistic regression
+%\item[]
+\item In summary, the two main strategies are:
+\item[--] \strong{off-line, batch, multi-pass gradient descent} --- \\
+follow gradient by computing over all instances in the data set multiple times
+\item[--] \strong{on-line, single-scan, stochastic gradient descent} --- \\
+approximate gradient by computing over each instance in the data set, once, one at a time
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Linear Regression (p11)}
+\begin{itemize}
+\item[] An illustration:
+\end{itemize}
+\begin{center}
+\begin{tabular}{cc}
+\includegraphics[width=4cm]{images/linear-regression-0.pdf} &
+\includegraphics[width=4cm]{images/linear-regression-25.pdf} \\
+\includegraphics[width=4cm]{images/linear-regression-50.pdf} & 
+\includegraphics[width=4cm]{images/linear-regression-75.pdf} \\
+\end{tabular}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Logistic Regression (p1)}
+\begin{itemize}
+\item \stronger{Logistic Regression} can be used for classification
+\item For example: in cases where the least-squares errors are not statistically independent or normally distributed
+\item Uses the logarithm function to transform the standard regression equation to define a 2-class boundary
+\item Suppose that the labels are either $0$ or $1$, indicating that an instance belongs to one class ($0$) or the other ($1$)
+\item If the probability of an instance belonging to either class is $50\%$, then we can write:
+\[
+Pr( 0 | x_1, x_2, \ldots, x_N ) = 0.5
+\]
+and
+\[
+Pr( 1 | x_1, x_2, \ldots, x_N ) = 0.5
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Logistic Regression (p2)}
+\begin{itemize}
+\item The \strong{logistic regression equation} to evaluate this is written:
+\[
+1 / ( 1 + exp( -w_0 - w_1 x_1 - w_2 x_2 - \ldots - w_N x_N )) = 0.5
+\]
+\item which produces the decision boundary for $\hat{y}$
+\item the example below illustrates $y$ for $w_0 = 1.25$ and $w_1 = 0.5$:
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.5\textwidth]{images/wfh-figure4-9b}\\
+\cite[Fig 4.9b]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+%--------------------------------------------------------------------------------
+\section{PART III}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part III: Connectionist Methods}
+\begin{itemize}
+\item[III.1] Perceptrons
+\item[III.2] Neural Networks
+\item[III.3] Deep Neural Networks (Deep Learning)
+\item[III.4] Classic papers
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.1. Perceptrons (p1)}
+\begin{itemize}
+\item A \stronger{perceptron} is another type of numeric model
+\item[]
+\item Single-layer perceptron
+\item[]
+\item Multi-layer perceptron $\rightarrow$ Neural Network
+\item[]
+\item Multi-layer neural network $\rightarrow$ Deep Network
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.1. Perceptrons (p2)}
+\begin{itemize}
+\item If the data can be separated into two classes using a \strong{hyperplane}, then the data is called \strong{linearly separable}
+\item The \stronger{perceptron learning rule} is an algorithm for finding such a hyperplane
+\item The equation for a hyperplane is:
+\[
+w_0 + w_1 x_1 + \ldots + w_N x_N = 0
+\]
+\item Or generally as:
+\[
+	\omega \cdot \chi
+\]
+which makes the assumption that $x_0 = 1$ (the \strong{bias}), i.e.:
+\[
+w_0 x_0 + w_1 x_1 + \ldots + w_N x_N = 0
+\]
+\item We want to find \strong{weights} ($\omega$) that go with the \strong{variables} ($\chi$)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.1. Perceptrons (p3)}
+\begin{itemize}
+\item A perceptron is often drawn like the diagram below
+\item The output is either $1$ (``in class A'') or $0$ (``in class B'')
+\end{itemize}
+\begin{center}
+\includegraphics[width=7cm]{images/wfh-figure4-10N}\\
+\cite[Figure 4.10]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.1. Perceptrons (p4)}
+\begin{itemize}
+\item In 2 dimensions, a perceptron defines a boundary that is a \strong{line} or \strong{curve} between two parts of a 2D space \\
+\emph{(a plane --- easy to draw, so often used in textbooks)}
+\item In 3 dimensions, a perceptron defines a boundary that is a \strong{plane} between two parts of 3D space \\
+\emph{(awkward to draw, but can be explored in 3D simulation)}
+\item In higher dimensions, the boundary is a \strong{hyperplane} \\
+\emph{(we cannot draw it!)}
+\item The boundary is defined by a \strong{threshold} 
+$\omega \cdot \chi = \theta$, so it separates:
+\[
+\omega \cdot \chi > \theta
+\]
+from
+\[
+\omega \cdot \chi < \theta
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.1. Perceptrons (p5)}
+\begin{itemize}
+\item For every instance $j \in 1..M$ described by $\chi_j=\{x_{j,0} \ldots x_{j,N}\}$, output is:\\
+\item[$=1$] if instance is in the class (i.e., if $\omega \cdot \chi > \theta$); or
+\item[$=0$] if it is not (i.e., if $\omega \cdot \chi \le \theta$)
+\item[]
+\item We use a \strong{threshold} function just before the output of the perceptron to ensure that the output is either $0$ or $1$
+\item This way, we don't have to find weights that make $\omega \cdot \chi$ produce exactly $0$ or $1$)
+\item A common threshold function is the \strong{sigmoid} function:
+\[
+{\bf g}(\hat{y}) = \frac{1}{1 + e^{-\hat{y}}}
+\]
+where $\hat{y} = \omega \cdot \chi$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.1. Perceptrons (p6)}
+\begin{itemize}
+\item We \stronger{train} a perceptron using an \strong{error} function to estimate how far off the current set of weights is:
+\[
+error = \sum_{j=1}^{M}( y_j - \hat{y}_j )^2
+\]
+\item[] where:
+\item $M$ is the number of instances in our training (or test) set
+\item $y_j$ is the outcome we want: the \strong{target}, evaluated for the $j$-th instance (i.e., the \strong{observed} value)
+\item $\hat{y}_j$ is the outcome we get: the \strong{prediction}, evaluated for the $j$-th instance
+\item Goal: minimise the \strong{error}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.1. Perceptrons (p7)}
+\begin{itemize}
+\item Adjust the weights, iteratively based on $y - \hat{y}$, until the error is small:
+\[
+	\omega' \leftarrow \omega + \alpha( y - \hat{y} ) \chi
+\]
+\item[] where:
+	\begin{itemize}
+	\item $\alpha$ is the \strong{learning rate}---a small constant that controls how big the adjustments are from one iteration to the next
+	\item $\omega$ is the vector of weights ($w_i$'s)
+	\item $\chi$ is the vector of variables ($x_i$'s)
+	\end{itemize}
+\item For example, for variable $i$ and instance $j$, the update rule is:
+\[
+	\omega_i' \leftarrow \omega_i + \alpha( y_j - \hat{y_j} ) x_{j,i}
+\]
+\item[] (and we iterate over all $i$'s for all $j$')
+\item This is called the \strong{error correction} method and is a form of \stronger{gradient descent}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.2. Neural Networks (p1)}
+\begin{itemize}
+\item[] A \strong{feed-forward multi-layer perceptron} is a \stronger{neural network}:
+\item bias $x_0$ and input vector $\{x_1, x_2, \ldots, x_N\}$
+\item intermediate ``hidden'' values $\{h_1, \ldots, h_H\}$
+\item intermediate weighted sum $s$
+\item threshold function ${\bf g}()$
+\item output value ${\bf g}(s)$
+\item input weights $\{w_{0,0}, w_{0,1}, \ldots, w_{0,N}\}$ (``input bias'' $w_{0,0}$)
+\item hidden weights $\{w_{1,0}, w_{1,1}, \ldots, w_{1,H}\}$ (``hidden bias'' $w_{1,0}$)
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{images/hand-figure5-5}\\
+\cite[based on Figure 5.5]{hand-et-al:2001}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.2. Neural Networks (p2)}
+\begin{itemize}
+\item Boundaries between classes are \stronger{non-linear}
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/hand-figure5-6}\\
+\cite[Figure 5.6]{hand-et-al:2001}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.2. Neural Networks (p3)}
+\begin{itemize}
+\item Each \strong{layer} is evaluated in sequence:
+\item[1] \strong{input} $\rightarrow$ \strong{hidden} ($N$ input nodes, $H$ hidden nodes):
+\[
+\forall ~ v \in \{1 \ldots H\} : h(v) = \sum_{u=1}^N{ x_u w_{(v,u)} }
+\]
+\item[2] \strong{hidden} $\rightarrow$ \strong{output} ($H$ hidden nodes, $1$ output node):
+\[
+\hat{y} = {\bf g}(\sum_{v=1}^H{ h_v \omega_v })
+\]
+where ${\bf g}(\ldots)$ is the threshold function
+\item Sometimes a \strong{bias} is added in at each layer, $w_0$:
+\[
+h(v) = w_0 + \sum_{u=1}^N{ x_u w_{(v,u)} }
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.2. Neural Networks (p4)}
+\begin{itemize}
+\item The \stronger{score} function is typically the \strong{sum of squared errors}:
+\[
+\mathsf{error} = \sum_{j=1}^{M}{( y_j - \hat{y}_j )^2}
+\]
+over $M$ instances (size of training, or test, data set)
+\item[] where $y_j$ is the desired (target) output for instance $j$
+\item[] and $\hat{y}_j$ is the perceptron's (predicted) output for instance $j$
+\item if the target output and the predicted output are the same, for all instances, then 
+$\mathsf{error}=0$, which is good
+\item because we want to minimise the error
+\item but usually this doesn't happen---typically we get increasingly smaller errors as the network trains, but never actually reach $0$
+(e.g., $0.000015, 0.000014, 0.000013, 0.000012, \ldots$)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.2. Neural Networks (p5)}
+\begin{itemize}
+\item The \strong{training} process follows a \strong{steepest descent} approach
+\item We are \strong{searching} the landscape of possible output values, and we want to \strong{descend} from large errors to small (ideally $0$) error
+\item \stronger{Backpropagation} is the classic example
+\item Weights are adjusted by moving backwards:
+	\begin{enumerate}
+	\item First from the \emph{hidden} $\leftarrow$ \emph{output} layer
+	\item Then from the \emph{input} $\leftarrow$ \emph{hidden} layer
+	\end{enumerate}
+\item The amount of adjustment is proportional to the value of the error function
+	\begin{itemize}
+	\item Big errors $\Rightarrow$ big adjustments
+	\item Small errors $\Rightarrow$ small adjustments
+	\end{itemize}
+\item Error rate should decline (\strong{descend}) during the training process
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.3. Deep Neural Networks (p1)}
+\begin{itemize}
+\item Neural Networks have surged in popularity within the last decade
+\item[]
+\item Particularly due to \stronger{Deep Learning}, which is a term that refers to Neural Networks with many layers, or \stronger{Deep Neural Networks}
+\item[]
+\item Deep learning methods are frequently applied to:
+\item[--] Image processing (Convolutional Neural Networks or CNNs)
+\item[--] Text processing (Recurrent Neural Networks or RNNs)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.3. Deep Neural Networks (p2)}
+\begin{itemize}
+\item \stronger{Convolutional Neural Networks (CNNs)} are very popular for \strong{image processing}
+\item Below is an illustration \textbf{AlexNet}, showing a sequence of \strong{layers}:
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{materials/images/Screenshot 2024-10-09 at 14.43.21.png}\\
+\cite{krizhevsky-et-al-cacm:2017}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.3. Deep Neural Networks (p3)}
+\begin{itemize}
+\item At each convolutional layer, we have:
+	\begin{itemize}
+	\item input data
+	\item a \stronger{filter} or \stronger{kernel}
+	\item a down-sampled output
+	\end{itemize}
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{materials/images/Screenshot 2024-10-09 at 14.45.00.png}\\
+{\footnotesize (\url{https://www.ibm.com/cloud/learn/convolutional-neural-networks})}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.3. Deep Neural Networks (p4)}
+\begin{itemize}
+\item How does this look across a whole RGB image?
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{materials/images/Screenshot 2024-10-09 at 14.45.33.png}\\
+{\footnotesize (illustration courtesy of Zhuoling Huang)}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.3. Deep Neural Networks (p5)}
+\begin{itemize}
+\item \stronger{Recurrent Neural Networks (RNNs)} are very popular for \strong{text processing}
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{materials/images/Screenshot 2024-10-09 at 14.46.07.png}\\
+{\footnotesize (\url{https://www.ibm.com/cloud/learn/recurrent-neural-networks})}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.3. Deep Neural Networks (p6)}
+\begin{itemize}
+\item Example from {\footnotesize \url{https://www.ibm.com/cloud/learn/recurrent-neural-networks}}:
+\item Rolled RNN represents phrase {\small (e.g. \textbf{feeling under the weather})}
+\item Unrolled RNN represents the individual layers, or time steps
+\item Each layer maps to a single word (e.g. \textbf{weather})
+\item Prior inputs (e.g. \textbf{feeling}) are represented as \strong{hidden states}
+% in the third timestep to predict the output in the sequence \textbf{the}
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.7\textwidth]{materials/images/Screenshot 2024-10-09 at 14.46.36.png}\\
+{\footnotesize (\url{https://www.ibm.com/cloud/learn/recurrent-neural-networks})}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.3. Deep Neural Networks (p7)}
+\begin{itemize}
+\item[] \textbf{Other flavours of deep networks:}
+\item[]
+\item \strong{BRNN}: Bidirectional recurrent neural networks ---
+\item[] draw from future as well as previous inputs to predict output
+\item[]
+\item \strong{LSTM}: Long Short-Term Memory ---
+\item[] connect to prior not necessarily in the recent past (e.g. a few sentences earlier) to make inferences and predictions
+\item[]
+\item \strong{GAN}: Generative Adversarial Network ---
+consists of a generative network (to create new, fake examples) and an adversarial network (to compare fake examples against real, to co-evolve better fake examples)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.3. Deep Neural Networks (p8)}
+\begin{itemize}
+\item[] \textbf{Open issues:}
+\item[]
+\item How to match network architecture to problem
+\item[]
+\item Requirement for masses of data
+	\begin{itemize}
+	\item Overfitting is a big problem for lots of domains
+    \item GANs may be a solution
+	\end{itemize}
+\item[]
+\item Requirement for lots of processing time (CPU) for training
+	\begin{itemize}
+	\item Tens to hundreds of thousands of epochs
+    \end{itemize}
+\item[]
+\item Explainability (or lack thereof)
+\end{itemize}
+\begin{center}
+{\footnotesize (courtesy of Prof Simon Parsons)}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.3. Deep Neural Networks (p9)}
+\begin{itemize}
+\item[] \textbf{Do you want to read more about Deep Learning}?
+%
+\item What is deep learning?
+by IBM Cloud Education, 1 May 2020.
+\url{https://www.ibm.com/cloud/learn/deep-learning}\\
+%
+\item Convolutional Neural Networks,
+by IBM Cloud Education, 20 October 2020.
+\url{https://www.ibm.com/cloud/learn/convolutional-neural-networks}\\
+%
+\item Recurrent Neural Networks,
+by IBM Cloud Education, 14 September 2020.
+\url{https://www.ibm.com/cloud/learn/recurrent-neural-networks}
+%
+\item Generative adversarial networks explained,
+by Caper Hansen, 20 July 2022.
+\url{https://developer.ibm.com/articles/generative-adversarial-networks-explained/}\\
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.4. Classic papers}
+\begin{itemize}
+%
+\item[] \textbf{Some classic papers on connectionist methods:}
+%
+\item ``A logical calculus of the ideas immanent in nervous activity''~\cite{mcculloch-pitts:1943}
+%
+\item ``The perceptron: A probabilistic model for information storage and organization in the brain''~\cite{rosenblatt:1958}
+%
+\item ``Learning representations by back-propagating errors''~\cite{rumelhart-et-al:1986}
+%
+\item ``Connectionist learning procedures''~\cite{hinton:1989}
+%
+\item ``Imagenet classification with deep convolutional neural networks''~\cite{krizhevsky-et-al-cacm:2017}
+%
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+%--------------------------------------------------------------------------------
+\section*{SUMMARY AND TO DO}
+%--------------------------------------------------------------------------------
+\begin{frame}{Summary: Prediction}
+\begin{itemize}
+\item Classification is used for building models that predict \strong{nominal} output (labels), whereas Regression, Perceptrons, Neural Networks and Deep Learning are used for building models that predict \strong{numeric} output
+\item The general structure of a numeric prediction model is either a linear model:
+\[
+	\hat{y} = w_0 + w_1 x_1 + w_2 x_2 + \ldots + w_{N-1} x_{N-1}
+\]
+or a polynomial model:
+\[
+	\hat{y} = w_0 + w_1 x_1 + w_2 (x_2)^2 + \ldots + w_{N-1} (x_{N-1})^{N-1}
+\]
+\item Such models are scored as the difference between the observed ($y$) and predicted ($\hat{y}$) outputs
+\item Iterative methods improve the score by changing the weights ($w$ values) over time
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{To Do}
+\begin{enumerate}
+\item Finish the Workshop exercises from Week 2
+\item Reading:
+    \begin{itemize}
+    \item Linear Models: \cite[ch 4.6]{WFH3:2011} or \cite[ch 4.6]{WFH4:2016}
+	\item Evaluating Numeric Prediction: \cite[ch 5.8]{WFH3:2011} or \cite[ch 5.9]{WFH4:2016}
+	\end{itemize}
+\item Advanced Reading (optional):
+    \begin{itemize}
+	\item Extending Linear Models: \cite[ch 6.3]{WFH3:2011} or \cite[ch 7.2]{WFH4:2016}
+	\item Numeric Prediction: \cite[ch 6.5]{WFH3:2011} or \cite[ch 7.3]{WFH4:2016}
+	\item Deep Learning: \cite[ch 10]{WFH4:2016}
+    \end{itemize}
+\end{enumerate}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+%--------------------------------------------------------------------------------
+\section*{REFERENCES}
+%--------------------------------------------------------------------------------
+% use 'allowframebreaks' if refs flow onto multiple slides (each will be numbered 'REFERENCES I', 'REFERENCES II' etc)
+\begin{frame}[allowframebreaks]{REFERENCES}
+%\begin{frame}{REFERENCES}
+\bibliographystyle{plain}
+\bibliography{refs}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+\end{document}

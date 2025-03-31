@@ -1,0 +1,534 @@
+\documentclass[handout]{beamer}
+\usetheme{boxes}
+
+\usecolortheme{orchid}
+\definecolor{teal}{HTML}{009999}
+\definecolor{lightteal}{HTML}{00CCCC}
+\definecolor{purple}{HTML}{990099}
+\definecolor{lightpurple}{HTML}{CC00CC}
+\definecolor{darkgrey}{HTML}{666666}
+\definecolor{lightgrey}{HTML}{AAAAAA}
+\definecolor{darkred}{HTML}{660000}
+\definecolor{darkgreen}{HTML}{006600}
+\definecolor{darkblue}{HTML}{000066}
+\definecolor{lightred}{HTML}{AA0000}
+\definecolor{lightgreen}{HTML}{00AA00}
+\definecolor{lightblue}{HTML}{0000AA}
+\setbeamercolor{title}{fg=darkblue}
+\setbeamercolor{frametitle}{fg=darkblue}
+\setbeamercolor{itemize item}{fg=teal}
+\setbeamercolor{itemize subitem}{fg=lightteal}
+
+\usepackage{fancybox}
+\usepackage{adjustbox}
+\usepackage{mathptmx}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{amsmath}
+
+% For math brackets
+\usepackage{amsmath}
+
+% gets rid of bottom navigation bars
+\setbeamertemplate{footline}[frame number]{}
+
+% gets rid of bottom navigation symbols
+\setbeamertemplate{navigation symbols}{}
+
+% uses number labels in bibliography
+\setbeamertemplate{bibliography item}{\insertbiblabel}
+
+% my style for emphasising stuff in colours
+\newcommand{\strong}[1]{\textbf{\color{teal} #1}}
+\newcommand{\stronger}[1]{\textbf{\color{purple} #1}}
+
+% title, etc
+\title{Data Mining in the Wild\\{\small (lecture 11)}}
+\subtitle{AGR9013 -- Introduction to Data Mining\\
+{\tiny (version 1)}}
+\author{Dr Ionut Moraru}
+\institute{University of Lincoln, School of Agri-Foods Technology and Manufacturing}
+\logo{\includegraphics[width=1cm]{images/uol-logo.png}}
+\date{12-December-2024}
+
+\addtobeamertemplate{navigation symbols}{}{\hspace{1em}    \usebeamerfont{footline}%
+    \insertframenumber / \inserttotalframenumber }
+
+% Remove navigation symbols
+\beamertemplatenavigationsymbolsempty
+
+\begin{document}
+
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+  belowcaptionskip=0pt,            % reduce space after the listings caption
+  belowskip=0pt,                   % how much vertical space to skip after a listing
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  caption={},                      % default to no caption
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{lightgreen}, % comment style
+  deletekeywords={...},            % if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  frame=single,                    % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=Python,                 % the language of the code
+  mathescape=true,                 % allow math mode within code
+  morekeywords={then,...},         % if you want to add more keywords to the set
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\sf\color{lightgrey}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{darkred},     % string literal style
+  tabsize=3,                       % sets default tabsize to 3 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+%--------------------------------------------------------------------------------
+\frame{\titlepage}
+
+
+%--------------------------------------------------------------------------------
+\section*{OUTLINE}
+%--------------------------------------------------------------------------------
+\begin{frame}{Outline: Data Mining in the Wild}
+\begin{itemize}
+\item[] Part I. The Process of Data Mining
+\item[] Part II. Data Issues
+\item[] Part III. Model Issues
+\vspace*{0.3cm}
+\item To Do
+\end{itemize}
+\end{frame}
+%--------------------------------------------------------------------------------
+
+
+
+%--------------------------------------------------------------------------------
+\section{PART I}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part I: The Process of Data Mining}
+\begin{itemize}
+\item Iteration
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%--------------------------------------------------------------------------------
+\subsection{the process of data mining}
+%--------------------------------------------------------------------------------
+\begin{frame}{I.1. Iteration}
+\begin{itemize}
+\item[] \strong{In the real world, with real data, iteration is essential!}
+\end{itemize}
+\begin{center}
+\begin{tabular}{cc}
+\begin{minipage}[b]{0.45\textwidth}
+\begin{itemize}
+\item Before applying data mining techniques, determine the \strong{objective} of the analysis.
+\item Understand the data and its quality.
+\item Prepare (\stronger{clean} or \stronger{curate}) the data.
+\item Build model(s)
+\item Evaluate the model(s)
+\end{itemize}
+\end{minipage} &
+\begin{minipage}[b]{0.5\textwidth}
+\begin{center}
+\includegraphics[width=\textwidth]{images/ml-process-generic.pdf}
+\end{center}
+\end{minipage} \\
+\end{tabular}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+
+%--------------------------------------------------------------------------------
+\section{PART II}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part II: Data Issues}
+\begin{itemize}
+\item Issues with real-world data science
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%--------------------------------------------------------------------------------
+\subsection{issues with real-world data science}
+%--------------------------------------------------------------------------------
+\begin{frame}{I.2. Issues with real-world data science}
+\begin{itemize}
+\item[] \strong{From classroom to workplace}
+\item[]
+\item Textbook data sets are necessarily \strong{simple}
+\item This is useful for learning
+\item But unrealistic
+\item[]
+\item Textbook examples usually compress data down to 2 dimensions, to make it easy to visualise
+\item This is useful for learning
+\item But unrealistic
+\item[]
+\item Textbook examples come in nice neat tables
+\item This is useful for learning
+\item But unrealistic
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Issues with real-world data science (p2)}
+\begin{itemize}
+\item[] \strong{Data}
+\item[]
+\item There is no correct answer or not one correct answer
+\item Data is very deep --- many instances
+\item Data is very broad --- many features
+\item Data is very messy
+\item Data is very sparse
+\item Data is very noisy
+\item Data has mixed attributes
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Issues with real-world data science (p3)}
+\begin{itemize}
+\item[] \strong{Data quality}
+\item[]
+\item What is the \strong{quality} of the data?
+\item Does this need to be addressed?
+\item Should it be imputed or not?
+\item Is it missing at random? Is the missing-ness correlated to something? 
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Issues with real-world data science (p4)}
+\begin{center}
+\includegraphics[width=0.9\textwidth]{images/data-cleaning.png} 
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Issues with real-world data science (p5)}
+\begin{itemize}
+\item[] \strong{Not enough data}
+\item[]
+\item Models/techniques that work with \strong{complete} data sets---values for every attribute in every instance---may struggle to perform well when data sets are \strong{incomplete}.
+\item Most data sets are incomplete in some way: e.g., it's typically not possible to enumerate all possible combinations of attributes.
+\item So we need strategies to handle sparse data sets
+\item Such techniques can involve \strong{deriving variables} when the existing variables are not informative enough on their own.
+\item We have also talked about methods like \strong{Laplace estimation} which involve deriving instances to supplement existing data sets.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Issues with real-world data science (p6)}
+\begin{itemize}
+\item[] \strong{Too much data}
+\item[]
+\item Models/techniques that work with \strong{small} dimensions (numbers of attributes) generally do not \strong{scale} well to \strong{large} dimensions.
+\item Larger dimensions $\Rightarrow$ larger data sets (instances) are required for learning/mining
+\item There are two primary strategies for coping with this \stronger{curse of dimensionality} that involve \strong{reducing variables}:
+	\begin{itemize}
+	\item[(1)] \stronger{Variable Selection:} 
+		\begin{itemize}
+		\item Use a subset of dimensions (attributes, variables)
+		\item Find $\chi' \subset \chi$, where $|\chi'| \ll |\chi|$
+		\end{itemize}
+	\item[(2)] \stronger{Variable Transformation:}
+		\begin{itemize}
+		\item Transform $\chi \rightarrow \chi'$, where $|\chi'| \ll |\chi|$
+		\item Find a function of $\chi$ which produces $\chi'$ (e.g., neural network)
+		\item Such techniques include \stronger{projection pursuit} and \stronger{principal components analysis (PCA)}
+		\end{itemize}
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%--------------------------------------------------------------------------------
+
+
+
+%--------------------------------------------------------------------------------
+\section{PART III}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part III: Model Issues}
+\begin{itemize}
+\item How to work with your model?
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+%--------------------------------------------------------------------------------
+\subsection{model issues}
+%--------------------------------------------------------------------------------
+\begin{frame}{I.3. Model Issues}
+\begin{itemize}
+\item[] \strong{How good is the model?}
+\item[]
+\item Once a model is built, its performance needs to be assessed:
+\item Beware of the \stronger{re-substitution} error rate
+\item Split your data into \stronger{test} and \stronger{training} (and \stronger{validation} sets)
+\item Consider sampling (random, stratified or other)
+\item \stronger{Cross-validation} and \stronger{bootstrap} are options when there are relatively few instances
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Model Issues (p2)}
+\begin{itemize}
+\item[] \strong{What can go wrong?}
+\item[]
+\item When the objective of a data mining model is using available data to support better decisions, there are two outcomes to avoid:
+\item[(1)] Learning things that are not true
+\item[(2)] Learning things that are true, but not useful
+(but this in itself can confirm that the data is true to the domain it has been sourced from)
+\item ``If you torture the data long enough, it will confess.'' (Ronald Coase\cite{tullock:2001})
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Model Issues (p3)}
+\begin{itemize}
+\item[] \strong{Avoid learning things that are not true}
+\item[]
+\item If important decisions are made on the results of a data mining model, then it is more dangerous to have a model that concludes things that are not true rather than things that are useless.
+\item A model may seem to be doing a good job against the usual criteria (ROC, miss-classification etc..)
+\item[] but if the data is incorrect, or not relevant to the question the model is being trained to answer then the patterns discovered may not reflect the real trends in the data.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Model Issues (p4)}
+\begin{itemize}
+\item[] \strong{Patterns may not represent any underlying rule}
+\item[]
+\item The challenge for data miners is to decide which patterns are useful and which patterns are not.
+\item For example: Do any of the following rules have any predictive value?
+\item[--] The party that does not hold the US presidency picks up seats in congress during off-year elections
+\item[--] When the American League wins the World Series, Republicans take the White House
+\item[--] In US presidential elections, the taller candidate usually wins
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Model Issues (p5)}
+\begin{itemize}
+\item[] \strong{Patterns may not represent any underlying rule}
+\item[]
+\item The first pattern:
+\item[] ``The party that does not hod the presidency picks up seats in congress during off-year elections'' 
+\item has an explanation 
+\item Therefore is is likely to continue
+\item Therefore it has predictive value
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Model Issues (p6)}
+\begin{itemize}
+\item[] (Patterns may not represent any underlying rule, continued)
+\item[]
+\item The second pattern:
+\item[] ``When the American League wins the World Series, Republicans take the White House''
+\item No matter how many times Republicans and American League teams may have shared victories in the past, there is no reason to expect this association to continue in the future.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Model Issues (p7)}
+\begin{itemize}
+\item[] (Patterns may not represent any underlying rule, continued)
+\item[]
+\item The third pattern:
+\item[] ``In US presidential elections, the taller candidate usually wins''
+\item The right way to decide whether a rule is stable and predictive is to compare its performance on multiple samples selected at random from the same population
+\item How would we go about validating this rule?
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Model Issues (p8)}
+\begin{itemize}
+\item[] \strong{Actionable, Trivial or Surprising?}
+\item[]
+\item Take a look at the following three rules:
+    \begin{enumerate}
+    \item ``Wal-Mart customers who purchase Barbie dolls have a 60 percent likelihood of also purchasing one of three types of candy bars.''\cite{palmeri:1997}
+    \item ``Customers who purchase maintenance agreements are very likely to purchase large appliances''
+    \item ``When a new hardware store opens, one of the most commonly sold items is toilet bowl cleaners''
+    \end{enumerate}
+\item Are they useful?
+\item[] Rules quoted from~\cite[ch 15]{LB3:2011} and from Lecture 7
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Model Issues (p9)}
+\begin{itemize}
+\item[] \strong{Learning things that are true but not useful}
+\item[]
+\item This is common and can happen in several ways:
+\item[--] Learning things that are already known
+\item[--] Learning things that can't be used
+\item[]
+\item However: it is reassuring when the data confirms what is already known
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Model Issues (p10)}
+\begin{itemize}
+\item[] \strong{Are we overfitting?}
+\item[]
+\item Patterns or rules that fail to generalise are \strong{overfitting}
+\item Overfitting leads to models that work on some data samples but not on others
+\item The goal of a good models is for it to be robust  and fit consistently across different samples 
+\item[]
+\item How can we assess if a model or rule is overfitting?
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Model Issues (p11)}
+\begin{itemize}
+\item Which model would you select? (training results)
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{images/roc-train.pdf}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Model Issues (p12)}
+\begin{itemize}
+\item Which model would you select? (test results)
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{images/roc-test.pdf}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Model Issues (p13)}
+\begin{itemize}
+\item The identity of models 1, 2 and 3
+\item Note: these were built to predict survival on the Titanic data
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{images/3-trees.pdf}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Model Issues (p14)}
+\begin{itemize}
+\item[] The Danger of \stronger{Overfitting}
+\item[]
+\item The performance of a model that overfits declines on ``new data''
+\item[]
+\item Models that are ``too small'' or too ``complex'' are not robust in the example (p13), so do not rely on re-substitution error or on evaluating on the same data the model is built on.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Model Issues (p15)}
+\begin{itemize}
+\item[] \strong{Training data does not reflect the relevant population}
+\item[]
+\item Does the data describe what happened in the past? 
+\item The model can only be as good as the data used to create it. 
+\item For inferences to be valid, the training data must reflect the population that the model is meant to describe, classify, or score. 
+\item A sample that does not properly reflect the population being scored or the overall population is biased.
+\item A biased model can lead to learning things that are not true
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Model Issues (p16)}
+\begin{itemize}
+\item Example: \strong{Is this a promising decision tree?}
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.9\textwidth]{images/attribute-leak-tree.png}\\
+\emph{based on the kyphosis data set from the R rpart library}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Model Issues (p17)}
+\begin{itemize}
+\item[] Example: \strong{A perfect prediction}
+\item[]
+\item The attribute group is identical to the target attribute kyphosis
+\item The attribute group is defined as a consequence of kyphosis
+\item Therefore it does not help us predict new cases
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/attribute-leak-tree.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Model Issues (p18)}
+\begin{itemize}
+\item Example: \strong{Does declining usage in month 8 predict attrition in month 9?}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{images/lb-figure3-1.png}\\
+\cite[Figure 3.1]{LB3:2011}
+\end{center}
+\item Data may be at the wrong level of detail
+\item Maybe a leading indicator is in fact a lagging one
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Model Issues (p19)}
+\begin{itemize}
+\item Another example: \strong{Is this a decline in sales revenue?}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{images/lb-figure3-2.png}\\
+\cite[Figure 3.2]{LB3:2011}
+\end{center}
+\item Data may be at the wrong level of detail
+\item Maybe there were more holidays in October, or the data is incomplete....
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+%--------------------------------------------------------------------------------
+\section*{SUMMARY AND TO DO}
+%--------------------------------------------------------------------------------
+\begin{frame}{Summary: Data Mining in the Wild}
+\begin{itemize}
+\item The process of data mining is useful in the wild
+\item In the wild, the data is usually not perfect and findings can be affected
+\item In the wild, models need to be evaluated thoroughly, their findings need to be true and ideally useful.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{To Do}
+\begin{enumerate}
+\item Reading:
+	\begin{itemize}
+	\item Chapter 3 from \cite{LB3:2011}
+	\item Notes on eigen decomposition from:
+	\item[] \url{http://mathworld.wolfram.com/Eigenvalue.html}
+	\item[] \url{http://mathworld.wolfram.com/Eigenvector.html}
+	\item Nice interactive, visual explanation here:
+	\item[] \url{http://setosa.io/ev/eigenvectors-and-eigenvalues/}
+	\end{itemize}
+% \item Assessment 2: Posted 4th December; due 11th January
+\end{enumerate}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+
+%--------------------------------------------------------------------------------
+\section*{REFERENCES}
+%--------------------------------------------------------------------------------
+% use 'allowframebreaks' if refs flow onto multiple slides (each will be numbered 'REFERENCES I', 'REFERENCES II' etc)
+%\begin{frame}[allowframebreaks]{REFERENCES}
+\begin{frame}{REFERENCES}
+\bibliographystyle{plain}
+\bibliography{refs}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+\end{document}

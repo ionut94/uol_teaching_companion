@@ -1,0 +1,736 @@
+\documentclass[handout]{beamer}
+\usetheme{boxes}
+
+\usecolortheme{orchid}
+\definecolor{teal}{HTML}{009999}
+\definecolor{lightteal}{HTML}{00CCCC}
+\definecolor{purple}{HTML}{990099}
+\definecolor{lightpurple}{HTML}{CC00CC}
+\definecolor{darkgrey}{HTML}{666666}
+\definecolor{lightgrey}{HTML}{AAAAAA}
+\definecolor{darkred}{HTML}{660000}
+\definecolor{darkgreen}{HTML}{006600}
+\definecolor{darkblue}{HTML}{000066}
+\definecolor{lightred}{HTML}{AA0000}
+\definecolor{lightgreen}{HTML}{00AA00}
+\definecolor{lightblue}{HTML}{0000AA}
+\setbeamercolor{title}{fg=darkblue}
+\setbeamercolor{frametitle}{fg=darkblue}
+\setbeamercolor{itemize item}{fg=teal}
+\setbeamercolor{itemize subitem}{fg=lightteal}
+
+\usepackage{fancybox}
+\usepackage{adjustbox}
+\usepackage{mathptmx}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{amsmath}
+
+% For math brackets
+\usepackage{amsmath}
+
+% gets rid of bottom navigation bars
+\setbeamertemplate{footline}[frame number]{}
+
+% gets rid of bottom navigation symbols
+\setbeamertemplate{navigation symbols}{}
+
+% uses number labels in bibliography
+\setbeamertemplate{bibliography item}{\insertbiblabel}
+
+% my style for emphasising stuff in colours
+\newcommand{\strong}[1]{\textbf{\color{teal} #1}}
+\newcommand{\stronger}[1]{\textbf{\color{purple} #1}}
+
+% title, etc
+\title{Time Series and Survival Data Mining\\{\small (lecture 8)}}
+\subtitle{AGR9013 -- Introduction to Data Mining\\
+{\tiny (version 1)}}
+\author{Dr Ionut Moraru}
+\institute{University of Lincoln, School of Agri-Foods Technology and Manufacturing}
+\logo{\includegraphics[width=1cm]{images/uol-logo.png}}
+\date{21-November-2023}
+
+\addtobeamertemplate{navigation symbols}{}{\hspace{1em}    \usebeamerfont{footline}%
+    \insertframenumber / \inserttotalframenumber }
+
+% Remove navigation symbols
+\beamertemplatenavigationsymbolsempty
+
+\begin{document}
+
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+  belowcaptionskip=0pt,            % reduce space after the listings caption
+  belowskip=0pt,                   % how much vertical space to skip after a listing
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  caption={},                      % default to no caption
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{lightgreen}, % comment style
+  deletekeywords={...},            % if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  frame=single,                    % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=Python,                 % the language of the code
+  mathescape=true,                 % allow math mode within code
+  morekeywords={then,...},         % if you want to add more keywords to the set
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\sf\color{lightgrey}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{darkred},     % string literal style
+  tabsize=3,                       % sets default tabsize to 3 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+%--------------------------------------------------------------------------------
+\frame{\titlepage}
+
+
+%--------------------------------------------------------------------------------
+\section*{OUTLINE}
+%--------------------------------------------------------------------------------
+\begin{frame}{Outline}
+\begin{itemize}
+\item[] Part I. Time Series Data Mining
+	\begin{itemize}
+    \item[I.1.] Time Series Data
+    \item[I.2.] Time Series Analysis
+    \item[I.3.] Time Series Mining
+	\end{itemize}
+\item[] Part II. Survival Data Mining
+	\begin{itemize}
+    \item[II.1] Survival Analysis
+    \item[II.2] Survival Curves
+    \item[II.3] Hazard
+    \item[II.4] Censoring
+    \item[II.5] Forecasting
+    \item[II.6] Survival Trees
+	\end{itemize}
+\vspace*{0.3cm}
+\item To Do
+\end{itemize}
+\end{frame}
+%--------------------------------------------------------------------------------
+
+
+%--------------------------------------------------------------------------------
+\section{PART I}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part I: Time Series Data Mining}
+\begin{itemize}
+\item[I.1.] Time Series Data
+\item[I.2.] Time Series Analysis
+\item[I.3.] Time Series Mining
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Time Series Data (p1)}
+\begin{center}
+\includegraphics[width=\textwidth]{images/dm_process_ts.pdf}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Time Series Data (p2)}
+\begin{itemize}
+\item \stronger{Time Series} data refers to values over time repeatedly
+\item Examples of time series data include: daily rainfall, stock market prices and exchange rates
+\item Time series analysis concerns developing models to describe time series data
+\item Time series data can be exploited in data mining too
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Time Series Data (p3)}
+\begin{itemize}
+\item[] \strong{The time series aspect can occur in multiple ways}
+\item[]
+\item As the target to model: every instance is a time series
+\item[]
+\item As historical data on the customer or item of interest: for every instance (customer), there is a time series
+\item[]
+\item To potentially enhance existing customer level data: for every instance in a data set, there are separate time series
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Time Series Data (p4)}
+\begin{itemize}
+\item Data for the quarterly earnings per share from Johnson \& Johnson: 
+\end{itemize}
+% latex table generated in R 3.3.2 by xtable 1.8-2 package
+% Wed Mar  8 13:30:23 2017
+\begin{center}
+{\small
+\begin{tabular}{rrrrr}
+  \hline
+ & Q1 & Q2 & Q3 & Q4 \\ 
+  \hline
+1960 & 0.71 & 0.63 & 0.85 & 0.44 \\ 
+  1961 & 0.61 & 0.69 & 0.92 & 0.55 \\ 
+  1962 & 0.72 & 0.77 & 0.92 & 0.60 \\ 
+  1963 & 0.83 & 0.80 & 1.00 & 0.77 \\ 
+  1964 & 0.92 & 1.00 & 1.24 & 1.00 \\ 
+  1965 & 1.16 & 1.30 & 1.45 & 1.25 \\ 
+  1966 & 1.26 & 1.38 & 1.86 & 1.56 \\ 
+$\dots$ &  $\dots$ & $\dots$ & $\dots$ & $\dots$ \\
+  1974 & 6.03 & 6.39 & 6.93 & 5.85 \\ 
+  1975 & 6.93 & 7.74 & 7.83 & 6.12 \\ 
+  1976 & 7.74 & 8.91 & 8.28 & 6.84 \\ 
+  1977 & 9.54 & 10.26 & 9.54 & 8.73 \\ 
+  1978 & 11.88 & 12.06 & 12.15 & 8.91 \\ 
+  1979 & 14.04 & 12.96 & 14.85 & 9.99 \\ 
+  1980 & 16.20 & 14.67 & 16.02 & 11.61 \\ 
+   \hline
+\end{tabular}
+}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Time Series Data (p5)}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{images/ts-1.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.. Time Series Data (p6)}
+\begin{itemize}
+\item A \stronger{Time Series} is a sequence of random variables, $x_1, x_2, \ldots, x_t$, where $x_1$ denotes the value at time $1$ or the first time point
+\item In the previous slide, $x_i$ represented the quarterly earnings at Johnson \& Johnson
+\item[]
+\item When plotting time series data, usually the time axis $t$ is plotted on the horizontal axis and the values for $x_i$ on the vertical axis
+\item Successive observations are not independent, past observations influence future ones
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Time Series Analysis (p1)}
+\begin{itemize}
+\item[] Objectives of \stronger{Time Series Analysis}:
+\item[]
+\item Compact description of data
+\item Interpretation and understanding, e.g., seasonal factors or covariates
+\item Forecasting or prediction
+\item Hypothesis testing
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2 Time Series Analysis (p2)}
+\begin{itemize}
+\item[] Classic methods of time series analysis decompose a series into:
+\item[]
+\item Trend ($T_t$)
+\item Cycle ($C_t$)
+\item Seasonality ($S_t$)
+\item Error ($\epsilon_t$)
+\item[]
+\item Typically the assumption is that these components are additive:
+\[
+	x_t = T_t+C_t+S_t+ \epsilon_t
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2 Time Series Analysis (p3)}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{images/ts-2.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2 Time Series Analysis (p4)}
+\begin{itemize}
+\item[] In order to perform forecasting or to understand the trends in the time series, we model the data using:
+\item[]
+\item \stronger{Moving Average (MA)}
+\[
+	\hat{x_{t+1}} = \frac{x_t + x_{t-1}+ \dots x_{t-N+1}}{N}
+\]
+\item \stronger{AutoRegressive (AR)}
+\[
+	\hat{x_{t+1}} = \beta_0 + \beta_1 x_{t-1}+\epsilon_t
+\]
+\item[] the above is AR(1)
+\item[]
+\item \stronger{Exponential Smoothing}
+\item[] Exponentially decreases weights of older observations
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Time Series Mining (p1)}
+\begin{itemize}
+\item[] \stronger{Time Series Mining} applications can be segmented into:
+\item[]
+\item \strong{Representation and indexing}
+\item \strong{Similarity measure}
+\item \strong{Segmentation}
+\item \strong{Visualisation}
+\item \strong{Mining}
+\item[] \cite{fu:2011}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Time Series Mining (p2)}
+\begin{itemize}
+\item[] \stronger{Representation and Indexing}
+\item Time series representation is required for dimension reduction
+\item Sampling is an option - a rate of $\frac{m}{n}$ is used where $m$ is the length of the time series and $n$ is the dimensionality after the sampling
+\item Use the average value in a segment to represent the segment (piecewise aggregate approximation)
+\item Linear interpolation - \strong{Piecewise Linear Representation (PLR)}
+\item Linear regression
+\item Reduce dimensionality but preserve points of interest (perceptually important points (PIP))
+\item Transformations such as the \strong{Discrete Fourier Transform (DFT)}
+\item[]
+\item The efficiency of indexing depends only on the precision of the approximation in the reduced dimensionality space
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Time Series Mining (p3)}
+\begin{itemize}
+\item[] \stronger{Similarity measure}
+\item[]
+\item Whole sequence matching - the length of all time series is considered during the similarity search
+\item Subsequence matching where a query sequence $Q$ and a longer sequence $P$ are given and the task is to find the subsequences in $P$ that match $Q$
+\item for example:
+	\begin{itemize}
+	\item Query 1: find all stocks that behave similar to stock A (whole sequence matching)
+	\item Query 2: find all the patterns of a specific type in the past month of closing prices (subsequence matching)
+	\end{itemize}
+\item These can be done with \emph{Euclidean based measures} or other approaches such as \emph{dynamic time warping}
+\item There are techniques specific to subsection matching
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Time Series Mining (p4)}
+\begin{itemize}
+\item[] \stronger{Segmentation}
+\item[]
+\item Segmentation can be considered:
+	\begin{itemize}
+	\item A pre-processing step in preparation for a data mining task
+	\item A trend analysis technique
+	\end{itemize}
+\item Simple discretisation can be achieved by using a fixed length window to segment series into subsequences, and then represented by the primitive patterns that are formed
+\item Other approaches focus on detecting special events
+\item Time points at which behaviour of time series change can be identified: change point detection 
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Time Series Mining (p5)}
+\begin{itemize}
+\item[] Time series data mining tasks are the ultimate goal for either the original or the transformed data, common approaches are:
+\item[]
+\item \strong{Pattern discovery and clustering}
+\item \strong{Classification}
+\item \strong{Rule Mining}
+\item \strong{Summarisation}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Time Series Mining (p6)}
+\begin{itemize}
+\item[] \stronger{Pattern Discovery}
+\item[]
+\item These tasks are also referred to as \strong{anomaly detection} or \strong{motif discovery}
+\item A common group of techniques employed is \strong{distance-based clustering}
+\item Depending on the size of the data these may require a compression of the time series
+%\item ARMA and ARIMA have also been used as basis for clustering
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Time Series Mining (p7)}
+\begin{itemize}
+\item[] \stronger{Classification}
+\item[]
+\item \strong{Classify} time series based on combining local properties or patterns in the time series
+\item Another approach employs meta-features (recurring substructures) 
+\item Many more approaches have been proposed....
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Time Series Mining (p8)}
+\begin{itemize}
+\item[] \stronger{Rule discovery}
+\item[]
+\item Using \strong{association rule mining}
+\item Discretize a time series into segments, convert each segment into a symbol and apply sequence analysis approaches
+\item[]
+\item[] Decision tree can also be employed for rule mining:
+\item Sequential raw data is transformed into sequence of events
+\item Temporal rules are inferred using classification trees 
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I. Summary: Time Series Data Mining}
+\begin{itemize}
+\item Target can be a time series - then objective is forecasting or decomposing the series
+\item Time series can be additional data for a transaction, and be used to generate additional covariate attributes
+\item Extraction of interesting patterns from the time series can enhance a data mining analysis
+\item Time series can be the target to be classified or clustered
+\item Rule mining can be applied to time series by reducing segments of the time series to symbolic representation
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+%--------------------------------------------------------------------------------
+\section{PART II}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part II: Survival Data Mining}
+\begin{itemize}
+\item[II.1] Survival Analysis
+\item[II.2] Survival Curves
+\item[II.3] Hazard
+\item[II.4] Censoring
+\item[II.5] Forecasting
+\item[II.6] Survival Trees
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Survival Analysis (p1)}
+\begin{center}
+\includegraphics[width=\textwidth]{images/dm_process_survival.pdf}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Survival Analysis (p2)}
+\begin{itemize}
+\item \stronger{Survival Analysis} is also known as \stronger{Time-to-Event Analysis}
+\item[]
+\item Traditionally linked to analysing clinical data
+\item[]
+\item It is also valuable in data mining for example:
+\item[--] Understanding customer tenure
+\item[--] Failure analysis in manufacturing
+\item[--] Assessing risks across a customer's life cycle
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Survival Analysis (p3)}
+\begin{itemize}
+\item[] \stronger{Survival analysis} in the context of typical \strong{data mining} applications can help answer the following questions:
+\item[]
+\item When a customer is likely to leave: \stronger{churn}
+\item The next time a customer's behaviour will change
+\item The next time a customer will change their contract
+\item Factors that influence the likely customer \stronger{tenure}
+\item Factors that significantly affect customer tenure
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Survival Analysis (p4)}
+\begin{itemize}
+\item[] Terminologies
+\item[]
+\item \strong{Clinical} (medical)
+	\begin{itemize}
+	\item \strong{patient}
+	\item \stronger{survival} - time elapsed between two events of interest
+	\item \stronger{censoring} - the event is not experienced (i.e., the patient is still alive or disease-free)
+	\end{itemize}
+\item[]
+\item \strong{Customer relationship} (marketing)
+	\begin{itemize}
+	\item \strong{customer} or \strong{contract}
+	\item \strong{tenure} - time elapsed between start of contract and current time or end of contract
+	\item \strong{censoring} - current customers will be censored (not considered) when applying survival analysis
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Survival Curves (p1)}
+\begin{itemize}
+\item Shows the proportion of customers/patients who are expected to survive up to a particular point in time (tenure)
+\item Always starts at $100\%$  and then descends
+\item May flatten out, but never increases
+\item May descend all the way to zero ($0.0$)
+\item Stopping (or leaving or dying) is a one-time event---
+\item[] Once a customer or patient has experienced the event they cannot be re-included in the analysis
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Survival Curves (p2)}
+\begin{center}
+\includegraphics[width=\textwidth]{images/lb3-figure10-1.png} \\
+\cite[Figure 10.1]{LB3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Survival Curves (p3)}
+\begin{itemize}
+\item[] \stronger{Survival Function}
+\item[]
+\item Given data including an attribute $T$, where $T \geq 0$
+\item[] where $T$ is the tenure or survival time
+\item[]
+\item The \stronger{survival function} is:
+\[
+	S(t) = Pr(T>t)
+\]
+\item $S(t)$ the probability that a subject will survive past time $t$
+\item[]
+\item At time $t=0$, $S(t)=1$
+\item At time $t=\infty$, $S(t)=0$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Survival Curves (p4)}
+\begin{itemize}
+\item[] \stronger{Tenure} or \stronger{survival}
+\item[]
+\item In order to analyse customer \emph{survival} or \emph{tenure}, the following are required:
+\item When a customer \strong{joins} or \strong{starts}
+\item When a customer \strong{leaves} or \strong{stops}
+\item[]
+\item The difference between these two values is the customer \stronger{tenure}
+\item[]
+\item If a customer is still a customer at the time of ``analysis'', then they are \stronger{censored}
+\item[]
+\item If an attribute exists indicating the customer status (e.g., churned or is still a customer), then this can be used as the \strong{censoring indicator}
+\end{itemize}  	
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Survival Curves (p5)}
+\begin{itemize}
+\item[] Analysing the shape of the survival curve can help in comparing between groups:
+\item[]
+\item Proportion of customers who left at a determined time
+\item[]
+\item Time it takes for half the customers to leave:
+\item[] \stronger{customer half life}
+\item[] Also called \stronger{median customer lifetime}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Hazard (p1)}
+\begin{itemize}
+\item[] \stronger{Hazard} probability answers the following question:
+\item[]
+\item Assume a customer has a \strong{tenure} of $t$
+\item \textbf{What is the probability that this customer leaves before $t+1$?}
+\item[]
+\item This can also be interpreted as the risk of losing customers between tenure $t$ and $t+1$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Hazard (p2)}
+\begin{itemize}
+\item A \stronger{Hazard curve} plots tenure (horizontal axis) versus probability (vertical axis), indicating the probability that a customer ends their tenure at a particular time 
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Hazard (p3)}
+\begin{itemize}
+\item Example for a company that sells a subscription service:
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{images/lb3-figure10-6.png}\\
+\cite[Figure 10.6]{LB3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Hazard (p4)}
+\begin{itemize}
+\item Another example: life expectancy
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{images/lb2-figure12-5.png} \\
+\cite[Figure 12.5]{LB2:2004}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Hazard (p5)}
+\begin{itemize}
+\item Another example: comparison of customers who joined a service after being solicited by telephone vs email marketing 
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{images/lb3-figure10-9.png} \\
+\cite[Figure 10.9]{LB3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Hazard (p6)}
+\begin{itemize}
+\item \stronger{Hazard} is the probability that the customer stops at a particular tenure
+\item[]
+\item \stronger{Survival} is the probability of surviving until that tenure
+\item[]
+\item The survival curve is smoother and it is easier to use to calculate customer half life and tenure
+\item[]
+\item But as survival is cumulative, it can hide patterns occurring at specific times in the tenure
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Censoring (p1)}
+\begin{itemize}
+\item Customers who have stopped and are no longer included in the count going forward
+
+\item The \stronger{Kaplan-Meier (KM) Estimator} is a useful non-parametric tool for estimating survival functions
+\item When there is \strong{no censoring} (i.e. all subjects included), then the survival function $S(t)$ is simply the proportion of survival times that are greater than $t$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Censoring (p2)}
+\begin{itemize}
+\item When there is \strong{censoring} (i.e. some subjects are not included), the survival times are ordered from smallest to largest:
+\[
+	\hat{S}(t)= \prod_{j|t_i \leq{t}} [1-\frac{d_j}{r_j}]
+\]
+\item[] where
+\item[] $r_j$ is the number of patients at risk just before time $t_{(j)}$ 
+\item[] $d_j$ is the number that experience the event of interest at $t_{(j)}$
+\item Censored patients at time $t_{(j)}$ are included in $r_j$, so if a patient is lost to follow up at that time, they still count as at-risk until that time
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Censoring (p3)}
+\begin{itemize}
+\item[] \strong{An Example}
+\item Timeline legend:
+	\begin{itemize}
+	\item $\vdash$ = customer starts / joins
+	\item $\circ$ = customer leaves
+	\item $\bullet$ = customer is still active
+	\end{itemize} 
+\end{itemize}
+\begin{center}
+\begin{tabular}{cc}
+\includegraphics[width=0.45\textwidth]{images/lb2-figure12-7.png} &
+\includegraphics[width=0.55\textwidth]{images/lb2-table12-2.png} \\
+Figure 12.7 & Table 12.2 \\
+\multicolumn{2}{c}{\cite{LB2:2004}}\\
+\end{tabular}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Censoring (p4)}
+\begin{itemize}
+\item[] Example (continued)
+\item[]
+\item Customers are either: ACTIVE, STOPPED or CENSORED
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{images/lb2-table12-3.png} \\
+\cite[Table 12.3]{LB2:2004}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Censoring (p5)}
+\begin{itemize}
+\item[] Example (continued)
+\item[]
+\item Here's the \stronger{hazard} calculation:
+the number of customers who are STOPPED divided by the total of the customers who are either ACTIVE or STOPPED
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{images/lb2-table12-4.png} \\
+\cite[Table 12.4]{LB2:2004}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.5. Forecasting (p1)}
+\begin{itemize}
+\item Another way of exploiting time to event data is to use it for \strong{forecasting}, e.g., the number of future customers:
+\item Model of existing customers using covariates
+\item Apply the models to existing customers based on their current tenure - to produce ``stop forecast'' (i.e., when customer will churn)
+\item Include new customers - to produce stop forecast
+\item Produce an estimate of customer levels into the future
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.5. Forecasting (p2)}
+\begin{itemize}
+\item Example estimates (forecast) of when customers will stop
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{images/lb2-figure12-13.png} \\
+\cite[Figure 12.13]{LB2:2004}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.6. Survival Trees (p1)}
+\begin{itemize}
+\item \strong{Decision tree} and \strong{regression tree} algorithms have been used to model survival
+\item At each node, the KM estimate of the survival function is reported
+\item A variety of splitting criteria have been proposed:
+\item[--] One method uses the \strong{logrank} statistic to compare the two groups composed of the nodes generated by a split~\cite{ciampi-et-al:1986}
+\item[--] Leads to a split assuring best separation of the median survival times in the two resulting nodes 
+\item[--] ``The logrank test is used to test the null hypothesis that there is no difference between the populations in the probability of an event at any time point.''~\cite{bland-altman:2004}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.6. Survival Trees (p2)}
+\begin{center}
+\includegraphics[width=\textwidth]{images/survival-tree-example-trim.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II. Summary: Survival Data Mining}
+\begin{itemize}
+\item A target attribute of type \emph{time to event} can be analysed using appropriate techniques
+\item The presence of censoring has to be taken into account
+\item The analysis can be done using traditional statistical approaches or in combination with data mining ones (e.g., survival trees)
+\item The analysis of the \emph{time to event} attribute can be a step in a two-way process: estimate survival profiles then apply to current and new instances
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+%--------------------------------------------------------------------------------
+\section*{SUMMARY AND TO DO}
+%--------------------------------------------------------------------------------
+\begin{frame}{Summary: Time Series and Survival Data Mining}
+\begin{itemize}
+\item Time Series Data Mining: data mining where \emph{time} is a meaningful attribute 
+\item Survival Data Mining: data mining where \emph{time to event} is a meaningful attribute
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{To Do}
+\begin{enumerate}
+\item READING:
+	\begin{itemize}
+	\item Chapter 12 from~\cite{LB2:2004} or Chapter 10 from~\cite{LB3:2011}
+	\end{itemize}
+\item Additional articles:
+	\begin{itemize}
+	\item \cite{chatfield:1975}
+	\item \cite{fu:2011}
+	\item \cite{kalbfleisch-prentice:1980}
+	\item \cite{bou-hamad-et-al:2011}
+	\end{itemize}
+\item Assessment 1: Marks available 5th December
+
+\end{enumerate}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+%--------------------------------------------------------------------------------
+\section*{REFERENCES}
+%--------------------------------------------------------------------------------
+% use 'allowframebreaks' if refs flow onto multiple slides (each will be numbered 'REFERENCES I', 'REFERENCES II' etc)
+\begin{frame}[allowframebreaks]{REFERENCES}
+%\begin{frame}{REFERENCES}
+\bibliographystyle{plain}
+\bibliography{refs}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+\end{document}

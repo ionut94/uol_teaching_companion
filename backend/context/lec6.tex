@@ -1,0 +1,817 @@
+\documentclass[handout]{beamer}
+\usetheme{boxes}
+
+\usecolortheme{orchid}
+\definecolor{teal}{HTML}{009999}
+\definecolor{lightteal}{HTML}{00CCCC}
+\definecolor{purple}{HTML}{990099}
+\definecolor{lightpurple}{HTML}{CC00CC}
+\definecolor{darkgrey}{HTML}{666666}
+\definecolor{lightgrey}{HTML}{AAAAAA}
+\definecolor{darkred}{HTML}{660000}
+\definecolor{darkgreen}{HTML}{006600}
+\definecolor{darkblue}{HTML}{000066}
+\definecolor{lightred}{HTML}{AA0000}
+\definecolor{lightgreen}{HTML}{00AA00}
+\definecolor{lightblue}{HTML}{0000AA}
+\setbeamercolor{title}{fg=darkblue}
+\setbeamercolor{frametitle}{fg=darkblue}
+\setbeamercolor{itemize item}{fg=teal}
+\setbeamercolor{itemize subitem}{fg=lightteal}
+
+\usepackage{fancybox}
+\usepackage{adjustbox}
+\usepackage{mathptmx}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{amsmath}
+
+% For math brackets
+\usepackage{amsmath}
+
+% gets rid of bottom navigation bars
+\setbeamertemplate{footline}[frame number]{}
+
+% gets rid of bottom navigation symbols
+\setbeamertemplate{navigation symbols}{}
+
+% uses number labels in bibliography
+\setbeamertemplate{bibliography item}{\insertbiblabel}
+
+% my style for emphasising stuff in colours
+\newcommand{\strong}[1]{\textbf{\color{teal} #1}}
+\newcommand{\stronger}[1]{\textbf{\color{purple} #1}}
+
+% title, etc
+\title{Instance-based Models\\{\small (lecture 6)}}
+\subtitle{AGR9013 -- Introduction to Data Mining\\
+{\tiny (version 1)}}
+\author{Dr Ionut Moraru}
+\institute{University of Lincoln, School of Agri-Foods Technology and Manufacturing}
+\logo{\includegraphics[width=1cm]{images/uol-logo.png}}
+\date{7-November-2024}
+
+\addtobeamertemplate{navigation symbols}{}{\hspace{1em}    \usebeamerfont{footline}%
+    \insertframenumber / \inserttotalframenumber }
+
+% Remove navigation symbols
+\beamertemplatenavigationsymbolsempty
+
+\begin{document}
+
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+  belowcaptionskip=0pt,            % reduce space after the listings caption
+  belowskip=0pt,                   % how much vertical space to skip after a listing
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  caption={},                      % default to no caption
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{lightgreen}, % comment style
+  deletekeywords={...},            % if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  frame=single,                    % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=Python,                 % the language of the code
+  mathescape=true,                 % allow math mode within code
+  morekeywords={then,...},         % if you want to add more keywords to the set
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\sf\color{lightgrey}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{darkred},     % string literal style
+  tabsize=3,                       % sets default tabsize to 3 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+%--------------------------------------------------------------------------------
+\frame{\titlepage}
+
+
+%--------------------------------------------------------------------------------
+\section*{OUTLINE}
+%--------------------------------------------------------------------------------
+\begin{frame}{Outline: Instance-based Models}
+\begin{itemize}
+\item[] Part I. Modeling Overview
+\item[] Part II. Instance-based Models
+\vspace*{0.3cm}
+\item To Do
+\end{itemize}
+\end{frame}
+%--------------------------------------------------------------------------------
+%--------------------------------------------------------------------------------
+
+
+%--------------------------------------------------------------------------------
+\section{PART I}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part I: Modelling Overview}
+\begin{itemize}
+\item[I.1.] Review of Modelling
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Review of Modelling (p1)}
+\begin{itemize}
+\item \strong{Introduction:}\\
+``No statistical model can safely be assumed adequate. Perspicacious criticism employing diagnostic checks must therefore be applied. But while such checks are always necessary, they may not be sufficient, because some discrepancies may on the one hand be potentially disastrous and on the other be not easily detectable...''~\cite{Box:1980}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Review of Modelling (p2)}
+\begin{itemize}
+\item \strong{Conclusion:}\\
+``In choosing robust estimators there is room for empiricism but...some...inspiration should be applied to the choice, study, and consequences of appropriate parsimonious models. The structure of the resulting Bayesian analysis should...be carefully analysed, for the great strength of such a model-based approach is that \textbf{the exact consequences of whatever goes into the model must come out}. These consequences will either agree with `common sense' or they will not. If they do not then we know either that what went in was inappropriate in a way we had failed to forsee, or else, as happens quite frequently, that our common sense was too shortsighted. 
+\textbf{In either case we learn something.}''~\cite{Box:1980}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Review of Modelling (p3)}
+\begin{itemize}
+\item A \stronger{model} is an abstract representation of a real-world process or artefact
+\item e.g., $y = 2 + 3x$\\
+which is an instance of the \stronger{model structure} $y = w_0 + w_1 x$\\
+where $w_0,w_1 \in \omega$ are called \stronger{model parameters}
+\item[]
+\item We use \stronger{estimation} procedures to find appropriate values for $\omega$, depending on what we are aiming to model
+\item Model building in data mining is \strong{data driven}
+\item The aim is to capture relationships \strong{in the data}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Review of Modelling (p4)}
+\begin{itemize}
+\item[] \stronger{Predictive Modelling}
+\item the goal is to devise a model that predicts \strong{future data}
+\item e.g., \stronger{classification} and \stronger{regression}
+\item[]
+\item[] \stronger{Descriptive Modelling}
+\item the goal is to devise a model of \strong{known data}
+\item e.g., \stronger{clustering}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}[fragile]{I.1. Review of Modelling (p5)}
+\begin{itemize}
+\item[] We need to choose / define:
+\item \stronger{Model structure}
+\item \stronger{Search} strategy for finding \stronger{model parameters}
+\item \stronger{Score} function for evaluating models
+\item[--] Reward
+\item[--] Penalty
+\item[]
+\item[] And we need to be able to address \strong{challenges}, such as:
+\item Overfitting
+\item Noisy data
+\item Missing data
+\item Hidden variables
+%
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Review of Modelling (p6)}
+\begin{itemize}
+\item Last lecture, we talked about \stronger{Clustering}.
+\item This involved:
+	\begin{itemize}
+	\item[(a)] Finding appropriate ways to \strong{group} instances that are related to each other (e.g. K-Means)
+	\item[(b)] Finding an appropriate way to \strong{describe} each cluster (e.g. cluster centre)
+	\end{itemize}
+\item These methods assumed that the clustering and its representation was a form of \stronger{summarising} the data.
+\item[]
+\item Today, we will talk about another way to \strong{cluster}, but this time, without summarising.
+\item[$\rightarrow$] \stronger{Instance-based models}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%\begin{frame}{I.1. Review of Modelling (p7)}
+%\begin{itemize}
+%\item A \stronger{Parametric Model} is appropriate if we make assumptions about the distribution of the \strong{population} from which the data set (considered a \strong{sample} or subset of the population) is drawn
+%\item Parametric models have a fixed number of parameters, regardless of the size of the data set % murphy p16
+%\item Parametric models take on a simple functional form and are described by a fixed number of parameters
+%\end{itemize}
+%{\small
+%\begin{center}
+%\begin{tabular}{cc}
+%\includegraphics[width=0.3\textwidth]{images/boslaugh-fig3-1.png} &
+%\includegraphics[width=0.3\textwidth]{images/boslaugh-fig3-9.png} \\
+%(a) normal distribution       & (b) binomial distribution \\
+%parameters:                   & parameters: \\
+%$\mu =$ mean                  & $p =$ probability of success \\
+%$\sigma =$ standard deviation & $n =$ fixed number of trials \\
+%\cite[Figure 3.1]{boslaugh:2013} & \cite[Figure 3.9]{boslaugh:2013} \\
+%\end{tabular}
+%\end{center}
+%}
+%\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+
+%--------------------------------------------------------------------------------
+\section{PART II}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part II: Instance-based Models}
+\begin{itemize}
+\item[II.1.] Overview of Instance based learning overview
+\item[II.2.] Memory Based Reasoning
+\item[II.3.] Nearest Neighbours
+\item[II.4.] Computational Aspects
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Instance-based Models (p1)}
+\begin{center}
+\includegraphics[width=0.9\textwidth]{images/ibl_process.pdf}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Instance-based Models (p2)} %WFH ch 3
+\begin{itemize}
+\item In its simplest form, instance-based models mimic \strong{memorisation}:
+\item[]
+\item For a new instance, search the training set for the instance that most closely resembles the new one
+\item Different approach to previous models we have discussed because there are no ``rules''
+\item Instance-based knowledge representations use the instances themselves to represent what is learned
+\item All the real work is done when the time comes to classify a new instance, rather than when the training set is processed
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Instance-based Models (p3)}
+\begin{itemize}
+\item In instance-based classification, each new instance is compared with existing ones using a distance metric
+\item One example method is called \stronger{Nearest Neighbour}
+\item[]
+\item Methods rely on \strong{similarity} and \strong{distance}
+\item Trivial when dealing with numeric attributes
+\item But distance measures are also needed for nominal attributes.
+\item[] \textbf{What is the distance between {\color{red}strawberry} and {\color{blue}blueberry}???}
+\item Some attributes may be more important when evaluating the distance, so \strong{weighting} schemes can be applied
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Overview of Instance-based Models (p4)}
+\begin{itemize}
+\item Instance-based representations do not explicitly build \strong{model structures}, like the other types of modelling methods we have been discussing
+\item[]
+\item Instance-based representations, combined with the distance metric, carve out \strong{boundaries} that separate the data set into \strong{neighbourhoods}
+\item[]
+\item \stronger{Forgetting} is when (some) instances are discarded
+\item and it is important to save (\strong{remember}) a few critical examples of each class
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (MBR) (p1)} %LB3, ch9
+\begin{itemize}
+\item Overall technique:
+\item[--] First identify similar cases (instances)
+\item[--] Then apply knowledge of those cases (instances)
+\item[]
+\item Sample applications:
+\item[--] \strong{Fraud detection} -- Is a new case similar to previous fraud cases?
+\item[--] \strong{Medical treatment} -- What treatment plans have had positive outcomes for similar patients?
+\item[--] \strong{Customer response prediction} -- Is a new customer similar to customers who responded positively to an offer?
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p2)}
+\begin{itemize}
+\item Two operations are crucial:
+\item[--] \stronger{Distance function}, to calculate how far apart any two instances are from each other
+\item[--] \stronger{Combination function}, to combine results from several ``neighbours'' and return an answer
+\item[]
+\item These operations are used to identify \stronger{neighbours} --- instances that are close to each other
+\item Such instances can be grouped (conceptually) into \stronger{neighbourhoods}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p3)}
+\begin{itemize}
+\item[] \strong{Strengths} of MBR:
+\item[]
+\item MBR can use data ``as is'' --- unlike other data mining techniques, the format of the data is irrelevant
+\item[]
+\item Adaptable
+\item[]
+\item New instances can be added easily
+\item[]
+\item Long training effort is not required
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p4)}
+\begin{itemize}
+\item[] \strong{Weaknesses} of MBR:
+\item[]
+\item Resource intensive
+\item[]
+\item Applying MBR is more time-consuming than applying a decision tree or neural network (though learning may be faster)
+\item[]
+\item Part of the challenge is finding suitable distance and combination functions
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p5)}
+\begin{itemize}
+\item[] \strong{Look-alike} Model
+\item[]
+\item The simplest type of MBR model
+\item Uses only one neighbour
+\item[--] Training set with known target
+\item[--] A similarity measure
+\item The combination function is the value at the neighbour
+\item For any new instance:
+\item[--] Look-alike model finds the most similar instance in the training data
+\item[--] Takes the target of the most similar instance
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p6)}
+\begin{itemize}
+\item[] MBR measures \strong{similarity} as a \strong{distance}
+\item[]
+\item Absolute value of the distance:
+\[
+	|x_{(j,a)} - x_{(\ell,a)}|
+\]
+\item Square of the difference:
+\[
+	(x_{(j,a)} - x_{(\ell,a)})^2
+\]
+\item Normalised absolute value:
+\[
+	\frac{|x_{(j,a)} - x_{(\ell,a)}|}{max_a - min_a}
+\]
+\item Absolute value of the difference of standardised values:
+\[
+	\frac{|(x_{(j,a)} - \mu_a)|}{\sigma_a} - \frac{|(x_{(\ell,a)} - \mu_a)|}{\sigma_a}
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p7)}
+\begin{itemize}
+\item[] Measuring \strong{similarity} for non-numeric attributes:
+\item[]
+\item What if the attributes are text values, such as {\color{red}red} and {\color{blue}blue}?
+\item Colours could be represented in colour space (e.g., as RGB values)
+\item But other kinds of attributes, that don't have an underlying numeric value, are harder to define distance functions for
+\item Typical approach:
+\[
+\begin{array}{lccccl}
+	if & (x_{(j,a)}==V) & and & (x_{(\ell,a)}==V)    & \rightarrow & 0 \\
+	if & (x_{(j,a)}==V) & and & (x_{(\ell,a)} \ne V) & \rightarrow & 1 \\
+\end{array}
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p8)}
+\begin{itemize}
+\item[] How do you \strong{merge} the distance values across attributes to get a total distance between instances?
+\item[]
+\item Euclidean distance
+\[
+	d = \sqrt{ \sum_{a=1,N}{ \left( x_{(j,a)} - x_{(\ell,a)} \right) ^2 }}
+\]
+\item Manhattan distance
+\[
+	d = \sum_{a=1,N}{ \left| x_{(j,a)} - x_{(\ell,a)} \right| }
+\]
+\item Weights can also be incorporated into the calculation
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p9)}
+\begin{itemize}
+\item Example (from \cite[ch.9]{LB3:2011})
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{images/lb3-table9-2.png}\\
+Five customers in a marketing database~\cite[Table 9.2]{LB3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p10)}
+\begin{itemize}
+\item Normalised absolute value for distance between the instances considering only age
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{images/lb3-table9-3.png}\\
+Distance matrix based on customers' ages~\cite[Table 9.3]{LB3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p11)}
+\begin{itemize}
+\item Gender distance is based on $d_{gender}(F,F)=0, d_{gender}(F,M)=1 \dots $
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{images/lb3-figure9-7.png}\\
+\cite[Figure 9.7]{LB3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p12)}
+\begin{itemize}
+\item Distances across attributes are merged to obtain the \strong{Nearest Neighbours}
+\end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{images/lb3-table9-4.png}
+Set of Nearest Neighbours for three distance functions, ordered nearest to farthest~\cite[Table 9.4]{LB3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p13)}
+\begin{itemize}
+\item \strong{Case study}: Estimate the cost of renting a flat in the town of Tuxedo in Orange County, New York (from~\cite[ch.9]{LB3:2011})
+\item Identify the \strong{nearest neighbours}, which are not necessarily geographic neighbours
+\item The ``neighbours'' may be far apart in miles (or kms), but similar in features
+\item Combine attributes about them
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p14)}
+\begin{center}
+\includegraphics[width=0.9\textwidth]{images/lb3-figure9-1.png}\\
+Nearest Neighbours to Tuxedo (Orange County), based on 2000 census population and home value: Shelter Island (Suffolk County) and North Salem (Westchester County)~\cite[Figure 9.1]{LB3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p15)}
+\begin{center}
+\begin{tabular}{cc}
+%\includegraphics[width=\textwidth]{images/tuxedo-north-salem-shelter-island.png}
+\includegraphics[width=0.5\textwidth]{images/tuxedo-shelter-island.png} &
+\includegraphics[width=0.45\textwidth]{images/tuxedo-north-salem.png} \\
+(a) Tuxedo - Shelter Island &
+(b) Tuxedo - North Salem \\
+~ 150 miles & ~ 50 miles \\
+\end{tabular}
+(but they are not neighbours geographically...)
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p16)}
+\begin{itemize}
+\item \textbf{Tuxedo} is our ``town of interest''
+\item We combine information from its neighbours to infer information about our town of interest
+\item In this case study, the goal is to estimate rental costs
+\item Simply taking the mean of the median rents may not be representative enough
+\item The distribution of the rents values in each location may be different
+\item It is not always obvious how to combine the information
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p17)}
+\begin{center}
+\includegraphics[width=\textwidth]{images/lb3-table9-1.png}\\
+Comparison across multiple attributes~\cite[Table 9.1]{LB3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p18)}
+\begin{itemize}
+\item The rent information from the two most similar towns can be used as an estimate for our town of interest
+\item Mean of the median rents = \$1012.97
+\item Average rent (inferred from the ranges) = \$882.95
+\item Weighted average on number of apartments (flats) = \$922.78
+\item Weighted average by distance
+\item Weighted average by distance and number apartments
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p19)}
+\begin{itemize}
+\item[] Choices to be made when using MBR:
+\item[]
+\item The appropriate set of training instances to include in the model
+\item An efficient representation of the model instances (``exemplars'')
+\item A distance function
+\item A combination function
+\item The number of neighbours to consider
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p20)}
+\begin{itemize}
+\item[] Choosing the training instances for the model:
+\item[]
+\item Model instances (exemplars) need to provide good coverage of the population
+\item Random sampling may not result in suitable cover
+\item Avoid under sampling the less frequent categories 
+\item Each category should be evenly represented, even if it is unrealistic
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Memory Based Reasoning (p21)}
+\begin{itemize}
+\item[] Comparisons in MBR
+\item[]
+\item Simplest method:
+\item[--] Calculate the distance from the new instance to all the instances in the model
+\item[--] Select the records with $min$ distance
+\item[]
+\item But the time to calculate grows with the number of instances
+\item[--] Calculating the closest instances for one new instance may not take much time, but doing so for many new instances will result in poor performance
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Nearest Neighbours (p1)}
+\begin{itemize}
+\item The distance function is used to determine which instances are the \stronger{nearest neighbours}
+\item If we want to make a prediction based on the closest instances:
+\item[--] For numeric cases, use an aggregation such as the mean
+\item[--] For nominal cases, use a ``democratic'' approach (voting)
+\item[]
+\item More generally called \stronger{k Nearest Neighbours} or \stronger{kNN}
+\item The simplest approach is to use one neighbour ($k=1$)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Nearest Neighbours (p2)}
+\begin{itemize}
+\item Example (from \cite[ch.9]{LB3:2011}): Which instances are neighbours of the new one?
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{images/lb3-table9-7.png} \\
+\includegraphics[width=0.8\textwidth]{images/lb3-table9-7b.png} \\
+Customers with attrition history~
+\cite[Table 9.7]{LB3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Nearest Neighbours (p3)}
+\begin{itemize}
+\item[] \strong{Weighted Voting}
+\item[]
+\item Assume not all neighbours are created equally
+\item Weight of the vote can be proportional to similarity with the new instance
+\item Weighted voting can also prevent ties
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Nearest Neighbours (p4)}
+\begin{itemize}
+\item \strong{Case study:} Shazam offers a service whereby through your phone it listens to 30 seconds of a song, identifies it and returns the name and the artist (from \cite[ch.9]{LB3:2011})
+\item[] 
+\item Challenges:
+\item[--] Background noise
+\item[--] Reliance on mobile phones as microphones
+\item[--] Match any snippet of a song
+\item[--] Direct comparison of two audio files will not work
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Nearest Neighbours (p4.5)}
+\begin{itemize}
+\item Shazam pipeline
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{materials/images/Screenshot 2024-11-07 at 08.25.22.png}\\
+\cite[Cameroon MacLeod]{MacLeodShazam:2012}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Nearest Neighbours (p5)}
+\begin{itemize}
+\item Songs or snippets of songs are represented as in the frequency domain, using a \emph{spectrogram} to uniquely identify songs
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{images/lb3-figure9-8.png}\\
+\cite[Figure 9.8]{LB3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Nearest Neighbours (p6)}
+\begin{itemize}
+\item Transform the spectrogram into a \strong{constellation} plot --- includes only the peaks, reduces effect of poor sound quality
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/lb3-figure9-9.png}\\
+\cite[Figure 9.9]{LB3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Nearest Neighbours (p7)}
+\begin{itemize}
+\item Each song is an instance that contains the map of the peaks of in the frequency domain
+\item Identify a new song by finding the \strong{nearest neighbours}
+\item Each known instance is a list of peaks, where for each peak there are three attributes: time into song, frequency and strength
+\item There are several methods for finding the most similar songs:
+\item[--] Using only time into song and frequency: 
+$\frac{number\_of\_peaks\_the\_songs\_have\_in\_common}{number\_of\_distinct\_peaks}$
+\item[--] But may not work well due to working with snippets rather than whole songs
+\item[--] Another option is to look at time slices, however this is not enough with snippets
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Nearest Neighbours (p8)}
+\begin{itemize}
+\item Shazam uses \emph{anchor points} (patented)
+\item An \emph{anchor point} is a peak in the constellation chart
+\item This peak is then paired with other peaks that occur after it time wise in specific ranges of frequencies
+\item For each pair, an anchor has the following information:
+\item[--] the difference in time between the peak and the anchor
+\item[--] the difference in time between the peak and the anchor
+\item[--] the time and frequency of the anchor itself
+\item The next step involves matching the anchors between the song and the snippet using a NN approach
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Nearest Neighbours (p9)}
+\begin{center}
+\includegraphics[width=0.9\textwidth] {images/lb3-figure9-10.png}\\
+\cite[Figure 9.10]{LB3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Nearest Neighbours (p10)}
+\begin{enumerate}
+\item[] Overall approach:
+\item Convert the snippet into a constellation of peaks
+\item Turn the constellation into anchor points
+\item Create anchor peak pairs
+\item Identify matching anchor points between the song and the snippet
+\item Determine the longest consecutive sequence of overlap between the snippet and each song
+\item Return the song with the longest overlap
+\end{enumerate}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Computational Aspects}
+\begin{itemize}
+\item \stronger{kNN} is computationally intensive at run time, especially when the number of training instances is large
+\item There are two approaches for mitigating this:
+\item[(1)] Use a more efficient data structure to look up the nearest neighbour, for example: a \stronger{kD-tree} 
+\item[(2)] Trim the training instances
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Computational Aspects: kD-tree (p1)}
+\begin{itemize}
+\item A \stronger{kD-tree} is an efficient data structure for storing instances in $k$-dimensional space, where $k$ is the number of attributes
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.9\textwidth]{images/wfh-figure4-12}\\
+\cite[Figure 4.12]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Computational Aspects: kD-tree (p2)}
+\begin{itemize}
+\item The previous slide showed a simple example with $k=2$
+\item The data points available in the set of training instances are: $(3,8), (6,7), (7,4), (2,2)$
+\item The first horizontal split is through $(7,4)$
+\item In the tree, the left side of this split contains only one point $(2,2)$, so no more splits are needed from there
+\item The second split is through $(6,7)$
+\item Each region or branch now contains just one point
+\item[]
+\item How does this speed up the nearest neighbour calculations?
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Computational Aspects: kD-tree (p3)}
+\begin{itemize}
+\item To locate the nearest neighbour of a new instance, follow the tree down from root to leaf
+\item $\star=$ new instance; $\bullet=$leaf; not necessarily the closest neighbour, but a good first approximation
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.5\textwidth]{materials/images/Screenshot 2024-11-05 at 11.11.00.png}\\
+\cite[Figure 4.13]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Computational Aspects: training set (p1)}
+\begin{itemize}
+\item[] \strong{Editing the training data set}
+\item[]
+\item If the task is \strong{classification}, then the training set can be reduced while still maintaining the classification rate
+\item[--] \strong{Incremental Deletion}: starting from the original training set of instances, if an instance is not necessary to correctly classify, then delete it from memory
+\item[--] \strong{Incremental Growth}: starting from an empty training set, add only instances required to correctly classify the training instances
+%\item However, the task is not classification...
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Computational Aspects: training set (p2)}
+\begin{itemize}
+\item[] \strong{Reducing the number of training instances}
+\item[]
+\item Some training instances may be redundant
+\end{itemize}
+\begin{center}
+\begin{tabular}{cc}
+\includegraphics[width=0.45\textwidth]{images/lb3-figure9-2.png} &
+\includegraphics[width=0.45\textwidth]{images/lb3-figure9-3.png} \\
+\cite[Figure 9.2]{LB3:2011} &
+\cite[Figure 9.3]{LB3:2011} \\
+A clean \textbf{training set} & This smaller set of points \\
+for MBR which neatly divides  & returns the same results, \\
+the data into two disjoint sets. & using MBR. \\
+\end{tabular}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Computational Aspects: training set (p3)}
+\begin{itemize}
+\item[] \strong{Handling noisy training data}
+\item[]
+\item The term \stronger{exemplars} refers to already seen instances
+\item[]
+\item Reduce the number of training instances:
+\item[--] It may not be necessary to save all training instances
+\item[--] Classify each example with respect to the exemplars and save only ones that are misclassified
+\item[--] However, instances discarded early may turn out to be valuable
+\item[--] Noisy data adds complexity to this process
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Computational Aspects: training set (p4)}
+\begin{itemize}
+\item[] \strong{Pruning noisy instances}
+\item[]
+\item Performance of kNN decreases with noisy data
+\item[]
+\item Two ways of dealing with this:
+\item[(1)] Locate the $k$ nearest neighbours where $k>1$ and assign majority class to new instance, the noisier the data the larger the value of $k$\\
+(cross validation can be implemented to assess the optimal $k$ for the data) 
+\item[(2)] Monitor the performance of each exemplar that is stored and discard ones that do not perform well
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II. Summary of Instance-based Models}
+\begin{itemize}
+\item Methods match new instances to one or more training instances, with both categorical and numerical data, to address many problems, from classification to prediction
+\item There is no separate model building---the training instances themselves are the model
+\item Selecting the instances for the model is a key step
+\item There are many ways to measure similarity---careful consideration of a distance function is crucial, including when to use standardised values
+\item The number of neighbours to consider ($k$) and how to combine the information from the neighbours are also important considerations
+\item The methods are computationally intensive, but \strong{kD-tree} and trimming the training set can help
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+%--------------------------------------------------------------------------------
+\section*{SUMMARY AND TO DO}
+%--------------------------------------------------------------------------------
+\begin{frame}{Summary: Instance-based Models}
+\begin{itemize}
+\item \stronger{Instance-based models} are a type of \strong{descriptive modelling}.
+\item Unlike some types of clustering, instance-based modelling does NOT summarise the data.
+\item Instead, the model consists of the instances themselves, grouped using a \strong{similarity function}.
+\item The concept of \strong{neighbourhood} is a key concept applied in instance-based modelling.
+\item Instance-based models can be expensive to compute and to store. But sometimes this is the only type of descriptive model that works.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{To Do}
+\begin{enumerate}
+\item Reading:
+	\begin{itemize}
+	\item \cite{WFH3:2011}: Chapters 3.5, 4.7, 4.9, 6.5
+	\item[OR]
+	\item \cite{WFH4:2016}: Chapters 3.5, 4.7, 7.1
+	\item[AND]
+	\item \cite{LB3:2011}: Chapter 9
+	\end{itemize}
+\item Assessment 1 was posted last week, \textbf{due Thursday 16 Nov, before 4pm}
+	\begin{itemize}
+	\item Bring your questions to Workshop today!
+	\end{itemize}
+\end{enumerate}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+%--------------------------------------------------------------------------------
+\section*{REFERENCES}
+%--------------------------------------------------------------------------------
+% use 'allowframebreaks' if refs flow onto multiple slides (each will be numbered 'REFERENCES I', 'REFERENCES II' etc)
+\begin{frame}[allowframebreaks]{REFERENCES}
+%\begin{frame}{REFERENCES}
+\bibliographystyle{plain}
+\bibliography{refs}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+\end{document}

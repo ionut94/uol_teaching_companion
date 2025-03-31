@@ -1,0 +1,1113 @@
+\documentclass[handout]{beamer}
+\usetheme{boxes}
+
+\usecolortheme{orchid}
+\definecolor{teal}{HTML}{009999}
+\definecolor{lightteal}{HTML}{00CCCC}
+\definecolor{purple}{HTML}{990099}
+\definecolor{lightpurple}{HTML}{CC00CC}
+\definecolor{darkgrey}{HTML}{666666}
+\definecolor{lightgrey}{HTML}{AAAAAA}
+\definecolor{darkred}{HTML}{660000}
+\definecolor{darkgreen}{HTML}{006600}
+\definecolor{darkblue}{HTML}{000066}
+\definecolor{lightred}{HTML}{AA0000}
+\definecolor{lightgreen}{HTML}{00AA00}
+\definecolor{lightblue}{HTML}{0000AA}
+\setbeamercolor{title}{fg=darkblue}
+\setbeamercolor{frametitle}{fg=darkblue}
+\setbeamercolor{itemize item}{fg=teal}
+\setbeamercolor{itemize subitem}{fg=lightteal}
+
+\usepackage{fancybox}
+\usepackage{adjustbox}
+\usepackage{mathptmx}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{amsmath}
+
+% For math brackets
+\usepackage{amsmath}
+
+% gets rid of bottom navigation bars
+\setbeamertemplate{footline}[frame number]{}
+
+% gets rid of bottom navigation symbols
+\setbeamertemplate{navigation symbols}{}
+
+% uses number labels in bibliography
+\setbeamertemplate{bibliography item}{\insertbiblabel}
+
+% my style for emphasising stuff in colours
+\newcommand{\strong}[1]{\textbf{\color{teal} #1}}
+\newcommand{\stronger}[1]{\textbf{\color{purple} #1}}
+
+% title, etc
+\title{Probability and Statistics in Data Mining\\{\small (lecture 4)}}
+\subtitle{AGR9013 -- Introduction to Data Mining\\
+{\tiny (version 1.0)}}
+\author{Dr Ionut Moraru}
+\institute{University of Lincoln, School of Agri-Food Technology and Manufacturing}
+\logo{\includegraphics[width=1cm]{images/uol-logo.png}}
+\date{17-October-2024}
+
+\addtobeamertemplate{navigation symbols}{}{\hspace{1em}    \usebeamerfont{footline}%
+    \insertframenumber / \inserttotalframenumber }
+
+% Remove navigation symbols
+\beamertemplatenavigationsymbolsempty
+
+\begin{document}
+
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+  belowcaptionskip=0pt,            % reduce space after the listings caption
+  belowskip=0pt,                   % how much vertical space to skip after a listing
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  caption={},                      % default to no caption
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{lightgreen}, % comment style
+  deletekeywords={...},            % if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  frame=single,                    % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=Python,                 % the language of the code
+  mathescape=true,                 % allow math mode within code
+  morekeywords={then,...},         % if you want to add more keywords to the set
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\sf\color{lightgrey}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{darkred},     % string literal style
+  tabsize=3,                       % sets default tabsize to 3 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+%--------------------------------------------------------------------------------
+\frame{\titlepage}
+
+
+%--------------------------------------------------------------------------------
+\section*{OUTLINE}
+%--------------------------------------------------------------------------------
+\begin{frame}{Outline: Probability and Statistics in Data Mining}
+\begin{itemize}
+\item Part I: Fundamental Concepts in Probability and Statistics
+	\begin{itemize}
+	\item[I.1.] Distributions and Densities
+	\item[I.2.] Dependence and Independence
+	\item[I.3.] Populations and Samples
+	\end{itemize}
+\vspace*{0.3cm}
+\item Part II: Probability and Statistics in Data Mining
+	\begin{itemize}
+	\item[II.1.] Probability and Likelihood
+	\item[II.2.] Estimation
+	\item[II.3.] Statistical Modelling
+	\item[II.4.] Na\"{i}ve Bayes
+	\end{itemize}
+\vspace*{0.3cm}
+\item To Do
+\end{itemize}
+\end{frame}
+%--------------------------------------------------------------------------------
+%--------------------------------------------------------------------------------
+
+
+
+%--------------------------------------------------------------------------------
+\section{PART I: Fundamental Concepts in Probability and Statistics}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part I: Fundamental Concepts in Probability and Statistics}
+\begin{itemize}
+\item[I.1.] Distributions and Densities
+\item[I.2.] Dependence and Independence
+\item[I.3.] Populations and Samples
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Distributions and Densities}
+\begin{itemize}
+\item \strong{domain} = set of possible values that a variable, $x$, can take
+\item Example: if $x$ is a month, then its domain would be the set of 12 months in the calendar
+\item Without having any data, we could formulate a hypothesis that your birthday month is October:
+\[
+\theta = (October ~ birthday)
+\]
+\item Since there are $12$ months, we could estimate:
+\[
+Pr(\theta) = Pr(October ~ birthday) = \frac{1}{12} = 8.3\%
+\]
+\item[] \emph{\footnotesize (although there are other factors that could be considered, such as the fact that particular months in particular countries have higher birth-rates, and the fact that all months don't have the same numbers of days...\\ but let's keep it simple)}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Distributions and Densities (p2)}
+\begin{itemize}
+\item When we have a data set, $D$, we can compute the \stronger{probability distribution} of the data: the probability of occurrence for each possible value in the domain of $x$
+\item Below is the probability distribution of particular events found in a particular data set (e.g., birthdays of a population $\ni$ you)
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/airbnb-first_booking.png} \\
+{\footnotesize raw counts: frequency histogram}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Distributions and Densities (p3)}
+\begin{itemize}
+\item Now we can compute $Pr(October~birthday|D)$: 
+\item In our example: $Pr(October~birthday|D)=7\%$
+\begin{center}
+\includegraphics[width=0.5\textwidth]{images/airbnb-first_booking-pct.png}\\
+{\footnotesize percentages: relative frequency histogram}
+\end{center}
+\item Our original estimate, without knowing anything about $D$, is called a \strong{prior}:
+\[
+Pr(October ~ birthday) = \frac{1}{12} = 8.3\%
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Distributions and Densities (p4)}
+\begin{itemize}
+\item We will look at variables that are either:
+\item[] \stronger{discrete} or \stronger{continuous}
+\item[]
+\item Technically:
+\item[] \stronger{Probability Distribution} $\Rightarrow$ discrete (random) variables
+\item[] \stronger{Probability Density} $\Rightarrow$ continuous (random) variables
+\item But sometimes the literature is sloppy or vague about ``distribution'' vs ``density''...
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Distributions and Densities (p5)}
+\begin{itemize}
+\item A \strong{univariate random variable}, $x$, is a representation of an object that can take on one of a set of \strong{discrete values}, $\{x_1, x_2, \ldots, x_m \}$
+\item That set of values is called the \strong{domain} of the random variable\\
+$Dom(x) = \{x_1, x_2, \ldots, x_m \}$\\
+for a finite set of discrete values
+\item The \stronger{probability distribution} of $x$ represents the probability of occurrence for each possible value in the domain of $x$, $Dom(x)$
+\item $Pr(x_i) = $ probability of a single value of $x_i \in Dom(x)$
+\item The \stronger{cumulative distribution function} of a random variable is the probability that it will be a value $\le x_i$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Distributions and Densities (p6)}
+\begin{itemize}
+\item[] For example:
+\item $x$ is a univariate random variable that represents a \textbf{month}
+\item $Dom(x) = \{1, 2, \ldots, 12\}$ or \\
+	$Dom(x) = \{January, February, \ldots, December \}$
+\item[] and $M = 12$ (size of $Dom(x)$) 
+\item the probability distribution of observing $x=October$ is: $Pr(October) = 1/12$
+\item the cumulative distribution that $x \le March$ is:
+\[
+\begin{array}{rl}
+	Pr(January) + Pr(February) + Pr(March) & = \\
+	1/12 + 1/12 + 1/12 & = 3/12 \\
+	& = 1/4
+\end{array}
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Distributions and Densities (p7)}
+\begin{itemize}
+\item A \emph{univariate random variable}, $x$, can also be \strong{continuous}
+\item It can take on any value within a \stronger{range}
+$min < x < max$
+\item The \stronger{probability density} of $x$ represents the \textbf{derivative} of the \strong{cumulative distribution function} of $x$
+\item[] (the probability that it will be a value $\le x_i$)
+\item[] (the area in the rectangle approximating a region of the distribution)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Distributions and Densities (p8)}
+\begin{center}
+\begin{tabular}{cc}
+\includegraphics[width=0.4\textwidth]{images/p21-u100-random.png} \\
+(a) 100 random numbers chosen \\
+from a \strong{uniform} distribution \\
+\includegraphics[width=0.4\textwidth]{images/p21-u100-hist.png} &
+\includegraphics[width=0.4\textwidth]{images/p21-u100-hist-cum.png} \\
+(b) probability density & (c) cumulative probability \\
+\end{tabular}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Distributions and Densities (p9)}
+\begin{center}
+\begin{tabular}{cc}
+\includegraphics[width=0.4\textwidth]{images/p21-g100-random.png} \\
+(a) 100 random numbers chosen \\
+from a \strong{Gaussian} distribution \\
+\includegraphics[width=0.4\textwidth]{images/p21-g100-hist.png} &
+\includegraphics[width=0.4\textwidth]{images/p21-g100-hist-cum.png} \\
+(b) probability density & (c) cumulative probability \\
+\end{tabular}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Distributions and Densities (p10)}
+\begin{itemize}
+\item A \emph{multivariate random variable}, $\chi$, is a \emph{set of} random variables, $x_1, \ldots, x_N$
+\item[]
+\item Each variable, $x_i$, has its own distribution (or density)
+\item[]
+\item The \stronger{joint distribution}, or \stronger{joint density}, is a combination of the distribution (or density) functions over all the variables
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Distributions and Densities (p11)}
+\begin{itemize}
+\item Let's look at \strong{joint} probabilities using a discrete example first
+\item Given $P$ and $Q$ are both binary (boolean) variables:
+\[
+\begin{array}{rcl|rcl|l}
+Pr(P) & = & 0.17 & Pr(\neg P) & = & 0.83 & (\Sigma=1) \\
+Pr(Q) & = & 0.52 & Pr(\neg Q) & = & 0.48 & (\Sigma=1)
+\end{array}
+\]
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/p21b-pq.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Distributions and Densities (p12)}
+\begin{itemize}
+\item The \strong{joint probability} looks at all the possible combinations:
+\[
+\begin{array}{rclcl}
+Pr(P,Q)           & = & 0.17 * 0.52 & = & 0.09 \\
+Pr(P,\neg Q)      & = & 0.17 * 0.48 & = & 0.08 \\
+Pr(\neg P,Q)      & = & 0.83 * 0.52 & = & 0.43 \\
+Pr(\neg P,\neg Q) & = & 0.83 * 0.48 & = & 0.40
+\end{array}
+\]
+\item Probabilities sum ($\Sigma$) to $1$ {\footnotesize (assumes $P$ and $Q$ are \strong{independent})}
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/p21b-joint.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.1. Distributions and Densities (p13)}
+\begin{itemize}
+\item It's more complicated when the variables are continuous...
+\end{itemize}
+\begin{center}
+\begin{tabular}{cc}
+\includegraphics[width=0.4\textwidth]{images/p21-g12-100-random.png} &
+\includegraphics[width=0.4\textwidth]{images/p21-g12-100-hist.png} \\
+(a) 100 random numbers chosen from &
+(b) probability densities \\
+from two \strong{Gaussian} distributions \\
+\end{tabular}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Dependence and Independence}
+\begin{itemize}
+\item If two (or more) variables have no relationship,\\
+ they are called \stronger{independent}
+\item[]
+\item If two (or more) variables are related to each other, \\
+ they are called \stronger{dependent}
+\item[]
+\item The density of a single variable, given particular values of other variables in the set, is called the \stronger{conditional density}
+\item Intuitively, if a variable is independent, then its conditional density does not change when other variables change...
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Dependence and Independence (p2)}
+\begin{itemize}
+\item[] Formally, for two variables:
+\item $P$ and $Q$ are \stronger{independent}$\ldots$
+\[
+\begin{array}{llcll}
+iff & Pr( P, Q  ) & = & Pr( P ) * Pr( Q ) & or \\
+iff & Pr( P | Q ) & = & Pr( P )           & or \\
+iff & Pr( Q | P ) & = & Pr( Q )
+\end{array}
+\]
+\item $P$ is \stronger{conditionally independent} of $Q$ given $R\ldots$
+\[
+\begin{array}{llcll}
+iff & Pr( P, Q | R ) & = & Pr( P | R ) * Pr( Q | R ) & or \\
+iff & Pr( P | Q, R ) & = & Pr( P | R ) \\
+\end{array}
+\]
+\item The symbol $,$ means ``and'': $Pr(P,Q)$ means $Pr(P~and~Q)$
+\item The symbol $|$ means ``given'': $Pr(P|Q)$ means $Pr(P~given~Q)$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Dependence and Independence (p3)}
+\begin{itemize}
+\item In sequential data, the notion of \strong{conditional independence} is called
+the \stronger{First-order Markov Property}.
+\item For data sets where this holds, the implication is that each value in the sequence is not dependent on other values in the sequence (e.g., what came before...).
+\item A \stronger{first order Markov model} can be represented using the \stronger{joint density function}:
+\[
+f(x_0,\ldots,x_N) = f(x_0)\prod_{j=1}^N{f(x_j|x_{j-1})}
+\]
+where each $x_j$ is \strong{conditionally independent} of all other variables (except $x_{j-1}$)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.2. Dependence and Independence (p4)}
+\begin{itemize}
+\item \stronger{Correlation} or \strong{Linear Dependency} is not the same as statistical dependence
+\item Two variables may be \strong{independent} but \strong{correlated}
+\item Two variables may be \strong{dependent} but \strong{not correlated}
+\item Two variables may be \strong{correlated} (even highly) without there being a \strong{causation} between them!
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/correlations-chart-swimming-nuclear.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Populations and Samples}
+\begin{itemize}
+\item A \stronger{sample} is a representative subset of a \stronger{population}
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{images/hand-figure4-1}\\
+\cite[Figure 4.1]{hand-et-al:2001}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Populations and Samples (p2)}
+\begin{itemize}
+\item We can build a \stronger{model} from a \stronger{sample}, which will let us make \strong{statistical inferences} about the \stronger{population}
+\item[]
+\item The model will have a particular probability \strong{distribution} (or \strong{density}) associated with it
+\item[]
+\item We can \strong{evaluate} the goodness of the model by assessing how closely the distribution of the data produced by the model resembles the distribution of the sample from which the model was derived
+\item The family of \stronger{t-tests} is useful for comparing two samples (or populations)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Populations and Samples (p3)}
+\begin{itemize}
+\item More generally, we want the \strong{model} built from our \strong{sample} to describe a \stronger{hypothesis} about the \strong{population}
+\item[]
+\item So we evaluate the goodness of our model on our \strong{sample}
+\item[] (our \textbf{seen} data)
+\item[]
+\item But we really want to know how it will do on the \strong{population}
+\item[] (our \textbf{unseen} data)
+\item[]
+\item \stronger{Bayes theorem} gives us a way to build a model from some data and a  hypothesis...
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Populations and Samples (p4)}
+\begin{itemize}
+\item \stronger{prior} probability --- the probability of that hypothesis $\theta$ is true, without observing any data
+\[
+	Pr(\theta)
+\]
+or the probability of observing data set $D$, without having a hypothesis
+\[
+	Pr(D)
+\]
+%
+\item \stronger{likelihood} --- the probability of observing data set $D$, given hypothesis $\theta$
+\[
+	Pr(D|\theta) * Pr(\theta)
+\]
+%
+\item \stronger{posterior} probability --- the probability of hypothesis $\theta$ being true, given that we have observed data set $D$
+\[
+	Pr(\theta|D)
+\]
+%
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{I.3. Populations and Samples (p5)}
+\begin{itemize}
+%
+\item These three concepts (\strong{prior} probability, \strong{likelihood} and \strong{posterior} probability) comprise the components of \stronger{Bayes theorem}:
+\[
+	Pr(\theta|D) = \frac{ Pr(D|\theta) \times Pr(\theta) }{ Pr(D) }
+\]
+%
+\item The \strong{posterior} probability is the \strong{likelihood} of the observations (the probability of observing the data given the hypothesis times the \strong{prior} probability that the hypothesis is true, without considering any observations), divided by the \strong{prior} probability that the data is observed, without having any hypothesis
+\item[]
+\item We will apply Bayes in Part II of today's lecture...
+%
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+%--------------------------------------------------------------------------------
+\section{PART II}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part II: Probability and Statistics in Data Mining}
+\begin{itemize}
+\item[II.1.] Probability and Likelihood
+\item[II.2.] Estimation
+\item[II.3.] Statistical Modelling
+\item[II.4.] Na\"{i}ve Bayes
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Probability and Likelihood}
+\begin{itemize}
+\item \stronger{Probability} describes possible results
+\item[]
+\item Example (\cite{gallistel:2015}):
+Toss a coin 10 times and ask someone to predict the results in terms of how many \emph{heads} or \emph{tails} will come up.
+\item[] For example: 7 \emph{heads}\\
+	\texttt{ H H T H H T T H H H }\\
+	\emph{(we don't care about the order)}
+\item[]
+\item How many possible \strong{outcomes} are there?
+\item[--] An \strong{``outcome''} here refers to a \strong{correct prediction over the 10 tosses} (not whether the coin fell heads or tails each toss)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Probability and Likelihood (p2)}
+\begin{itemize}
+\item[--] For each toss, there is one correct (sub-)prediction, so there are up to $10$ correct predictions over all $10$ tosses
+\item[--] Plus the case where all predictions are incorrect
+\item[--] So, the \strong{number of possible outcomes} $= 10 + 1 = 11$ 
+\item The \stronger{probability} of each outcome, $i$, is $1 / 11$:
+\[
+	Pr(outcome_i) = 1 / 11
+\]
+	\emph{(assuming a fair coin)}
+\item \stronger{Sum of the probabilities $=1$}:
+\[
+	\sum_{i=1}^{11} Pr(outcome_i) = 1.0
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Probability and Likelihood (p3)}
+\begin{itemize}
+\item \stronger{Likelihood} describes hypotheses
+\item[]
+\item My \strong{hypothesis}: You'll predict $7$ out of $10$ outcomes correctly
+\item Your \strong{hypothesis}: I'll predict $5$ out of $10$ outcomes correctly
+\item Your neighbour's \strong{hypothesis}: You will predict $0$ out of $5$ outcomes correctly and then get tired and stop playing...
+\item \emph{etc.}
+\item \strong{There are an unlimited number of hypotheses!}
+\item[]
+\item[] \emph{(In contrast, the number of \strong{possible outcomes} is finite.)}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Probability and Likelihood (p4)}
+\begin{itemize}
+\item The \stronger{probability distribution function} (sums to $1$):\\
+given the number of tries (e.g., $10$),\\
+what are the possible numbers of successes (e.g., $7$)\\
+and their probability of occurring? \\
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/gallistel-probability.png}\\
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Probability and Likelihood (p5)}
+\begin{itemize}
+\item The \stronger{binomial likelihood function} (does not sum to $1$):\\
+given the number of successes and the number of tries\\
+(e.g., $7$ out of $10$),\\
+what is the probability of success? \\
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/gallistel-likelihood.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Estimation}
+\begin{itemize}
+\item Why do we care about \strong{Probability} and \strong{Likelihood}?
+\item Because we can use these concepts to \stronger{Estimate} how good our data mining model is
+\item[]
+\item Suppose we have a set of $n$ observations $D = \{ x_1, \ldots, x_n \}$
+\item And a model $\theta$
+\item The Likelihood $L(\theta|D)$ is the probability that the observations would have resulted given our model, which is computed as $Pr(D|\theta)$ (more ahead...)
+\item[]
+\item In general, our data mining models are represented by \strong{parameters} so we can think more generally about our hypothesis $\theta$ being the set of parameter values we are \strong{estimating} for defining our model
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Estimation (p2)}
+\begin{itemize}
+\item $RV$ is a random variable derived from a sample of our data
+\item Let $\hat{RV}$ be an \stronger{estimator} of $RV$
+\item $E[\hat{RV}]$ is the \stronger{expected value}, or \stronger{mean}, of $\hat{RV}$
+\item[]
+\item The \stronger{bias} for an estimator is the difference between its expected value and its true value
+\[
+bias(RV) = E[\hat{RV}] - RV
+\]
+\item If bias is $0$, then the estimator is called \stronger{unbiased}
+\item[]
+\item The \stronger{variance} for an estimator is a measure of how much its value (e.g., $\hat{RV}$) will vary from its expected value
+\[
+var(\hat{RV}) = E [ \hat{RV} - E [ \hat{RV} ]]^2
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Estimation (p3)}
+\begin{itemize}
+\item[] There are two primary methods of estimation:
+\item[(1)] \stronger{Maximum Likelihood Estimation (MLE)}
+\item Used for estimating the parameter values of a model so that the \stronger{likelihood} of some hypothesis being true is \strong{maximized}
+\item A \stronger{frequentist} method whereby the parameters of a population are considered having fixed (specific), but unknown values
+\item With Maximum Likelihood Estimation, we often ignore priors
+\item[]
+\item[(2)] \stronger{Bayesian Estimation}
+\item Used for estimating parameter values of a model based on the philosophy that the outcome is based on a data set which has a \strong{distribution} of possible values
+\item With Bayesian Estimation, we consider \stronger{prior} distributions
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Estimation (p4)}
+\label{slide:likelihood}
+\begin{itemize}
+\item The \stronger{Likelihood} of a hypothesis, $\theta$, being true, given a set of observations, $D$, is:
+\begin{eqnarray*}
+L ( \theta | D ) & = & Pr( D | \theta ) \\
+                 & = & Pr( x_1, \ldots, x_N | \theta ) \\
+                 & = & Pr(x_1|\theta) * Pr(x_2|\theta) * \ldots * Pr(x_N|\theta) \\
+                 & = & \prod_{i=1}^n{ {\bf pdf}( x_i | \theta ) }
+\end{eqnarray*}
+\item[] which represents the likelihood that $\theta$ will be true, given $D$
+\item[]
+\item[] \stronger{Maximum Likelihood Estimation}
+\item \stronger{MLE} aims to define a value for $\theta$ such that the likelihood, $L(\theta|D)$, is maximized, often represented as $\hat{\theta}_{ML}$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Estimation (p5)}
+\begin{itemize}
+\item The \stronger{Posterior Probability} of a hypothesis, $\theta$, being true, given a set of observations, $D$, is $Pr(\theta | D)$:
+\begin{eqnarray*}
+Pr( \theta | D ) & = & \frac{ Pr( D | \theta ) \times Pr(\theta) }{ Pr(D) }
+\end{eqnarray*}
+\
+%\item loosely:
+%\begin{eqnarray*}
+%posterior & = & \frac{ likelihood }{ prior(D) } \\ 
+%\end{eqnarray*}
+\item[]
+\item[] \stronger{Bayesian Estimation}
+\item Bayesian Estimation leads to a \strong{distribution} of values for $\theta$ (rather than a single value)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Statistical Modelling}
+\begin{itemize}
+\item The Weather data set as $14$ \strong{observations}
+\item This is our data set, $D$
+\item We can compute the \strong{independent observed probability} of any attribute value, $v$:
+\[
+	Pr(v)
+\]
+\item We can also compute the \strong{dependent observed probability} of any attribute value, $v$, given another attribute value $u$:
+\[
+	Pr(v|u)
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Statistical Modelling (p2)}
+\begin{itemize}
+\item[] \strong{independent observed probabilities}
+\item \textbf{Pr(outlook)}\\
+\begin{tabular}{|r|r|r|}
+\emph{sunny}     & \emph{overcast}     & \emph{rainy}   \\
+\hline
+num(sunny)$=5$   & num(overcast)$=4$   & num(rainy)$=5$ \\
+$Pr(sunny)=5/14$ & $Pr(overcast)=4/14$ & $Pr(rainy)=5/14$ \\
+\hline
+\end{tabular}
+\[
+\begin{array}{rcl}
+Pr(sunny) + Pr(overcast) + Pr(rainy) & = & 1 \\
+5/14 + 4/14 + 5/14  & = & 1 \\
+\end{array}
+\]
+%
+\item \textbf{Pr(play)}\\
+\begin{tabular}{|r|r|}
+\emph{yes}     & \emph{no} \\
+\hline
+num(yes)$=9$   & num(no)$=5$ \\
+$Pr(yes)=9/14$ & $Pr(no)=5/14$ \\
+\hline
+\end{tabular}
+\[
+\begin{array}{rcl}
+Pr(yes) + Pr(no) & = & 1 \\
+9/14 + 5/14 & = & 1 \\
+\end{array}
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Statistical Modelling (p3)}
+\begin{itemize}
+\item[] \strong{dependent observed probabilities}
+\item \textbf{$Pr(play|outlook)$}\\
+\begin{tabular}{|r|r|}
+\emph{yes}       & \emph{no} \\
+\hline
+num(yes)$=9$     & num(no)$=5$   \\
+$Pr(yes)=9/14$   & $Pr(no)=5/14$ \\
+\hline
+num(yes,su)$=2$  & num(no,su)$=3$  \\
+$Pr(yes|su)=2/5$ & $Pr(no|su)=3/5$ \\
+\hline
+num(yes,ov)$=4$  & num(no,ov)$=0$  \\
+$Pr(yes|ov)=4/4$ & $Pr(no|ov)=0/4$ \\
+\hline
+num(yes,ra)$=3$  & num(no,ra)$=2$  \\
+$Pr(yes|ra)=2/5$ & $Pr(no|ra)=3/5$ \\
+\hline
+\end{tabular}
+\[
+\begin{array}{rcl}
+Pr(yes|su) + Pr(no|su) & = & 1 \\
+2/5 + 3/5 & = & 1 \\
+\end{array}
+\]
+\end{itemize}
+\end{frame}
+%%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%\begin{frame}{I.3. Statistical Modelling (p4)}
+%\begin{itemize}
+%\item[] \strong{dependent observed probabilities}
+%\item \textbf{$Pr(outlook|play)$}\\
+%\begin{tabular}{|r|r|r|}
+%\emph{sunny}     & \emph{overcast}  & \emph{rainy} \\
+%\hline
+%num(su)$=5$      & num(ov)$=4$      & num(ra)$=5$   \\
+%$Pr(su)=5/14$    & $Pr(ov)=4/14$    & $Pr(ra)=5/14$ \\
+%\hline
+%num(su,yes)$=2$  & num(ov,yes)$=4$  & num(ra,yes)$=3$  \\
+%$Pr(su|yes)=2/9$ & $Pr(ov|yes)=4/9$ & $Pr(ra|yes)=3/9$ \\
+%\hline
+%num(su,no)$=3$   & num(ov,no)$=0$   & num(ra,no)$=2$  \\
+%$Pr(su|no)=3/5$  & $Pr(ov|no)=0/5$  & $Pr(ra|no)=2/5$ \\
+%\hline
+%\end{tabular}
+%\[
+%\begin{array}{rcll}
+%Pr(sunny|yes) + Pr(sunny|no) & ?= & 1 & \textbf{NO!}\\
+%2/9 + 3/5 & \ne & 1 \\
+%\end{array}
+%\]
+%\end{itemize}
+%\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Statistical Modelling (p4)}
+\begin{itemize}
+\item Given a new hypothesis,
+\item[] What is the \strong{Likelihood} that the decision to play tomorrow will be \textbf{yes}, given 
+the weather attributes tomorrow will be observed as follows: 
+\[
+	( sunny, cool, high, true )
+\]
+?
+\item We can compute the Likelihood as:
+\[
+	L( yes | sunny, cool, high, true )
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Statistical Modelling (p5)}
+\begin{itemize}
+\item Computing \stronger{Likelihood} as defined earlier (slide~\ref{slide:likelihood}):
+\[
+\begin{array}{rcl}
+	L( yes | D ) & = & Pr( D | yes ) \\
+	L( yes | su, co, hi, T ) & = & Pr( su, co, hi, T | yes ) \\
+    	& = & Pr( su | yes ) * Pr( co | yes ) * Pr( hi | yes ) \\
+	    &   & * Pr( T | yes ) \\
+		& = & (2/9) \times (3/9) \times (3/9) \times (3/9) \\
+		& = & 0.0082
+\end{array}
+\]
+\item But what does that tell us?
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Statistical Modelling (p6)}
+\begin{itemize}
+\item We really want to know is whether \textbf{yes} or \textbf{no} is more likely
+\item[]
+\item So we can compute $L( no | sunny, cool, high, true )$ and compare the values:
+\[
+\begin{array}{rcl}
+	L( no | D ) & = & Pr( D | no ) \\
+	L( no | su, co, hi, T ) & = & Pr( su, co, hi, T | no ) \\
+		& = & Pr( su | no ) * Pr( co | no ) * Pr( hi | no ) \\
+		&   & * Pr( T | no ) \\
+		& = & (3/5) \times (1/5) \times (4/5) \times (3/5) \\
+		& = & 0.0576
+\end{array}
+\]
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Statistical Modelling (p7)}
+\begin{itemize}
+\item If we take into account the \textbf{prior} probability of the decision:
+\begin{eqnarray*}
+Pr(yes) & = & 9/14 = 0.6429\\
+Pr(no)  & = & 5/14 = 0.3571
+\end{eqnarray*}
+\item[] then we can use Bayes theorem to compute a \textbf{posterior probability}:
+\begin{eqnarray*}
+Pr(yes|D) & = & \frac{ Pr(D|yes) \times Pr(yes) }{ Pr(D) } \\
+Pr(no|D)  & = & \frac{ Pr(D|no) \times Pr(no) }{ Pr(D) } \\
+\end{eqnarray*}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Statistical Modelling (p8)}
+\begin{itemize}
+\item But we don't know what $Pr(D)$ is.
+\item[] Our training set does not contain an observation matching $D$
+\item[]
+\item HOWEVER, we don't care what $Pr(D)$ is, 
+because we really only want to know whether $Pr(yes|D)$ or $Pr(no|D)$ is higher
+\item[]
+\item So we can ignore $Pr(D)$ 
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Statistical Modelling (p9)}
+\begin{itemize}
+\item[] So, we compute each $Pr(D|\theta) \times Pr(\theta)$:
+\begin{eqnarray*}
+Pr(D|yes) * Pr(yes) & = & 0.0082 * 0.6429 = 0.0053 \\
+Pr(D|no)  * Pr(no)  & = & 0.0576 * 0.3571 = 0.0206
+\end{eqnarray*}
+\item and then we can compare:
+\begin{eqnarray*}
+Pr(D|yes) * Pr(yes) & <>? & Pr(D|no) * Pr(no) \\
+0.0082 \times 0.6429      & <>? & 0.0576 \times 0.3571 \\
+0.0053                    & <   & 0.0206 \\
+\end{eqnarray*}
+\item which tells us that \textbf{no} is more likely than \textbf{yes}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Statistical Modelling (p10)}
+\begin{itemize}
+\item Because there are only two possible ``givens'' (yes or no), you can normalise likelihood as a probability:
+\[
+Pr(L(yes|D)) = \frac{L(yes|D)}{L(yes|D) + L(no|D)}
+\]
+\item Thus:
+\[
+Pr(L(yes|D)) = \frac{0.0053}{0.0053+0.0206} = \frac{0.0053}{0.0259} = 20.5\%
+\]
+\[
+Pr(L(no|D)) = \frac{0.0206}{0.0053+0.0206} = \frac{0.0206}{0.0259} = 79.5\%
+\]
+\item These \textbf{probabilities} sum to $100\%$, whereas the \textbf{likelihood} values will not sum to $100\%$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Statistical Modelling (p11)}
+\begin{itemize}
+\item[] \strong{Handling Missing Values}
+\item[]
+\item If an attribute is missing from the training set, then it is simply not used in the computation of likelihoods.
+\item However, if only some possible values for an attribute are missing from the training set, this can be problematic.
+\item For example, suppose \textbf{outlook} could have a fourth possible value, \textbf{misty};
+then we would
+\[
+	Pr(misty|yes)=0
+\]
+(because there are no examples in the training set)\\
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Statistical Modelling (p12)}
+\begin{itemize}
+\item \strong{Handling Missing Values}, continued
+\item One solution: \stronger{Laplace estimation}\\
+For each possible attribute value, add $1$ to the numerator (top) and $N$ to the denominator (bottom), where $N$ is the total number of possible attribute values.
+\item For example, in the case of \emph{outlook}, there are $3$ possible values (sunny, overcast, rainy), so we would change the probabilities:
+\begin{eqnarray*}
+Pr(sunny|yes)    & = 2/9  \Rightarrow & (2+1) / (9+4) = 3/13 \\
+Pr(overcast|yes) & = 4/9  \Rightarrow & (4+1) / (9+4) = 5/13 \\
+Pr(rainy|yes)    & = 3/9  \Rightarrow & (3+1) / (9+4) = 4/13 \\
+Pr(misty|yes)    & = 0/9  \Rightarrow & (0+1) / (9+4) = 1/13 
+\end{eqnarray*}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Statistical Modelling (p13)}
+\begin{itemize}
+\item Typically, it is assumed that \strong{numeric attributes} have a \strong{Gaussian (Normal)} distribution.
+\item Then, instead of computing likelihood by counting occurrences of attributes---like we do with nominal attributes---we use the \strong{mean} and \strong{standard deviation} of the presumed normal distribution and the \stronger{probability density function (pdf)}
+\item The \stronger{pdf} is an \strong{estimate} of the actual probability
+\item It computes the probability that $x$ falls within the region
+\[
+Pr (( x - \epsilon ) \le x \le ( x + \epsilon )) = \epsilon * pdf(x)
+\]
+\item We can use this in our weather example as follows...
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Statistical Modelling (p14)}
+\begin{itemize}
+\item The \stronger{probability density function} for a normal distribution is:
+\[
+	pdf(x) = \frac{1}{\sqrt{2\pi}*\sigma}*e^{-\frac{(x-\mu)^2}{2*\sigma^2}}
+\]
+where:\\
+$x$ is the condition for which we want to determine the probability of its occurrence\\
+$\mu$ is the sample mean of the values occurring under condition $x$\\
+$\sigma$ is the sample standard deviation of the values that occur under condition $x$\\
+\item[]
+\item You don't need to memorise this formula; just understand what \stronger{pdf} is and how to use it
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Statistical Modelling (p15)}
+\begin{itemize}
+\item If we want to know the likelihood of the temperature being $66^\circ$ given \emph{play=yes}, then:
+\item[] for all instances where \emph{play=yes} : $\mu = 73$ and $\sigma = 6.2$
+\[
+pdf(\mathit{temperature}=66|\mathit{yes}) = \frac{1}{\sqrt{2\pi}*6.2}e^{-\frac{(66-73)^2}{2*6.2^2}} = 0.0340
+\]
+\item Then we can use this value ($0.0340$) in the equations we computed earlier, substituting for $Pr(c|yes)$:
+\[
+\mathsf{L(yes)} = 2/9 \times 3/9 \times 3/9 \times 3/9 \times 9/14 = 0.0053 \]
+for all nominal values\\
+
+\[
+\mathsf{L(yes)} = 2/9 \times 0.0340 \times 3/9 \times 3/9 \times 9/14 = 0.0008
+\]
+for 3 nominal values and 1 numeric value (temperature)
+
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Na\"{\i}ve Bayes}
+\begin{itemize}
+\item[] \stronger{Na\"{\i}ve Bayes} is straightforward in principle
+\item All variables are categorical
+\item Determines class-conditional distributions
+\item Estimates the probability that an observation of each possible class may occur
+\item Uses Bayes theorem to produce classification
+\item Compared to \emph{1R}, it makes use of all attributes
+\item Independence of attributes vs target attribute is not a realistic assumption, but works well in practice
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Na\"{\i}ve Bayes (p2)}
+\begin{itemize}
+\item \emph{Bayes' rule of conditional probability} provides a formula for computing the probability of a certain situation occurring, given an observation of something that has occurred
+\item for example:
+	\begin{itemize}
+	\item Let $H$ be a \emph{hypothesis} that something will occur
+	\item Let $E$ be \emph{evidence} that has been observed\\
+	\item We want to compute the probability that $H$ will occur, given that we have observed $E$:
+	\end{itemize}
+\end{itemize}
+\[
+Pr(H|E) = \frac{Pr(E|H)Pr(H)}{Pr(E)}
+\]
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Na\"{\i}ve Bayes (p3)}
+\begin{itemize}
+\item Weather example:
+\item Compute $Pr(yes|E)$
+where $E=< \mathsf{sunny, cool, high, true} >$\\
+(abbreviated $E=<s,c,h,t>$)
+\item We assume that the probability of each attribute is independent
+\item Thus the probability of observing the combined set of attributes is computed by multiplying all the independent probabilities:
+\begin{eqnarray*}
+Pr(E|yes) & = & Pr(s|yes) \times Pr(c|yes) \times Pr(h|yes) \times Pr(t|yes) \\
+          & = & (2/9) \times (3/9) \times (3/9) \times (3/9) \\
+          & = & 0.0082
+\end{eqnarray*}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Na\"{\i}ve Bayes (p4)}
+\begin{itemize}
+\item $Pr(yes) = 9 / 14 = 0.6429$\\
+which is called the \strong{prior probability}, because it is computed based only on the history (i.e., prior knowledge) and is not based on the current observation ($E$)
+\item Substituting what we have computed so far into Bayes' rule, we have:
+\begin{eqnarray*}
+Pr(yes|E) & = & \frac{Pr(E|yes) \times Pr(yes)}{Pr(E)} \\
+          & = & ( 0.0082 \times 0.6429 ) / Pr(E) \\
+          & = & 0.0053 / Pr(E)\\
+\end{eqnarray*}
+\item but we still don't know what $Pr(E)$ is...
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Na\"{\i}ve Bayes (p5)}
+\begin{itemize}
+\item Determining $Pr(E)$ is problematic, because our training set does not contain an observation which matches $E$
+\item However, we don't really care what the absolute probability of $Pr(yes|E)$ is, because what we really want to know is whether $Pr(yes|E)$ or $Pr(no|E)$ is higher
+\item and we know:
+\[
+Pr(yes|E) + Pr(no|E) = 1
+\]
+\item So we only care about the \emph{proportion} of $Pr(yes|E)$ to $Pr(no|E)$, i.e.,
+$\frac{Pr(yes|E)}{Pr(no|E)} > 1$ or
+$\frac{Pr(yes|E)}{Pr(no|E)} < 1$ or
+$\frac{Pr(yes|E)}{Pr(no|E)} = 1$ 
+\item which means we can skip computing the denominator and instead compute $Pr(no|E)$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Na\"{\i}ve Bayes (p6)}
+\begin{itemize}
+\item $Pr(no|E) = \frac{Pr(E|no) \times Pr(no)}{Pr(E)}$
+\item $Pr(no) = 5 / 14 = 0.3571$\\
+\item $Pr(E|no)$, where $E=< \mathsf{sunny, cool, high, true} >$ (abbreviated $E=<s,c,h,t>$) is:
+\begin{eqnarray*}
+Pr(E|no) & = & Pr(s|no) \times Pr(c|no) \times Pr(h|no) \times Pr(t|no) \\
+         & = & (3/5) \times (1/5) \times (4/5) \times (3/5) \\
+         & = & 0.0576
+\end{eqnarray*}
+\item and so
+\begin{eqnarray*}
+Pr(no|E) & = & \frac{ 0.0576 \times 0.3571 }{Pr(E)} \\
+         & = & 0.0206 / Pr(E)
+\end{eqnarray*}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Na\"{\i}ve Bayes (p7)}
+\begin{itemize}
+\item And finally, our comparison becomes:
+\begin{eqnarray*}
+\frac{Pr(yes|E)}{Pr(no|E)} & = & \frac{ 0.0053 / Pr(E) }{ 0.0206 / Pr(E) } \\
+                           & = & \frac{ 0.0053 }{ 0.0206 } \\
+                           & = & 0.2572 \\
+                           & < & 1.0
+\end{eqnarray*}
+\item which tells us that $Pr(no|E)$ is more likely than $Pr(yes|E)$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Na\"{\i}ve Bayes (p8)}
+\begin{itemize}
+\item This method is called \stronger{Na\"{i}ve Bayes} because it \strong{assumes independence}
+\item[] i.e., that each attribute value within an instance does not in any way depend on any other value
+\item Only when events are completely independent is it valid to multiply probabilities, as we did with the numerator in our example, i.e.,\\
+$Pr(s|yes) \times Pr(c|yes) \times Pr(h|yes) \times Pr(t|yes)$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Na\"{\i}ve Bayes (p9)}
+\begin{itemize}
+\item If an attribute is missing from the training set, then it is simply not used in the computation of likelihoods
+\item However, if only some possible values for an attribute is missing from the training set, this can be problematic
+\item For example, suppose \emph{outlook} could have a fourth possible value, \emph{misty};
+then we would have $Pr(misty|yes)=0$ because there are no examples in the training set---this is bad!
+\item Solution: \stronger{Laplace Estimation} $\rightarrow$
+for each possible attribute value, add $1$ to the numerator and $N$ to the denominator, where $N$ is the total number of possible attribute values
+\item For example, in the case of \emph{outlook}, there are $3$ possible values (sunny, overcast, rainy), so we would change the probabilities:
+\begin{eqnarray*}
+Pr(sunny)    & = 2/9  \Rightarrow & (2+1) / (9+4) = 3/13 \\
+Pr(overcast) & = 4/9  \Rightarrow & (4+1) / (9+4) = 5/13 \\
+Pr(rainy)    & = 3/9  \Rightarrow & (3+1) / (9+4) = 4/13 \\
+Pr(misty)    & = 0/9  \Rightarrow & (0+1) / (9+4) = 1/13 
+\end{eqnarray*}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Na\"{\i}ve Bayes (p10)}
+\begin{itemize}
+\item Summary:
+\item Despite the strong independence assumption, \stronger{Na\"{\i}ve Bayes} works well in practice
+\item The independence assumption will not hold if the attributes in \emph{E} are correlated, but can use attribute selection
+\item It can be a problem when values do not occur in conjunction with every class value, as a probability of 0 will not enable an overall likelihood to be computed
+\item[$\rightarrow$] \strong{Laplace Estimator}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+%--------------------------------------------------------------------------------
+\section*{SUMMARY AND TO DO}
+%--------------------------------------------------------------------------------
+\begin{frame}{Summary: Probability and Statistics in Data Mining}
+\begin{itemize}
+\item A probability \strong{distribution} describes \strong{discrete} variables; a probability \strong{density} describes \strong{continuous} variables.
+\item A \strong{joint} density/distribution/probability combines the behaviour of multiple variables.
+\item Variables that have no relationships amongst them are \strong{independent}; otherwise they are \strong{dependent}.
+\item \strong{Bayes theorem} combines prior probability, likelihood and posterior probability.
+\item \strong{Probability} can be predicted when we can enumerate possible outcomes; \strong{Likelihood} describes hypotheses, which is more appropriate when we cannot enumerate possible outcomes.
+\item \strong{Statistical Modelling} is a way of using probability to build descriptive or predictive models of data.
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{To Do}
+\begin{enumerate}
+\item Finish the Workshop exercises from Week 3
+\item Reading:
+	\begin{itemize}
+	\item Principles of Measurement: \cite[ch 1]{lowry:1998-2022}; or Basic Concepts of Measurement \cite[ch 1]{boslaugh:2013}
+	\item Distributions: \cite[ch 2]{lowry:1998-2022}; or Inferential Statistics \cite[ch 3]{boslaugh:2013}
+	\item Basic Concepts of Probability: \cite[ch 5]{lowry:1998-2022}; or Probability \cite[ch 2]{boslaugh:2013}
+	\item Introduction to Probability Sampling Distributions: \cite[ch 6]{lowry:1998-2022}; or Descriptive Statistics \cite[ch 4]{boslaugh:2013}
+	\item Statistical Modeling: \cite[ch 4.2]{WFH3:2011} or Simple Probabilistic Modeling \cite[4.2]{WFH4:2016}
+	\end{itemize}
+\item Advanced Reading (optional):
+	\begin{itemize}
+	\item Predicting probabilities: \cite[ch 5.6]{WFH3:2011} or \cite[ch 5.7]{WFH4:2016}
+	\end{itemize}
+\end{enumerate}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+%--------------------------------------------------------------------------------
+\section*{REFERENCES}
+%--------------------------------------------------------------------------------
+% use 'allowframebreaks' if refs flow onto multiple slides (each will be numbered 'REFERENCES I', 'REFERENCES II' etc)
+%\begin{frame}[allowframebreaks]{REFERENCES}
+\begin{frame}{REFERENCES}
+\bibliographystyle{plain}
+\bibliography{refs}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+\end{document}

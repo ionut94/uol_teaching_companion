@@ -1,0 +1,759 @@
+\documentclass[handout]{beamer}
+\usetheme{boxes}
+
+\usecolortheme{orchid}
+\definecolor{teal}{HTML}{009999}
+\definecolor{lightteal}{HTML}{00CCCC}
+\definecolor{purple}{HTML}{990099}
+\definecolor{lightpurple}{HTML}{CC00CC}
+\definecolor{darkgrey}{HTML}{666666}
+\definecolor{lightgrey}{HTML}{AAAAAA}
+\definecolor{darkred}{HTML}{660000}
+\definecolor{darkgreen}{HTML}{006600}
+\definecolor{darkblue}{HTML}{000066}
+\definecolor{lightred}{HTML}{AA0000}
+\definecolor{lightgreen}{HTML}{00AA00}
+\definecolor{lightblue}{HTML}{0000AA}
+\setbeamercolor{title}{fg=darkblue}
+\setbeamercolor{frametitle}{fg=darkblue}
+\setbeamercolor{itemize item}{fg=teal}
+\setbeamercolor{itemize subitem}{fg=lightteal}
+
+\usepackage{fancybox}
+\usepackage{adjustbox}
+\usepackage{mathptmx}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{subcaption} 
+
+% For math brackets
+\usepackage{amsmath}
+
+% gets rid of bottom navigation bars
+\setbeamertemplate{footline}[frame number]{}
+
+% gets rid of bottom navigation symbols
+\setbeamertemplate{navigation symbols}{}
+
+% uses number labels in bibliography
+\setbeamertemplate{bibliography item}{\insertbiblabel}
+
+% my style for emphasising stuff in colours
+\newcommand{\strong}[1]{\textbf{\color{teal} #1}}
+\newcommand{\stronger}[1]{\textbf{\color{purple} #1}}
+
+% title, etc
+\title{Dimensionality Reduction\\{\small (lecture 10)}}
+\subtitle{AGR9013 -- Introduction to Data Mining\\
+{\tiny (version 1)}}
+\author{Dr Ionut Moraru}
+\institute{University of Lincoln, School of Agri-Foods Technology and Manufacturing}
+\logo{\includegraphics[width=1cm]{images/uol-logo.png}}
+\date{5-December-2024}
+
+\addtobeamertemplate{navigation symbols}{}{\hspace{1em}    \usebeamerfont{footline}%
+    \insertframenumber / \inserttotalframenumber }
+
+% Remove navigation symbols
+\beamertemplatenavigationsymbolsempty
+
+\begin{document}
+
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+  belowcaptionskip=0pt,            % reduce space after the listings caption
+  belowskip=0pt,                   % how much vertical space to skip after a listing
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  caption={},                      % default to no caption
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{lightgreen}, % comment style
+  deletekeywords={...},            % if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  frame=single,                    % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=Python,                 % the language of the code
+  mathescape=true,                 % allow math mode within code
+  morekeywords={then,...},         % if you want to add more keywords to the set
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\sf\color{lightgrey}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{darkred},     % string literal style
+  tabsize=3,                       % sets default tabsize to 3 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+%--------------------------------------------------------------------------------
+\frame{\titlepage}
+
+
+%--------------------------------------------------------------------------------
+\section*{OUTLINE}
+%--------------------------------------------------------------------------------
+\begin{frame}{Outline: Dimensionality Reduction}
+\begin{itemize}
+
+\item[] Preamble. Curse of Dimensionality
+\item[] Part I. Feature Extraction
+\item[] Part II. Reducing Variables
+\item[] Part III. Deriving Variables
+\vspace*{0.3cm}
+\item To Do
+\end{itemize}
+\end{frame}
+%--------------------------------------------------------------------------------
+\section{PREAMBLE}
+
+\begin{frame}{Preamble: The curse of dimensionality}
+
+\textbf{IDEA:} Imagine you have lost your keys.  
+\begin{itemize}
+    \item \textbf{1 Dimension -} If you know you lost them somewhere along a straight line (e.g. hallway), the search is quick and easy - you just need to look on that line.
+    \item \textbf{2 Dimensions -} Lets say that you lost them in your bedroom, the search becomes harder as you need to consider both length and width of the room.
+    \item \textbf{3 Dimensions -} Now lets say you lost it in a multi-floor building. This is now a big task that will take considerable amount of searching.
+\end{itemize} 
+Now, imagine trying to find your keys in a 10-dimensional space! 
+\end{frame}
+
+\begin{frame}{The curse of dimensionality}
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\linewidth]{materials/images/1 dimension.png}
+        \caption{1D: Line}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\linewidth]{materials/images/2d search space.png}
+        \caption{2D: Square}
+    \end{subfigure}
+    % \caption{Visualization of the Lost Keys Analogy in Different Dimensions}
+    \label{fig:lost_keys}
+\end{figure}    
+\vspace{-0.5cm}
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\linewidth]{materials/images/3d search space.png}
+        \caption{1D: Line}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.4\textwidth}
+        \includegraphics[width=\linewidth]{materials/images/growthSearchSpace.png}
+        \caption{Exponational growth}
+    \end{subfigure}
+    % \caption{3 D and exponential growth}
+    \label{fig:lost_keys}
+\end{figure}    
+
+\end{frame}
+%--------------------------------------------------------------------------------
+
+\begin{frame}{Why does this matter for Data Mining?}
+\begin{itemize}
+\item \textbf{High-Dimensional Data --} We often deals with datasets containing many features (dimensions);
+\item \textbf{Sparsity --} As the number of dimensions (features) increases, the available data becomes sparse, scattered thinly across this vast space.
+\item \textbf{Distance Metrics --} In high-dimensional spaces, traditional distance metrics (like Euclidean distance) become less meaningful.
+\item \textbf{Overfitting --} With more dimensions, there's a higher risk of this.  A model might find spurious patterns in the sparse data that don't generalize well to new data. 
+\end{itemize}
+
+
+
+
+\end{frame}
+
+\section{PART I}
+ 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{Part I: Feature Extraction}
+\begin{itemize}
+\item Reduce multiple related observations (instances) to one observation
+\item For example:
+\item[--] Start and end of time series instead of every observation in between
+\item[--] Fit a curve to the trend in a variable
+\item[]
+\item But this can result in a loss of information, possibly crucial information
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+%--------------------------------------------------------------------------------
+\section{PART II}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part II: Deriving Variables}
+\begin{itemize}
+\item[II.1.] Single-variable transformations
+\item[II.2.] Combining variables
+\item[II.3.] Extracting features from ...
+\item[II.4.] Handling sparse data
+\item[II.5.] Cautionary tales
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Single-variable transformations (p1)}
+\begin{itemize}
+\item[] \strong{Standardise numeric variables}, so that they can be compared fairly
+\item[]
+\item \stronger{Centering}: 
+	\begin{itemize}
+	\item Subtract $\mu$ (mean) from each value
+	\item Data is centred so the average is $0$
+	\item Scale does not change
+	\end{itemize}
+\item[]
+\item \stronger{Rescaling}
+	\begin{itemize}
+	\item Divide each value by $\sigma$ (standard deviation)
+	\item Derived data has $\mu=0$ and $\sigma=1$ (z-score)
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Single-variable transformations (p2)}
+\begin{itemize}
+\item[] \strong{Turn numeric values into percentiles}
+\item Values are scaled relative to actual data, rather than to absolute
+\item Spread out skewed distributions
+\item Grades example: $90\%$ of total possible marks or top $90\%$ of ranked students?
+\item[]
+\item[] \strong{Turn absolute numbers into relative measures}
+\item Provides more accurate comparisons
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Single-variable transformations (p3)}
+\begin{itemize}
+\item[] \strong{Turn counts into rates}
+\item For data that appears over time
+\item For example: purchases per week, heartbeats per minute, ...
+\item But make sure that when rates are compared, they are calculated in the same way---over the same time interval
+\item Retail example: purchases per week, per month, per year?
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Single-variable transformations (p4)}
+\begin{itemize}
+\item[] \strong{Replace categorical variables with numeric variables}
+\item Make sure the numbers are meaningful in the context of the analysis
+\item Geography example: list cities in the UK and order by...
+	\begin{itemize}
+	\item Name? 
+	\item Population? 
+	\item Distance from Lincoln?
+	\item Answer depends on context and task
+	\end{itemize}
+\item \stronger{Binary indicator variables} may work, indicating \strong{presence} or \strong{absence} of a feature
+	\begin{itemize}
+	\item But the number of variables can explode if there are many options
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.1. Single-variable transformations (p5)}
+\begin{itemize}
+\item[] \strong{Replace categorical variables w/numeric variables} (cont.)
+\item[]
+\item \stronger{Numeric descriptor} variables can be used instead
+	\begin{itemize}
+	\item For example if there are numeric attributes (e.g., height, weight, age) that can substitute for categorical value
+	\end{itemize}
+\item[]
+\item \strong{Binning numeric variables} (i.e., use a \stronger{histogram})
+	\begin{itemize}
+	\item Equal width bins (same $x$ range: equal width, unequal height)
+	\item Equal weight bins (same $y$ range: unequal width, unequal height (because width is determined by equally-spaced $x$ ticks))
+	\item Supervised bins (context dependent, e.g., days of month)
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}[fragile]{II.2. Combining variables (p1)}
+\begin{itemize}
+\item[] Take advantage of \strong{classic combinations}
+\item \strong{Body Mass Index}:
+\[
+	BMI = \frac{weight (kg)}{height^2 (m^2)}
+\]
+\item \strong{Price-Earnings ratio}:
+\[
+	P/E = \frac{price ~ per ~ share}{earnings ~ per ~ share}
+\]
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/apple-pe-dec2022.png}\\
+\footnotesize{\url{https://ycharts.com/companies/AAPL/pe_ratio}}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Combining variables (p2)}
+\begin{itemize}
+\item \strong{On-base Percentage} (baseball):
+\[
+	OBP = \frac{H + BB + HBP}{AB + BB + HBP + SF}
+\]
+\item[] where:
+	\begin{center}
+	\begin{tabular}{lll}
+	$H$ = hits & $BB$ = bases on balls & $HBP$ = times hit by pitch \\
+	\multicolumn{2}{r}{$AB$ = times at bat} & $SF$ = sacrifice flies \\
+	\end{tabular}
+	\end{center}
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/fenway-oct08.png}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.2. Combining variables (p3)}
+\begin{itemize}
+\item[] \strong{Combining highly correlated variables}
+\item Be careful! 
+\item Different variables often replicate effects
+\item Combining them can magnify effects
+\item Combining them as ratios may be helpful---example: student/staff ratio
+\item Variables derived by combining highly correlated variables should have \strong{high variance}---otherwise they aren't adding new information
+\item Look at \strong{degree of correlation} and when it changes
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Extracting features from... Time series data}
+\begin{itemize}
+\item \stronger{Trends}
+\item \stronger{Seasonality} --- seasonal effects
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.9\textwidth]{images/peak-district.png}\\
+\footnotesize{total number of tourist days spent (or visitors spending over 3 hours) in the Peak District National Park $(\times 1m)$, 2009-2013}\\
+\tiny{\url{http://www.peakdistrict.gov.uk/}}
+% original URL which doesn't work any more: http://www.peakdistrict.gov.uk/microsites/sopr/welcoming/tourism/volume
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.3. Extracting features from... Geographic data}
+\begin{itemize}
+\item \stronger{Geocoding}: translating address into planet coordinates (lat/lon or GPS)
+\item \strong{Mapping}: services like Google Maps, MapQuest, OpenStreetMap etc. have APIs that allow users to acquire and visualise geocoded data
+\item Use geography to illustrate metrics relative to location
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.8\textwidth,height=0.5\textheight]{images/median-house-prices-2015-cropped.png}\\
+\tiny{London Boroughs Median House Prices (2015), \url{datapress.com/}}
+% original URL which doesn't work any more: https://files.datapress.com/london/wp-uploads/20160705161412/median-house-prices-2015.png
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.4. Handling sparse data}
+\begin{itemize}
+\item Create a small number of ``dense'' variables to summarise data across a number of sparse variables
+\item Bin together values from sparsely populated variables
+\item Capture patterns across multiple variables in one variable
+\item Widen narrow data: parse single rich columns into multiple columns
+\item Example: ratings signatures
+	\begin{itemize}
+	\item Ratings in the first month
+	\item Ratings per month (after first month)
+	\item Total number of ratings
+	\item Proportion of \{top,middle,bottom\} ratings
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.5. Deriving variables: Cautionary tales (p1)}
+\begin{itemize}
+\item Variables that are important may be unused because they are hard to use
+\item Data from multiple sources may cover different timeframes
+\item When variables are equal or correlated most of the time, the interesting cases are when they are not
+\item In time series data, use full years in order to avoid seasonal effects
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{II.5. Deriving variables: Cautionary tales (p2)}
+\begin{itemize}
+\item Derived variables are essentially hypotheses about the relationships between variables, relationships that exist at the time of forming the hypothesis and will remain true whenever the derived variable is used
+\item[]
+\item \strong{Ecological fallacy:} differences between individual members of different groups do not necessarily follow the same patterns as differences between summary statistics over the groups as a whole (e.g., mean)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+%--------------------------------------------------------------------------------
+\section{PART III}
+%--------------------------------------------------------------------------------
+\begin{frame}{Part III: Reducing Variables}
+\begin{itemize}
+\item[III.1.] Problems with too many variables
+\item[III.2.] Sparse data problem
+\item[III.3.] Variable selection
+\item[III.4.] Variable transformation
+\item[III.5.] Variable clustering
+\item[III.6.] Cautionary tales
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.1. Problems with too many variables}
+\begin{itemize}
+\item \strong{Risk of correlation among input variables}
+\item[--] Having many variables $\Rightarrow$ variables are more likely to be correlated with one another
+\item[--] This can lead to \stronger{over-weighting} certain characteristics of the data set
+\item[--] Clustering can be \stronger{skewed}
+\item[]
+\item \strong{Risk of overfitting}
+\item[--] Especially with regression and neural networks (multi-layer perceptrons), where using too many input variables tailors the models too closely to the training data set, and then the model does not generalise
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.2. Sparse data problem (p1)}
+\begin{itemize}
+\item \stronger{Sparseness} refers to the \strong{input} variables, not the \strong{target} variable
+\item Why is it sparse? 
+\item Is data set biased?
+\item[]
+\item \strong{Visualising sparseness}
+\item[--] For an $n$-dimensional data set, imagine an $n$-dimensional landscape (search space): if data is \emph{sparse}, then data points are far from each other in the landscape $\Rightarrow$ they don't have any close neighbours
+\item[--] Visualising relationships between input variables (e.g., scatter plot or scatter plot matrix) can highlight unpopulated areas in the landscape, by making pairwise comparisons of all variables
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.2. Sparse data problem (p2)}
+\begin{itemize}
+\item \strong{Variable independence}
+\item[]
+\item[--] if $Pr(y|x_1) = Pr(y)$,
+\item[] then  $y$ is independent of $x_1$
+\item[] $\Rightarrow$ $x_1$ is not relevant for determining $y$
+\item[]
+\item[--] if $Pr(y|x_1,x_2) = Pr(y|x_2)$,
+\item[] then $y$ is independent of $x_1$ given $x_2$
+\item[] $\Rightarrow$ $x_1$ is not relevant for determining $y|x_2$
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.3. Variable selection (p1}
+\begin{itemize}
+\item \stronger{Variable selection} begins with determining the \strong{relevance} of the variables
+\item \stronger{Independence}
+	\begin{itemize}
+	\item For numeric variables, measure \stronger{linear dependence} by estimating linear correlation coefficients
+	\item For nominal variables, measure \stronger{average mutual information} (next slide)
+	\end{itemize}
+\item \stronger{Correlation}
+	\begin{itemize}
+	\item A statistical measure between variables
+	\end{itemize}
+\item \stronger{Orthogonality}
+	\begin{itemize}
+	\item A geometric feature of variables represented in \stronger{observation space}, where each observation is an axis (can be highly dimensional)
+	\end{itemize}
+\item Two variables that are \stronger{uncorrelated} are necessarily \stronger{independent}
+\item But not necessarily the other way around---correlation does not imply dependence, or causation
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.3. Variable selection (p2)}
+\begin{itemize}
+\item[] \stronger{Average mutual information}
+\[
+\mathrm{I}(Y;X) = \sum_{i,j}{ Pr(y_i,x_{i,j}) log \left[ \frac{Pr(y_i,x_{i,j})}{Pr(y_i) Pr(x_{i,j})}\right]}
+\]
+\item[] where $X$ and $Y$ are categorical (nominal) values
+\item Gives an estimate of the dependence between $X$ (variables) and $Y$ (target)
+\item e.g., given two images of the same object, how much information is needed from one ($X$) in order to predict the other ($Y$) ?
+\item Like correlation, but a more complex version of correlation (not just between two variables)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.3. Variable selection (p3)}
+\begin{itemize}
+\item But \strong{information} about individual variables does not necessarily carry over to sets of variables
+\item The best $k$ variables is not the same as the best \strong{set} of variables of size $k$
+\item[]
+\item \textbf{There is no optimal search algorithm for variable selection}
+\item[]
+\item Though there are many heuristic methods,
+e.g., greedy selection (add/delete one variable at a time)
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.3. Variable selection (p4)}
+\begin{itemize}
+\item[] \stronger{Exhaustive feature selection}
+\item Not a practical approach
+\end{itemize}
+\begin{center}
+\begin{tabular}{|r|r|}
+\emph{num of variables} & \emph{num of combinations} \\
+\hline
+1 & 1 \\
+2 & 3 \\
+3 & 7 \\
+4 & 15 \\
+5 & 31 \\
+\hline
+10 & 1023 \\
+\hline
+20 & 1,048,575 \\
+\hline
+50 & 1,125,899,906,842,623 \\
+\hline
+$n$ & $2^n - 1$ \\
+\hline
+\end{tabular}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.3. Variable selection (p5)}
+\begin{itemize}
+\item[] More practical approaches:
+\item Use a target variable ($y$) to select the best input variables ($X \subset \chi$), e.g., regression, decision trees
+\item[]
+\item But choice of target variable can bias model
+\item[]
+\item Modeller must decide between using original vs new (derived) variables
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.3. Variable selection: Sequential selection of features}
+\begin{itemize}
+\item \stronger{Forward selection} methodology
+	\begin{itemize}
+	\item Start with no model and no variables
+	\item Build models one at a time, with one input variable per model
+	\item Pick as input variable the one that fits best
+	\item Example: scatter plots with regression lines
+	\end{itemize}
+\item[]
+\item \stronger{Backward selection} methodology
+	\begin{itemize}
+	\item Start with all the variables
+	\item Remove them one at a time
+	\end{itemize}
+\item[]
+\item It's important to use a validation data set, to avoid bias
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.4. Variable transformation (p1)}
+\begin{itemize}
+\item What is \stronger{Variable Transformation}?
+\item[] Looking for $\chi'$ where $|\chi'| \ll |\chi|$
+\item[]
+\item The set of items in $\chi'$ are called \stronger{basis functions} or \stronger{factors} or \stronger{latent variables} or \stronger{principal components}
+\item[]
+\item Popular methods:
+	\begin{itemize}
+	\item \stronger{Projection Pursuit Regression}
+	\item \stronger{Principal Components Analysis (PCA)}
+	\item \stronger{Singular-Value Decomposition (SVD)}
+	\item \stronger{Latent Semantic Indexing (LSI)}
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.4. Variable transformation (p2)}
+\begin{itemize}
+\item[] \stronger{Projection Pursuit Regression}
+\item[]
+\[
+\hat{y} = \sum_{j=1}^{N'}{ w_j ~ {\bf g}_j( \alpha_j^T X )}
+\]
+where 
+\item $( \alpha_j^T X )$ is the \stronger{projection} of vector $X$ onto the $j$-th weight vector $\alpha_j$
+\item Both vectors ($\alpha_j^T$ and $X$) are $N$-dimensional
+\item[] $\Rightarrow$ the inner product of the two vectors $(\alpha_j^T X)$ is a \emph{scalar}
+\item ${\bf g}_j$ is a non-linear function of this scalar product
+\item $w_j$ are weights
+\item An example is a \strong{neural network} with clamping function:
+\[
+{\bf g}_j(t) = \frac{1}{1 + e^{-t}}
+\]
+\item \strong{These models can be quite complex!}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.4. Variable transformation (p3)}
+\begin{itemize}
+\item[] \stronger{Principal Components Analysis (PCA)}
+\item[]
+\item Choose $\chi'$ elements that are linear combinations of the original variables
+\item Weight each $\chi'$ element to maximise the variance of the original data set when expressed in terms of $\chi'$'s
+\item This is a special case of projection pursuit where the projection index (i.e., score function) uses the variance along the projected direction
+\item The \strong{first principal component} is a variant of the best-fit line, but instead of using vertical distances to fit the best line, distances orthogonal to the best-fit line are used
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.4. Variable transformation (p4)}
+\begin{itemize}
+\item[] PCA, continued
+\item[]
+\item The \strong{second principal component} is the principal component of the residuals of the first principal component
+\item The residuals are vectors
+\item A residual for a best-fit line is the distance in vertical space from each point in the data set to the line
+\item A residual for the first component is a vector, because it has a \strong{distance} and a \strong{direction}---since it is orthogonal to the principal component line
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.4. Variable transformation (p5)}
+\begin{itemize}
+\item Advantages of PCA:
+	\begin{itemize}
+	\item Sequentially extracts variance in $\chi$ space, so that the most information is contained in the first few components
+	\item Components are orthogonal (to each other), so the model is relatively easy to interpret
+	\end{itemize}
+\item[]
+\item Disadvantages of PCA:
+	\begin{itemize}
+	\item Optimising with respect to $\chi$ space can mean that aspects of $Y$ space are not optimised
+	\end{itemize}
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.4. Variable transformation (p6)}
+\begin{itemize}
+\item[] \stronger{Singular-Value Decomposition (SVD)}
+\item[]
+\item Calculate an SVD for the document-term matrix $M$:
+\[
+	M = U ~ S ~ V^T
+\]
+\item[] where:
+\item[] $U$ is a matrix of vector weights for a specific document
+\item[] $S$ is a diagonal matrix of eigenvalues for each principal component direction
+\item[] $V^T$ is a new orthogonal basis (the principal component directions)
+\item The \strong{principal component} directions are represented by vectors where there is the most variance in the data
+\item Semantic relationships between terms are captured by each principal component
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.4. Variable transformation (p7)}
+\begin{itemize}
+\item[] \stronger{Latent Semantic Indexing (LSI)}
+\item[]
+\item Approaches described so far ignore the semantics of terms
+\item We would like to have a method that doesn't ignore semantics
+\item LSI assumes that there is a hidden semantic structure in a document
+\item LSI uses PCA on the $N \times T$ document-term matrix
+	\begin{itemize}
+	\item First finds $k$ principal component directions in this space
+	\item Then finds the best set of $k$ orthogonal basis vectors
+	\end{itemize}
+\item This technique effectively reduces the $N \times T$ matrix to a $N \times k$ matrix
+\item PCA can combine terms that appear frequently together to form a single principal component
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.4. Variable transformation (p8)}
+\begin{itemize}
+\item[] \stronger{LSI}, continued
+\item[]
+\item In practice, it's usually not computationally tractable to compute principal component vectors directly by finding eigenvalues
+\item As a result, usually special-purpose SVD methods are employed that work well on sparse matrices and with high-dimensional data sets
+%
+\item The document-term matrix can also be measured \strong{probabilistically}
+\item Using conditional independence (\strong{Na\"{\i}ve Bayes})
+\item Then using \strong{expectation-maximisation (E-M)} to fit mixtures
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.5. Variable clustering (p1)}
+\begin{itemize}
+\item \stronger{Dendrogram}: select groups of categorical variables, possibly of variable size, and create a single variable to represent each cluster
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/wfh-figure6-22a.png}\\
+\cite[Figure 6-22]{WFH3:2011}
+\end{center}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.5. Variable clustering (p2)}
+\begin{itemize}
+\item Variable clusters can be generated:
+\item[--] Divisive (top down)
+\item[--] Agglomerative (bottom up)
+\item[]
+\item \stronger{Correlation variable clustering}---use Pearson's correlation as the distance metric
+\item[]
+\item \stronger{Divisive variable clustering}---look for principal components and then rank order variables based on their distance to each principal component
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{III.6. Reducing variables: Cautionary tales}
+\begin{itemize}
+\item Even when you think you are using information from lots of variables, if data is sparse then patterns are hard to find
+\item[]
+\item Using a training and validation set (in addition to test set) can help make sure that you haven't created a biased model
+\end{itemize}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+%--------------------------------------------------------------------------------
+\section*{SUMMARY AND TO DO}
+%--------------------------------------------------------------------------------
+% \begin{frame}{Summary: Dimensionality Reduction}
+% \begin{itemize}
+% \item
+% \end{itemize}
+% \end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+\begin{frame}{To Do}
+\begin{enumerate}
+\item Reading:
+	\begin{itemize}
+	\item Chapters 6.4 and 8 from \cite{WFH3:2011}\\  % extending linear models and ensemble learning
+	-- OR --\\
+	Chapters 7.2 and 12 from \cite{WFH4:2016}
+	\item Chapter 17 from \cite{LB2:2004}\\
+	-- OR -- \\
+	Chapter 19 from \cite{LB3:2011} 
+	\end{itemize}
+\item Assessment 1: Marks available 6th of December
+\end{enumerate}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+%--------------------------------------------------------------------------------
+\section*{REFERENCES}
+%--------------------------------------------------------------------------------
+% use 'allowframebreaks' if refs flow onto multiple slides (each will be numbered 'REFERENCES I', 'REFERENCES II' etc)
+%\begin{frame}[allowframebreaks]{REFERENCES}
+\begin{frame}{REFERENCES}
+\bibliographystyle{plain}
+\bibliography{refs}
+\end{frame}
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+\end{document}
