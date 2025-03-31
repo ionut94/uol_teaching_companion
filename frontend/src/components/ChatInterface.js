@@ -8,6 +8,7 @@ const ChatInterface = () => {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
   
   // Function to scroll to the bottom of the messages
   const scrollToBottom = () => {
@@ -18,6 +19,11 @@ const ChatInterface = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+  
+  // Focus input on initial render
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
   
   // Process message text to extract thinking sections
   const processMessageContent = (text) => {
@@ -73,6 +79,18 @@ const ChatInterface = () => {
     } finally {
       setIsLoading(false);
       setQuestion('');
+      // Focus input after sending
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  };
+
+  // Handle keyboard shortcuts
+  const handleKeyDown = (e) => {
+    // Ctrl/Cmd + Enter to send
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      handleSendQuestion(e);
     }
   };
   
@@ -81,7 +99,10 @@ const ChatInterface = () => {
       <div className="messages-container">
         {messages.length === 0 ? (
           <div className="empty-state">
-            No messages yet. Ask a question about your course materials!
+            Ask a question about your course materials!
+            <div className="empty-state-subtitle">
+              I'm here to help you understand your teaching content.
+            </div>
           </div>
         ) : (
           <div className="messages-list">
@@ -103,7 +124,7 @@ const ChatInterface = () => {
             {isLoading && (
               <div className="message ai loading">
                 <div className="message-bubble">
-                  Thinking...
+                  Thinking
                 </div>
               </div>
             )}
@@ -121,9 +142,11 @@ const ChatInterface = () => {
           onChange={(e) => setQuestion(e.target.value)}
           placeholder="Ask a question about your course..."
           disabled={isLoading}
+          ref={inputRef}
+          onKeyDown={handleKeyDown}
         />
         <button type="submit" disabled={isLoading || !question.trim()}>
-          {isLoading ? 'Sending...' : 'Send'}
+          {isLoading ? 'Sending' : 'Send'}
         </button>
       </form>
     </div>

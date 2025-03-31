@@ -34,7 +34,14 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Teaching Companion</h1>
+        <div className="logo-container">
+          <img 
+            src="/images/University-lincoln-logo.png" 
+            alt="University of Lincoln Logo" 
+            className="university-logo" 
+          />
+          <h1>Teaching Companion</h1>
+        </div>
         {isLoaded && <p className="loaded-indicator">✓ React app loaded successfully</p>}
       </header>
       
