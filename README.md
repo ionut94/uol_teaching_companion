@@ -10,7 +10,7 @@ Teaching Companion is an interactive tool designed to help students and educator
 - Clean, intuitive interface
 
 ## Project Structure
-
+```
 Teaching Companion/ 
 ├── backend/ # Flask backend 
 │ ├── app.py # Main application file 
@@ -26,6 +26,7 @@ Teaching Companion/
         ├── services/ # API services 
         ├── App.js # Main React component 
         └── index.js # Entry point
+```
 
 ## Prerequisites
 
