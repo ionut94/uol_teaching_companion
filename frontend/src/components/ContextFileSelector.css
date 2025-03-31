@@ -179,3 +179,15 @@
   font-weight: 500;
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
+
+.file-item.file-selected {
+  background-color: #f0f7ff;
+  border-left: 3px solid #3988ff;
+  padding-left: 7px; /* Adjusted padding to account for the border */
+  transition: all 0.2s ease;
+}
+
+.file-item.file-selected label {
+  font-weight: 500;
+  color: #2266dd;
+}

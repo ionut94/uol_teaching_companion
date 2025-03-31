@@ -44,6 +44,9 @@ p {
   box-shadow: 0 4px 6px rgba(0,0,0,0.05);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 600px; /* Match the chat container height */
 }
 
 .context-section:before {
@@ -443,28 +446,28 @@ p {
 .logo-container {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   margin-bottom: 0.5rem;
   position: relative;
 }
 
 .university-logo {
   height: 60px;
-  margin-right: 20px;
+  margin-left: 20px;
+  margin-right: 0;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
   transition: transform 0.3s ease;
-}
-
-.university-logo:hover {
-  transform: scale(1.05);
+  order: 2;
 }
 
 .App-header h1 {
   color: #2d3748;
   font-size: 2.2rem;
   margin-bottom: 0.5rem;
-  margin-left: 10px;
+  margin-left: 0;
+  margin-right: auto;
   position: relative;
+  order: 1;
 }
 
 .App-header h1:after {
@@ -481,7 +484,7 @@ p {
 /* Added styling for main layout */
 main {
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: 2fr 1fr;
   gap: 2rem;
   margin-top: 2rem;
 }
@@ -543,4 +546,11 @@ main {
     align-items: flex-start;
     gap: 10px;
   }
+}
+
+.context-files-container {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  flex: 1;
 }

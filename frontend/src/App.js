@@ -115,14 +115,28 @@ function App() {
               />
               <h1>Teaching Companion</h1>
             </div>
-            {isLoaded && <p className="loaded-indicator">✓ React app loaded successfully</p>}
           </header>
           
           <main className="authenticated-layout">
+            <section className="chat-section">
+              <div className="chat-header">
+                <h2>Ask Questions About Your Course</h2>
+                {activeChatId && (
+                  <div className="chat-session-info">
+                    <span className="session-indicator">Saving messages to your account</span>
+                  </div>
+                )}
+              </div>
+              
+              <ChatInterface 
+                activeChatId={activeChatId}
+                isAuthenticated={isAuthenticated}
+              />
+            </section>
+            
             <section className="context-section">
               <div className="context-files-container">
                 <h2>Select Course Materials</h2>
-                <p>Choose which lecture files to use as context for your questions</p>
                 
                 <ContextFileSelector onFilesSelected={handleFilesSelected} />
                 
@@ -139,17 +153,6 @@ function App() {
                   </div>
                 )}
                 
-                {selectedFiles.length > 0 && (
-                  <div className="selected-files">
-                    <h3>Selected Context Files:</h3>
-                    <ul>
-                      {selectedFiles.map((file, index) => (
-                        <li key={index}>{file}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                
                 {uploadedFiles.length > 0 && (
                   <div className="uploaded-files">
                     <h3>Uploaded Files:</h3>
@@ -161,22 +164,6 @@ function App() {
                   </div>
                 )}
               </div>
-            </section>
-            
-            <section className="chat-section">
-              <div className="chat-header">
-                <h2>Ask Questions About Your Course</h2>
-                {activeChatId && (
-                  <div className="chat-session-info">
-                    <span className="session-indicator">Saving messages to your account</span>
-                  </div>
-                )}
-              </div>
-              
-              <ChatInterface 
-                activeChatId={activeChatId}
-                isAuthenticated={isAuthenticated}
-              />
             </section>
           </main>
         </div>

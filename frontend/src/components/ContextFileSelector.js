@@ -35,39 +35,37 @@ const ContextFileSelector = ({ onFilesSelected }) => {
     fetchContextFiles();
   }, []);
 
-  // Handle checkbox change
-  const handleCheckboxChange = (filename) => {
-    setSelectedFiles(prev => {
-      if (prev.includes(filename)) {
-        return prev.filter(file => file !== filename);
-      } else {
-        return [...prev, filename];
-      }
-    });
-  };
-
-  // Handle form submission
-  const handleSubmit = async () => {
-    if (selectedFiles.length === 0) {
-      setSelectionStatus('Please select at least one file');
-      return;
+  // Handle checkbox change and immediately update context
+  const handleCheckboxChange = async (filename) => {
+    let newSelectedFiles;
+    
+    if (selectedFiles.includes(filename)) {
+      newSelectedFiles = selectedFiles.filter(file => file !== filename);
+    } else {
+      newSelectedFiles = [...selectedFiles, filename];
     }
-
+    
+    setSelectedFiles(newSelectedFiles);
+    
     try {
       const response = await fetch('http://localhost:5000/api/select-context-files', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ selected_files: selectedFiles })
+        body: JSON.stringify({ selected_files: newSelectedFiles })
       });
 
       const data = await response.json();
       
       if (data.success) {
-        setSelectionStatus(`Successfully selected ${selectedFiles.length} files`);
+        setSelectionStatus(newSelectedFiles.length > 0 
+          ? `Using ${newSelectedFiles.length} file(s) as context` 
+          : 'No files selected');
+        
+        // Notify parent component of the change
         if (onFilesSelected) {
-          onFilesSelected(selectedFiles);
+          onFilesSelected(newSelectedFiles);
         }
       } else {
         setSelectionStatus('Error: ' + (data.error || 'Failed to select files'));
@@ -78,13 +76,62 @@ const ContextFileSelector = ({ onFilesSelected }) => {
   };
 
   // Select all files
-  const selectAll = () => {
-    setSelectedFiles([...availableFiles]);
+  const selectAll = async () => {
+    const allFiles = [...availableFiles];
+    setSelectedFiles(allFiles);
+    
+    try {
+      const response = await fetch('http://localhost:5000/api/select-context-files', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ selected_files: allFiles })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setSelectionStatus(`Using all ${allFiles.length} files as context`);
+        
+        if (onFilesSelected) {
+          onFilesSelected(allFiles);
+        }
+      } else {
+        setSelectionStatus('Error: ' + (data.error || 'Failed to select files'));
+      }
+    } catch (error) {
+      setSelectionStatus('Error: ' + error.message);
+    }
   };
 
   // Deselect all files
-  const deselectAll = () => {
+  const deselectAll = async () => {
     setSelectedFiles([]);
+    
+    try {
+      const response = await fetch('http://localhost:5000/api/select-context-files', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ selected_files: [] })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setSelectionStatus('No files selected as context');
+        
+        if (onFilesSelected) {
+          onFilesSelected([]);
+        }
+      } else {
+        setSelectionStatus('Error: ' + (data.error || 'Failed to clear selection'));
+      }
+    } catch (error) {
+      setSelectionStatus('Error: ' + error.message);
+    }
   };
 
   if (isLoading) {
@@ -107,7 +154,7 @@ const ContextFileSelector = ({ onFilesSelected }) => {
           <p>No files available in the context directory</p>
         ) : (
           availableFiles.map((file, index) => (
-            <div key={index} className="file-item">
+            <div key={index} className={`file-item ${selectedFiles.includes(file) ? 'file-selected' : ''}`}>
               <label>
                 <input
                   type="checkbox"
@@ -120,14 +167,6 @@ const ContextFileSelector = ({ onFilesSelected }) => {
           ))
         )}
       </div>
-      
-      <button 
-        className="select-button"
-        onClick={handleSubmit}
-        disabled={selectedFiles.length === 0}
-      >
-        Use Selected Files as Context
-      </button>
       
       {selectionStatus && (
         <p className={selectionStatus.includes('Error') ? 'status-error' : 'status-success'}>
