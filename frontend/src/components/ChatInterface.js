@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { askQuestion, askQuestionWithHistory, getChatMessages, addMessageToChat } from '../services/api';
 import ThinkingSection from './ThinkingSection';
+import TextToSpeech from './TextToSpeech/TextToSpeech';
 
 const ChatInterface = ({ activeChatId, isAuthenticated }) => {
   const [question, setQuestion] = useState('');
@@ -159,6 +160,11 @@ const ChatInterface = ({ activeChatId, isAuthenticated }) => {
                   <div className="message-bubble">
                     {thinkingContent && <ThinkingSection content={thinkingContent} />}
                     <ReactMarkdown>{mainContent}</ReactMarkdown>
+                    
+                    {/* Add Text-to-Speech for AI messages */}
+                    {message.sender === 'ai' && (
+                      <TextToSpeech text={mainContent.replace(/\*\*|__|\`\`\`[\s\S]*?\`\`\`|\`|\[|\]|\(|\)/g, '')} />
+                    )}
                   </div>
                 </div>
               );

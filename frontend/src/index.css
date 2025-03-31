@@ -1,3 +1,48 @@
+/* Add CSS variables for theming */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f7fa;
+  --bg-tertiary: #f8fafc;
+  --text-primary: #2d3748;
+  --text-secondary: #4a5568;
+  --text-tertiary: #718096;
+  --border-color: #e2e8f0;
+  --accent-color: #3182ce;
+  --accent-gradient: linear-gradient(90deg, #2266dd, #3988ff);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+  --card-bg: #ffffff;
+  --input-bg: #ffffff;
+  --chat-user-bg: #3182ce;
+  --chat-ai-bg: #ffffff;
+  --chat-user-text: #ffffff;
+  --chat-ai-text: #2d3748;
+}
+
+/* Dark theme colors */
+.dark-theme {
+  --bg-primary: #1a202c;
+  --bg-secondary: #2d3748;
+  --bg-tertiary: #283141;
+  --text-primary: #f7fafc;
+  --text-secondary: #e2e8f0;
+  --text-tertiary: #cbd5e0;
+  --border-color: #4a5568;
+  --accent-color: #4299e1;
+  --accent-gradient: linear-gradient(90deg, #3182ce, #4299e1); 
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.3);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.4);
+  --card-bg: #2d3748;
+  --input-bg: #4a5568;
+  --chat-user-bg: #3182ce;
+  --chat-ai-bg: #2d3748;
+  --chat-user-text: #ffffff;
+  --chat-ai-text: #e2e8f0;
+}
+
+/* Updated base styles using variables */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,17 +50,41 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
-/* Basic visibility styles to ensure content shows up */
 .App {
-  display: block;
-  background-color: white;
-  color: #333;
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color: var(--text-primary);
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+}
+
+/* Main app container with sidebar */
+.main-app-container {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  margin-left: 300px; /* Same as sidebar width */
+  transition: margin-left 0.3s ease, background-color 0.3s ease;
+  overflow-y: auto;
+  max-width: calc(100% - 300px);
+  background-color: var(--bg-primary);
+}
+
+/* When sidebar is collapsed */
+.sidebar.collapsed + .main-content {
+  margin-left: 60px;
+  max-width: calc(100% - 60px);
 }

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { getChatHistories, createChatHistory, deleteChatHistory } from '../../services/api';
+import ThemeToggle from '../ThemeToggle/ThemeToggle';
 import './Sidebar.css';
 
-function Sidebar({ currentUser, onLogout, onSelectChat, onNewChat, activeChatId }) {
+function Sidebar({ currentUser, onLogout, onSelectChat, onNewChat, activeChatId, onSettingsClick }) {
   const [chatHistories, setChatHistories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
@@ -179,6 +180,15 @@ function Sidebar({ currentUser, onLogout, onSelectChat, onNewChat, activeChatId 
       </div>
 
       <div className="sidebar-footer">
+        <button 
+          className="settings-btn" 
+          onClick={onSettingsClick}
+          aria-label={collapsed ? "Settings" : "Application Settings"}
+        >
+          {collapsed ? '⚙️' : 'Settings'}
+          {collapsed && <span className="visually-hidden">Settings</span>}
+        </button>
+        <ThemeToggle collapsed={collapsed} />
         <button className="logout-btn" onClick={handleLogout}>
           {collapsed ? '⤴️' : 'Log Out'}
           {collapsed && <span className="visually-hidden">Log Out</span>}
