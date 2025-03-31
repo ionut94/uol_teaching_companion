@@ -125,7 +125,7 @@ function Sidebar({ currentUser, onLogout, onSelectChat, onNewChat, activeChatId 
             onClick={() => setCollapsed(!collapsed)}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            {collapsed ? '→' : '←'}
+            {collapsed ? '≡' : '←'}
           </button>
         </div>
         

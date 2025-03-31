@@ -91,6 +91,29 @@
   color: #2d3748;
 }
 
+/* Special styling for toggle button when collapsed */
+.collapsed .toggle-sidebar-btn {
+  position: static;
+  transform: none;
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f1f1f1;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  font-size: 20px;
+  color: #4a5568;
+  padding: 0;
+}
+
+.collapsed .toggle-sidebar-btn:hover {
+  background-color: #e2e8f0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
 .new-chat-btn {
   width: 100%;
   padding: 12px 20px;
@@ -273,22 +296,26 @@
 .collapsed .user-info {
   justify-content: center;
   margin-bottom: 15px;
+  flex-direction: column;
 }
 
-.collapsed .toggle-sidebar-btn {
-  position: static;
-  transform: none;
-  margin-top: 10px;
+.collapsed .sidebar-header {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
 }
 
 .collapsed .new-chat-btn {
-  padding: 12px;
+  padding: 0;
   border-radius: 50%;
   width: 40px;
   height: 40px;
-  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  position: static;
 }
 
 .collapsed .chat-item {
@@ -301,45 +328,26 @@
   font-size: 22px;
 }
 
+.collapsed .sidebar-content {
+  display: none;
+}
+
+.collapsed .sidebar-footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+}
+
 .collapsed .logout-btn {
   padding: 12px;
   border-radius: 50%;
   width: 40px;
   height: 40px;
-  margin: 0 auto;
-}
-
-/* Custom scrollbar styling */
-.sidebar-content::-webkit-scrollbar {
-  width: 8px;
-}
-
-.sidebar-content::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 8px;
-}
-
-.sidebar-content::-webkit-scrollbar-thumb {
-  background: #cbd5e0;
-  border-radius: 8px;
-}
-
-.sidebar-content::-webkit-scrollbar-thumb:hover {
-  background: #a0aec0;
-}
-
-/* Responsive styles */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 100%;
-    transform: translateX(-100%);
-  }
-  
-  .sidebar.visible {
-    transform: translateX(0);
-  }
-  
-  .sidebar.collapsed {
-    width: 60px;
-  }
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  left: 0;
+  right: 0;
 }
