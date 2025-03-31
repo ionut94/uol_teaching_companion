@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { askQuestion } from '../services/api';
 import ThinkingSection from './ThinkingSection';
@@ -7,6 +7,17 @@ const ChatInterface = () => {
   const [question, setQuestion] = useState('');
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+  
+  // Function to scroll to the bottom of the messages
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+  
+  // Automatically scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
   
   // Process message text to extract thinking sections
   const processMessageContent = (text) => {
@@ -96,6 +107,9 @@ const ChatInterface = () => {
                 </div>
               </div>
             )}
+            
+            {/* Invisible element to scroll to */}
+            <div ref={messagesEndRef} />
           </div>
         )}
       </div>
