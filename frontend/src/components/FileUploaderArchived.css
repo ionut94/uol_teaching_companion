@@ -1,48 +1,94 @@
 .file-uploader-archived {
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 15px;
-  background-color: #f9f9f9;
+  border: none;
+  border-radius: 12px;
+  padding: 20px;
+  background-color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   margin-top: 15px;
+  transition: all 0.3s ease;
 }
 
 .file-uploader-archived .file-types-info {
-  margin-bottom: 10px;
-  color: #666;
+  margin-bottom: 15px;
+  color: #4a5568;
   font-size: 0.9em;
+  background-color: #f8fafc;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border-left: 4px solid #3988ff;
 }
 
 .file-uploader-archived input[type="file"] {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   width: 100%;
+  padding: 10px;
+  border: 2px dashed #cbd5e0;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  color: #4a5568;
+}
+
+.file-uploader-archived input[type="file"]:hover {
+  border-color: #3988ff;
+  background-color: #f0f7ff;
+}
+
+.file-uploader-archived input[type="file"]:focus {
+  outline: none;
+  border-color: #3988ff;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
 }
 
 .file-uploader-archived button {
-  background-color: #4285f4;
+  background: linear-gradient(135deg, #2266dd, #3988ff);
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 12px 22px;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  width: 100%;
+  font-size: 1rem;
+  box-shadow: 0 2px 5px rgba(51, 103, 214, 0.2);
 }
 
 .file-uploader-archived button:disabled {
-  background-color: #cccccc;
+  background: linear-gradient(135deg, #8aa7d8, #a3c0f3);
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .file-uploader-archived button:hover:not(:disabled) {
-  background-color: #3367d6;
+  background: linear-gradient(135deg, #1a56c5, #3071d9);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(25, 118, 210, 0.25);
+}
+
+.file-uploader-archived button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(25, 118, 210, 0.25);
 }
 
 .file-uploader-archived .error {
-  color: red;
-  margin-top: 10px;
+  color: #ef4444;
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #fef2f2;
+  border-radius: 6px;
+  border-left: 4px solid #ef4444;
+  font-weight: 500;
 }
 
 .file-uploader-archived .success {
-  color: green;
-  margin-top: 10px;
+  color: #22c55e;
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #f0fdf4;
+  border-radius: 6px;
+  border-left: 4px solid #22c55e;
+  font-weight: 500;
 }
