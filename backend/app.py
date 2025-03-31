@@ -1,18 +1,43 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
 import os
 from werkzeug.utils import secure_filename
 from pdf_processor import extract_text_from_pdf
 from latex_processor import extract_text_from_latex
 from llm_service import get_llm_response, contains_inappropriate_content
+from models import db, User, ChatHistory, Message
+from auth import auth_bp
+from datetime import timedelta
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+
+# Configure CORS properly to include Authorization header
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000", "supports_credentials": True, "allow_headers": ["Content-Type", "Authorization"]}})
+
+# Configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///teaching_companion.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'dev-secret-key')  # Change in production
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=1)
+# Add JWT configuration for handling tokens
+app.config['JWT_TOKEN_LOCATION'] = ['headers']
+app.config['JWT_HEADER_NAME'] = 'Authorization'
+app.config['JWT_HEADER_TYPE'] = 'Bearer'
 
 UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'pdf', 'tex'}  # Now accepting .tex files too
+ALLOWED_EXTENSIONS = {'pdf', 'tex'}  
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Initialize extensions
+db.init_app(app)
+jwt = JWTManager(app)
+migrate = Migrate(app, db)
+
+# Register blueprints
+app.register_blueprint(auth_bp, url_prefix='/api/auth')
 
 # Create uploads directory if it doesn't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -22,6 +47,14 @@ file_contents = {}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# Create database tables - updated to use a function with app context
+def create_tables():
+    with app.app_context():
+        db.create_all()
+
+# Call the function to create tables
+create_tables()
 
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
@@ -152,6 +185,28 @@ def select_context_files():
         'selected_files': processed_files,
         'success': True
     })
+
+# JWT error handlers
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+    return jsonify({
+        'status': 401,
+        'error': 'Token has expired'
+    }), 401
+
+@jwt.invalid_token_loader
+def invalid_token_callback(error):
+    return jsonify({
+        'status': 401,
+        'error': 'Invalid token: ' + str(error)
+    }), 401
+
+@jwt.unauthorized_loader
+def missing_token_callback(error):
+    return jsonify({
+        'status': 401,
+        'error': 'Authorization token missing: ' + str(error)
+    }), 401
 
 if __name__ == '__main__':
     app.run(debug=True)

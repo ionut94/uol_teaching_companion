@@ -6,11 +6,34 @@ p {
 /* Modern App layout and styling */
 .App {
   text-align: center;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   color: #2d3748;
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+}
+
+/* Main app container with sidebar */
+.main-app-container {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  margin-left: 300px; /* Same as sidebar width */
+  transition: margin-left 0.3s ease;
+  overflow-y: auto;
+  max-width: calc(100% - 300px);
+}
+
+/* When sidebar is collapsed */
+.sidebar.collapsed + .main-content {
+  margin-left: 60px;
+  max-width: calc(100% - 60px);
 }
 
 /* Context section styling */
@@ -483,15 +506,41 @@ main {
   border-radius: 50%;
 }
 
-/* Mobile responsiveness for logo */
-@media (max-width: 768px) {
-  .logo-container {
-    flex-direction: column;
-    gap: 15px;
+/* Mobile responsiveness */
+@media (max-width: 1024px) {
+  .authenticated-layout {
+    grid-template-columns: 1fr;
   }
   
-  .university-logo {
-    margin-right: 0;
-    margin-bottom: 10px;
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .sidebar + .main-content {
+    margin-left: 60px;
+    max-width: calc(100% - 60px);
+  }
+  
+  .sidebar:not(.collapsed) {
+    width: 100%;
+    z-index: 1000;
+  }
+  
+  .sidebar:not(.collapsed) + .main-content {
+    margin-left: 0;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .authenticated-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .chat-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
 }

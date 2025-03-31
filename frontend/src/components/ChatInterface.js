@@ -1,14 +1,48 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { askQuestion } from '../services/api';
+import { askQuestion, askQuestionWithHistory, getChatMessages, addMessageToChat } from '../services/api';
 import ThinkingSection from './ThinkingSection';
 
-const ChatInterface = () => {
+const ChatInterface = ({ activeChatId, isAuthenticated }) => {
   const [question, setQuestion] = useState('');
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  
+  // Load messages if chat ID is provided and user is authenticated
+  useEffect(() => {
+    if (activeChatId && isAuthenticated) {
+      loadChatHistory(activeChatId);
+    } else {
+      // Reset messages if not viewing a specific chat
+      setMessages([]);
+    }
+  }, [activeChatId, isAuthenticated]);
+  
+  // Function to load chat history
+  const loadChatHistory = async (chatId) => {
+    setLoadingHistory(true);
+    try {
+      const response = await getChatMessages(chatId);
+      
+      if (response.messages && response.messages.length > 0) {
+        // Convert the messages to the format expected by the component
+        const formattedMessages = response.messages.map(msg => ({
+          id: msg.id,
+          text: msg.content,
+          sender: msg.is_user ? 'user' : 'ai'
+        }));
+        
+        setMessages(formattedMessages);
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
   
   // Function to scroll to the bottom of the messages
   const scrollToBottom = () => {
@@ -56,8 +90,15 @@ const ChatInterface = () => {
     setIsLoading(true);
     
     try {
-      // Get answer from backend
-      const response = await askQuestion(question);
+      // If authenticated and has active chat, use askQuestionWithHistory
+      // which will also save messages to the backend
+      let response;
+      if (isAuthenticated && activeChatId) {
+        response = await askQuestionWithHistory(question, activeChatId);
+      } else {
+        // Otherwise use regular askQuestion (no history saving)
+        response = await askQuestion(question);
+      }
       
       // Add AI response to chat
       const aiMessage = {
@@ -97,7 +138,9 @@ const ChatInterface = () => {
   return (
     <div className="chat-container">
       <div className="messages-container">
-        {messages.length === 0 ? (
+        {loadingHistory ? (
+          <div className="loading-history">Loading conversation history...</div>
+        ) : messages.length === 0 ? (
           <div className="empty-state">
             Ask a question about your course materials!
             <div className="empty-state-subtitle">
@@ -141,11 +184,11 @@ const ChatInterface = () => {
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           placeholder="Ask a question about your course..."
-          disabled={isLoading}
+          disabled={isLoading || loadingHistory}
           ref={inputRef}
           onKeyDown={handleKeyDown}
         />
-        <button type="submit" disabled={isLoading || !question.trim()}>
+        <button type="submit" disabled={isLoading || loadingHistory || !question.trim()}>
           {isLoading ? 'Sending' : 'Send'}
         </button>
       </form>
