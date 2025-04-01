@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { askQuestion, askQuestionWithHistory, getChatMessages, addMessageToChat } from '../services/api';
+import { askQuestion, askQuestionWithHistory, getChatMessages } from '../services/api';
 import ThinkingSection from './ThinkingSection';
 import TextToSpeech from './TextToSpeech/TextToSpeech';
 import LLMToggle from './LLMToggle/LLMToggle';
@@ -182,7 +182,7 @@ const ChatInterface = ({ activeChatId, isAuthenticated }) => {
                     
                     {/* Add Text-to-Speech for AI messages */}
                     {message.sender === 'ai' && (
-                      <TextToSpeech text={mainContent.replace(/\*\*|__|\`\`\`[\s\S]*?\`\`\`|\`|\[|\]|\(|\)/g, '')} />
+                      <TextToSpeech text={mainContent.replace(/\*\*|__|```[\s\S]*?```|`|\[|\]|\(|\)/g, '')} />
                     )}
                     
                     {/* Show provider label for AI messages */}
