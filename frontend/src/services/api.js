@@ -188,10 +188,38 @@ export const deleteChatHistory = async (chatId) => {
   );
 };
 
-// Modify existing askQuestion to support saving to chat history
-export const askQuestionWithHistory = async (question, chatId = null) => {
+/**
+ * Ask a question about the uploaded PDFs (original function without chat history)
+ */
+export const askQuestion = async (question, llmProvider = 'ollama') => {
   try {
-    console.log(`Asking question with history. ChatId: ${chatId}, Auth: ${getAuthToken() ? 'Yes' : 'No'}`);
+    const response = await fetch(`${API_BASE_URL}/ask`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
+        question,
+        llm_provider: llmProvider
+      })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to get answer');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error asking question:', error);
+    throw error;
+  }
+};
+
+// Modify existing askQuestion to support saving to chat history
+export const askQuestionWithHistory = async (question, chatId = null, llmProvider = 'ollama') => {
+  try {
+    console.log(`Asking question with history. ChatId: ${chatId}, Auth: ${getAuthToken() ? 'Yes' : 'No'}, Provider: ${llmProvider}`);
     
     // First, send the question to get an answer
     const response = await fetch(`${API_BASE_URL}/ask`, {
@@ -199,7 +227,10 @@ export const askQuestionWithHistory = async (question, chatId = null) => {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ question })
+      body: JSON.stringify({ 
+        question,
+        llm_provider: llmProvider
+      })
     });
     
     if (!response.ok) {
@@ -255,31 +286,6 @@ export const uploadFile = async (file) => {
     return await response.json();
   } catch (error) {
     console.error('Error uploading file:', error);
-    throw error;
-  }
-};
-
-/**
- * Ask a question about the uploaded PDFs (original function without chat history)
- */
-export const askQuestion = async (question) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/ask`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ question })
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to get answer');
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Error asking question:', error);
     throw error;
   }
 };

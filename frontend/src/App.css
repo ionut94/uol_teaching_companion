@@ -526,3 +526,22 @@ main {
     font-size: 2rem;
   }
 }
+
+.provider-label {
+  font-size: 0.7rem;
+  margin-top: 8px;
+  color: var(--text-tertiary);
+  text-align: right;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.provider-note {
+  font-size: 0.85rem;
+  margin-top: 10px;
+  padding: 5px 10px;
+  background-color: var(--bg-tertiary);
+  border-radius: 8px;
+  display: inline-block;
+  color: var(--text-secondary);
+}

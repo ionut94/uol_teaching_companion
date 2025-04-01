@@ -3,12 +3,14 @@ import ReactMarkdown from 'react-markdown';
 import { askQuestion, askQuestionWithHistory, getChatMessages, addMessageToChat } from '../services/api';
 import ThinkingSection from './ThinkingSection';
 import TextToSpeech from './TextToSpeech/TextToSpeech';
+import LLMToggle from './LLMToggle/LLMToggle';
 
 const ChatInterface = ({ activeChatId, isAuthenticated }) => {
   const [question, setQuestion] = useState('');
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [llmProvider, setLlmProvider] = useState('ollama'); // Default to ollama
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   
@@ -21,6 +23,20 @@ const ChatInterface = ({ activeChatId, isAuthenticated }) => {
       setMessages([]);
     }
   }, [activeChatId, isAuthenticated]);
+
+  // Load selected LLM provider from localStorage if available
+  useEffect(() => {
+    const savedProvider = localStorage.getItem('llm_provider');
+    if (savedProvider) {
+      setLlmProvider(savedProvider);
+    }
+  }, []);
+  
+  // Function to handle changing the LLM provider
+  const handleProviderToggle = (provider) => {
+    setLlmProvider(provider);
+    localStorage.setItem('llm_provider', provider);
+  };
   
   // Function to load chat history
   const loadChatHistory = async (chatId) => {
@@ -95,17 +111,18 @@ const ChatInterface = ({ activeChatId, isAuthenticated }) => {
       // which will also save messages to the backend
       let response;
       if (isAuthenticated && activeChatId) {
-        response = await askQuestionWithHistory(question, activeChatId);
+        response = await askQuestionWithHistory(question, activeChatId, llmProvider);
       } else {
         // Otherwise use regular askQuestion (no history saving)
-        response = await askQuestion(question);
+        response = await askQuestion(question, llmProvider);
       }
       
       // Add AI response to chat
       const aiMessage = {
         id: Date.now() + 1,
         text: response.answer,
-        sender: 'ai'
+        sender: 'ai',
+        provider: response.provider || llmProvider
       };
       
       setMessages(prev => [...prev, aiMessage]);
@@ -138,6 +155,7 @@ const ChatInterface = ({ activeChatId, isAuthenticated }) => {
   
   return (
     <div className="chat-container">
+      <LLMToggle currentProvider={llmProvider} onToggle={handleProviderToggle} />
       <div className="messages-container">
         {loadingHistory ? (
           <div className="loading-history">Loading conversation history...</div>
@@ -146,6 +164,7 @@ const ChatInterface = ({ activeChatId, isAuthenticated }) => {
             Ask a question about your course materials!
             <div className="empty-state-subtitle">
               I'm here to help you understand your teaching content.
+              <div className="provider-note">Using {llmProvider === 'gemini' ? 'Google Gemini' : 'Ollama (local)'} for responses</div>
             </div>
           </div>
         ) : (
@@ -165,6 +184,13 @@ const ChatInterface = ({ activeChatId, isAuthenticated }) => {
                     {message.sender === 'ai' && (
                       <TextToSpeech text={mainContent.replace(/\*\*|__|\`\`\`[\s\S]*?\`\`\`|\`|\[|\]|\(|\)/g, '')} />
                     )}
+                    
+                    {/* Show provider label for AI messages */}
+                    {message.sender === 'ai' && message.provider && (
+                      <div className="provider-label">
+                        {message.provider === 'gemini' ? 'Gemini' : 'Ollama'}
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -174,6 +200,9 @@ const ChatInterface = ({ activeChatId, isAuthenticated }) => {
               <div className="message ai loading">
                 <div className="message-bubble">
                   Thinking
+                  <div className="provider-label">
+                    {llmProvider === 'gemini' ? 'Gemini' : 'Ollama'}
+                  </div>
                 </div>
               </div>
             )}

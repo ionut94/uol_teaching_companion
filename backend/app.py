@@ -11,6 +11,9 @@ from models import db, User, ChatHistory, Message
 from auth import auth_bp
 from datetime import timedelta
 
+# Set Gemini API key as environment variable
+os.environ['GEMINI_API_KEY'] = 'AIzaSyC8J9zOuC2WWY39Er3JCN3eCXzt1zU7ZsM'
+
 app = Flask(__name__)
 
 # Configure CORS properly to include Authorization header
@@ -96,6 +99,9 @@ def ask_question():
     
     question = data['question']
     
+    # Get the LLM provider from request or use default (ollama)
+    llm_provider = data.get('llm_provider', 'ollama')
+    
     # Check for inappropriate content in the question
     if contains_inappropriate_content(question):
         return jsonify({
@@ -110,11 +116,12 @@ def ask_question():
     if not context:
         return jsonify({'error': 'No content available. Please upload files first.'}), 400
     
-    # Get response from LLM
-    response = get_llm_response(question, context)
+    # Get response from LLM with specified provider
+    response = get_llm_response(question, context, provider=llm_provider)
     
     return jsonify({
-        'answer': response
+        'answer': response,
+        'provider': llm_provider
     })
 
 @app.route('/api/files', methods=['GET'])
@@ -184,6 +191,56 @@ def select_context_files():
         'message': f'Selected and processed {len(processed_files)} files as context',
         'selected_files': processed_files,
         'success': True
+    })
+
+@app.route('/api/llm-providers', methods=['GET'])
+def get_llm_providers():
+    """Get available LLM providers and their configuration status"""
+    # Check Ollama status
+    ollama_status = "configured"  # Ollama is always configured as it's local
+    
+    # Check Gemini status
+    gemini_api_key = os.environ.get('GEMINI_API_KEY', '')
+    gemini_status = "configured" if gemini_api_key else "not configured"
+    
+    return jsonify({
+        'providers': [
+            {
+                'id': 'ollama',
+                'name': 'Ollama (Local)',
+                'status': ollama_status,
+                'description': 'Local LLM running through Ollama'
+            },
+            {
+                'id': 'gemini',
+                'name': 'Google Gemini',
+                'status': gemini_status,
+                'description': 'Google\'s Gemini API (requires API key)'
+            }
+        ]
+    })
+
+@app.route('/api/llm-providers/gemini', methods=['POST'])
+def update_gemini_config():
+    """Update Gemini API configuration"""
+    data = request.json
+    
+    if not data or 'api_key' not in data:
+        return jsonify({'error': 'API key is required'}), 400
+    
+    api_key = data['api_key']
+    
+    # For a production app, you would store this securely
+    # Here we're using an environment variable for simplicity
+    os.environ['GEMINI_API_KEY'] = api_key
+    
+    # Re-configure the Gemini client with the new API key
+    import google.generativeai as genai
+    genai.configure(api_key=api_key)
+    
+    return jsonify({
+        'message': 'Gemini API key updated successfully',
+        'status': 'configured'
     })
 
 # JWT error handlers
