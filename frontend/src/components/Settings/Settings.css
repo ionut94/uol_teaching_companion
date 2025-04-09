@@ -90,6 +90,16 @@
   color: white;
 }
 
+.settings-button.secondary {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.settings-button.secondary:hover {
+  background-color: var(--bg-quaternary);
+}
+
 .settings-button:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-sm);
@@ -99,6 +109,62 @@
   color: #22c55e;
   font-weight: 500;
   animation: fadeInOut 3s ease-in-out;
+}
+
+.api-key-input {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.settings-input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.settings-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.3);
+}
+
+.api-key-info {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: var(--text-tertiary);
+}
+
+.api-key-info a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+.api-key-info a:hover {
+  text-decoration: underline;
+}
+
+.status-message {
+  margin-top: 8px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.status-message.success {
+  color: #22c55e;
+  background-color: rgba(34, 197, 94, 0.1);
+}
+
+.status-message.error {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
 }
 
 @keyframes fadeInOut {

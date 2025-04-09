@@ -164,7 +164,15 @@ const ChatInterface = ({ activeChatId, isAuthenticated }) => {
             Ask a question about your course materials!
             <div className="empty-state-subtitle">
               I'm here to help you understand your teaching content.
-              <div className="provider-note">Using {llmProvider === 'gemini' ? 'Google Gemini' : 'Ollama (local)'} for responses</div>
+              <div className="provider-note">
+                Using {
+                  llmProvider === 'gemini' 
+                    ? 'Google Gemini' 
+                    : llmProvider === 'openrouter' 
+                        ? 'Quasar Alpha' 
+                        : 'Ollama (local)'
+                } for responses
+              </div>
             </div>
           </div>
         ) : (
@@ -188,7 +196,12 @@ const ChatInterface = ({ activeChatId, isAuthenticated }) => {
                     {/* Show provider label for AI messages */}
                     {message.sender === 'ai' && message.provider && (
                       <div className="provider-label">
-                        {message.provider === 'gemini' ? 'Gemini' : 'Ollama'}
+                        {message.provider === 'gemini' 
+                          ? 'Gemini' 
+                          : message.provider === 'openrouter' 
+                              ? 'Quasar Alpha' 
+                              : 'Ollama'
+                        }
                       </div>
                     )}
                   </div>
@@ -201,7 +214,12 @@ const ChatInterface = ({ activeChatId, isAuthenticated }) => {
                 <div className="message-bubble">
                   Thinking
                   <div className="provider-label">
-                    {llmProvider === 'gemini' ? 'Gemini' : 'Ollama'}
+                    {llmProvider === 'gemini' 
+                      ? 'Gemini' 
+                      : llmProvider === 'openrouter' 
+                          ? 'Quasar Alpha' 
+                          : 'Ollama'
+                    }
                   </div>
                 </div>
               </div>

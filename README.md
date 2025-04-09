@@ -9,7 +9,8 @@ Teaching Companion is an interactive tool designed to help students and educator
 - AI-powered question answering about course materials
 - User authentication system with secure login and registration
 - Chat history persistence for registered users
-- Multiple LLM provider support (Ollama local model and Google Gemini)
+- Multiple LLM provider support (Ollama local, Google Gemini, and Quasar Alpha via OpenRouter)
+- Provider selection via convenient dropdown menu
 - Dark/light theme with automatic system preference detection
 - Text-to-speech support for accessibility
 - Responsive design with collapsible sidebar
@@ -50,7 +51,28 @@ Teaching Companion/
 - npm or yarn
 - SQLite (included in Python standard library)
 - Ollama (optional, for local LLM support)
-- Google Gemini API key (optional, for Gemini support)
+- API keys for external LLM providers (Gemini, OpenRouter)
+
+## API Key Setup
+
+For security reasons, API keys are stored in environment variables and not committed to the repository.
+
+1. Create a `.env` file in the backend directory:
+```bash
+cd backend
+touch .env
+```
+
+2. Add your API keys to the `.env` file:
+```
+# API Keys - DO NOT COMMIT THIS FILE TO GIT
+GEMINI_API_KEY=your_gemini_api_key_here
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+```
+
+3. The application will automatically load these environment variables when it starts.
+
+> **Security Note**: The `.env` file is already in `.gitignore` to prevent accidentally committing your API keys to version control. Never commit API keys directly in your code.
 
 ## Backend Setup
 
@@ -163,5 +185,4 @@ Place new LaTeX lecture files in the `/backend/context/` directory to make them 
 - For LLM provider issues, check that Ollama is running locally or that your Gemini API key is properly set
 
 ## License
-
 TBC

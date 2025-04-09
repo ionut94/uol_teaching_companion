@@ -10,9 +10,10 @@ from llm_service import get_llm_response, contains_inappropriate_content
 from models import db, User, ChatHistory, Message
 from auth import auth_bp
 from datetime import timedelta
+from dotenv import load_dotenv
 
-# Set Gemini API key as environment variable
-os.environ['GEMINI_API_KEY'] = 'AIzaSyC8J9zOuC2WWY39Er3JCN3eCXzt1zU7ZsM'
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -203,6 +204,10 @@ def get_llm_providers():
     gemini_api_key = os.environ.get('GEMINI_API_KEY', '')
     gemini_status = "configured" if gemini_api_key else "not configured"
     
+    # Check OpenRouter status
+    openrouter_api_key = os.environ.get('OPENROUTER_API_KEY', '')
+    openrouter_status = "configured" if openrouter_api_key else "not configured"
+    
     return jsonify({
         'providers': [
             {
@@ -216,6 +221,12 @@ def get_llm_providers():
                 'name': 'Google Gemini',
                 'status': gemini_status,
                 'description': 'Google\'s Gemini API (requires API key)'
+            },
+            {
+                'id': 'openrouter',
+                'name': 'Quasar Alpha',
+                'status': openrouter_status,
+                'description': 'Quasar Alpha via OpenRouter API'
             }
         ]
     })
@@ -240,6 +251,25 @@ def update_gemini_config():
     
     return jsonify({
         'message': 'Gemini API key updated successfully',
+        'status': 'configured'
+    })
+
+@app.route('/api/llm-providers/openrouter', methods=['POST'])
+def update_openrouter_config():
+    """Update OpenRouter API configuration"""
+    data = request.json
+    
+    if not data or 'api_key' not in data:
+        return jsonify({'error': 'API key is required'}), 400
+    
+    api_key = data['api_key']
+    
+    # For a production app, you would store this securely
+    # Here we're using an environment variable for simplicity
+    os.environ['OPENROUTER_API_KEY'] = api_key
+    
+    return jsonify({
+        'message': 'OpenRouter API key updated successfully',
         'status': 'configured'
     })
 

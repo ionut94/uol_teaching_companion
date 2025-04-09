@@ -8,6 +8,9 @@ import google.generativeai as genai
 # API URLs and configurations
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+# Get OpenRouter API key from environment variable
+OPENROUTER_API_KEY = os.environ.get('OPENROUTER_API_KEY', '')
+OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 # Initialize the profanity filter
 profanity.load_censor_words()
@@ -174,6 +177,63 @@ YOUR ANSWER:
     except Exception as e:
         return f"Error communicating with LLM: {str(e)}"
 
+def get_openrouter_response(question, context):
+    """
+    Get a response from OpenRouter Quasar Alpha API.
+    
+    Args:
+        question (str): The question asked by the student
+        context (str): The context from PDF slides
+        
+    Returns:
+        str: LLM response
+    """
+    # Check if OpenRouter API key is configured
+    if not OPENROUTER_API_KEY:
+        return "Error: OpenRouter API key not configured. Please set the OPENROUTER_API_KEY environment variable."
+    
+    try:
+        # Create the prompt that includes the context and question in OpenRouter format
+        messages = [
+            {
+                "role": "system", 
+                "content": "You are an educational assistant helping students understand course material. Use the provided context from course slides to answer questions. If the answer isn't in the context, say so and don't make up information. The context may contain LaTeX math equations, which you should interpret correctly."
+            },
+            {
+                "role": "user", 
+                "content": f"CONTEXT:\n{context}\n\nQUESTION:\n{question}"
+            }
+        ]
+        
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "HTTP-Referer": "https://teaching-companion.app", 
+            "X-Title": "Teaching Companion"
+        }
+        
+        data = {
+            "model": "openrouter/quasar-alpha", # Quasar Alpha model
+            "messages": messages,
+            "max_tokens": 10000
+        }
+        
+        response = requests.post(OPENROUTER_API_URL, headers=headers, json=data)
+        
+        if response.status_code == 200:
+            result = response.json()
+            if "choices" in result and len(result["choices"]) > 0:
+                return result["choices"][0]["message"]["content"]
+            else:
+                return "Sorry, I couldn't generate a response."
+        else:
+            return f"Error: API returned status code {response.status_code}"
+            
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return f"Error communicating with OpenRouter API: {str(e)}"
+
 def get_llm_response(question, context, provider='ollama'):
     """
     Get a response from the chosen LLM provider.
@@ -189,5 +249,7 @@ def get_llm_response(question, context, provider='ollama'):
     # Use the appropriate provider
     if provider.lower() == 'gemini':
         return get_gemini_response(question, context)
+    elif provider.lower() == 'openrouter':
+        return get_openrouter_response(question, context)
     else:
         return get_ollama_response(question, context)
